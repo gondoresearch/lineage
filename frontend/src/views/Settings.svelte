@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api, messagesOf, type EntityType, type Workspace } from '../api/client';
+  import BackupRestore from '../components/BackupRestore.svelte';
   import ColorInput from '../components/ColorInput.svelte';
   import LineSample from '../components/LineSample.svelte';
   import MarkerIcon from '../components/MarkerIcon.svelte';
@@ -140,6 +141,11 @@
         <li class="muted">No markers yet.</li>
       {/each}
     </ul>
+  </section>
+
+  <section>
+    <div class="head"><h2>Backup and restore</h2></div>
+    <BackupRestore />
   </section>
 
   <section>

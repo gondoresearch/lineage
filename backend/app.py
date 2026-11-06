@@ -6,12 +6,13 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import graph
 from . import models as M
-from .store import Broken, NothingToUndo, Store
+from .store import BadBackup, Broken, NothingToUndo, Store, VersionMismatch, app_version
 
 ERR = {"model": M.ErrorOut}
 
@@ -60,6 +61,24 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
     @app.exception_handler(Broken)
     def _(request, exc: Broken):
         return _errors(500, ["The data folder is not a valid workspace:", *exc.errors])
+
+    @app.exception_handler(BadBackup)
+    def _(request, exc: BadBackup):
+        return _errors(422, exc.errors)
+
+    @app.exception_handler(VersionMismatch)
+    def _(request, exc: VersionMismatch):
+        return JSONResponse(
+            {
+                "errors": [
+                    f"This backup was made by lineage {exc.backup}; this is lineage {exc.current}. "
+                    "Restore it anyway only if you are sure the formats are compatible."
+                ],
+                "backup_version": exc.backup,
+                "current_version": exc.current,
+            },
+            status_code=409,
+        )
 
     @app.exception_handler(NothingToUndo)
     def _(request, exc: NothingToUndo):
@@ -141,6 +160,37 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
             return ws.settings
 
         return store.mutate(fn)
+
+    @app.get("/api/version", response_model=M.VersionOut, operation_id="get_version")
+    def version():
+        return {"version": app_version()}
+
+    @app.get(
+        "/api/backup",
+        operation_id="backup",
+        response_class=Response,
+        responses={200: {"content": {"application/gzip": {"schema": {"type": "string", "format": "binary"}}},
+                         "description": "A .tar.gz of the whole data folder, with a manifest recording the version."}},
+    )
+    def backup():
+        data, manifest = store.backup()
+        stamp = manifest["created"].replace("-", "").replace(":", "").replace("T", "-")[:15]
+        name = f"lineage-backup-{manifest['version']}-{stamp}.tar.gz"
+        return Response(data, media_type="application/gzip", headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+    @app.post(
+        "/api/restore",
+        response_model=M.RestoreOut,
+        operation_id="restore",
+        responses={409: {"model": M.VersionMismatchOut, "description": "Made by another version; resend with force=true"}, 422: ERR},
+        openapi_extra={"requestBody": {"required": True, "content": {"application/gzip": {"schema": {"type": "string", "format": "binary"}}}}},
+    )
+    async def restore(request: Request, force: bool = False):
+        """Replace the whole workspace with a backup (.tar.gz from /api/backup, sent as the request body).
+        The current data is snapshotted first, so /api/undo reverts the restore."""
+        data = await request.body()
+        manifest = await run_in_threadpool(store.restore, data, force)
+        return {"restored_version": manifest["version"], "created": manifest.get("created"), "current_version": app_version()}
 
     @app.post("/api/undo", status_code=204, operation_id="undo", responses={409: ERR})
     def undo():

@@ -3,6 +3,7 @@
   import Filters from './components/Filters.svelte';
   import SidePanel from './components/SidePanel.svelte';
   import Toast from './components/Toast.svelte';
+  import { fetchVersion } from './api/client';
   import { app, applyTheme, load, openForm, routeFromHash, savedTheme, startPolling, undoLast, type Theme } from './state.svelte';
   import Dependencies from './views/Dependencies.svelte';
   import Settings from './views/Settings.svelte';
@@ -24,6 +25,12 @@
     routeFromHash();
     window.addEventListener('hashchange', routeFromHash);
     load();
+    fetchVersion().then(
+      (v) => {
+        app.version = v;
+      },
+      () => {},
+    );
     const stop = startPolling();
     return () => {
       stop();
@@ -34,7 +41,9 @@
 
 <div class="shell">
   <header class="toolbar">
-    <span class="brand"><img src="/logo.svg" alt="" width="22" height="22" />lineage</span>
+    <span class="brand"><img src="/logo.svg" alt="" width="22" height="22" />lineage
+      {#if app.version}<span class="version" title="lineage version">v{app.version}</span>{/if}
+    </span>
     <nav>
       {#each Object.entries(LABELS) as [id, label]}
         <a href="#/{id}" class:active={app.view === id}>{label}</a>

@@ -102,3 +102,27 @@ export function messagesOf(e: unknown): string[] {
   }
   return [String(e)];
 }
+
+// ------------------------------------------------------------------ version, backup, restore
+
+export async function fetchVersion(): Promise<string> {
+  return (await request<Schemas['VersionOut']>('GET', '/api/version')).version;
+}
+
+export type RestoreResult =
+  | { ok: true; result: Schemas['RestoreOut'] }
+  | { ok: false; mismatch: Schemas['VersionMismatchOut'] };
+
+/** Upload a backup and replace the whole workspace with it. A version mismatch is
+ * returned (not thrown) so the caller can ask the user and retry with force. */
+export async function restoreBackup(file: Blob, force = false): Promise<RestoreResult> {
+  const res = await fetch(`/api/restore?force=${force}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/gzip' },
+    body: file,
+  });
+  const body = await res.json().catch(() => null);
+  if (res.status === 409 && body?.backup_version) return { ok: false, mismatch: body };
+  if (!res.ok) throw new ApiError(res.status, body);
+  return { ok: true, result: body };
+}

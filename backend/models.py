@@ -455,3 +455,19 @@ class BlockedOut(Model):
 class DryRunOut(Model):
     removes: list[EntityRef]
     blockers: list[Blocker]
+
+
+class VersionOut(Model):
+    version: str
+
+
+class RestoreOut(Model):
+    restored_version: str = Field(description="The lineage version that made the backup.")
+    created: str | None = Field(default=None, description="When the backup was made (ISO 8601).")
+    current_version: str
+
+
+class VersionMismatchOut(Model):
+    errors: list[str]
+    backup_version: str
+    current_version: str

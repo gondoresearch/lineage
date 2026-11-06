@@ -353,6 +353,61 @@ export interface paths {
         patch: operations["update_settings"];
         trace?: never;
     };
+    "/api/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Version */
+        get: operations["get_version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Backup */
+        get: operations["backup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore
+         * @description Replace the whole workspace with a backup (.tar.gz from /api/backup, sent as the request body).
+         *     The current data is snapshotted first, so /api/undo reverts the restore.
+         */
+        post: operations["restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/undo": {
         parameters: {
             query?: never;
@@ -1215,6 +1270,21 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** RestoreOut */
+        RestoreOut: {
+            /**
+             * Restored Version
+             * @description The lineage version that made the backup.
+             */
+            restored_version: string;
+            /**
+             * Created
+             * @description When the backup was made (ISO 8601).
+             */
+            created?: string | null;
+            /** Current Version */
+            current_version: string;
+        };
         /** Settings */
         Settings: {
             /** Fork Color */
@@ -1379,6 +1449,20 @@ export interface components {
             color?: string | null;
             /** Description */
             description?: string | null;
+        };
+        /** VersionMismatchOut */
+        VersionMismatchOut: {
+            /** Errors */
+            errors: string[];
+            /** Backup Version */
+            backup_version: string;
+            /** Current Version */
+            current_version: string;
+        };
+        /** VersionOut */
+        VersionOut: {
+            /** Version */
+            version: string;
         };
         /** WorkspaceOut */
         WorkspaceOut: {
@@ -2972,6 +3056,90 @@ export interface operations {
             };
             /** @description Internal Server Error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    get_version: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"];
+                };
+            };
+        };
+    };
+    backup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A .tar.gz of the whole data folder, with a manifest recording the version. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/gzip": string;
+                };
+            };
+        };
+    };
+    restore: {
+        parameters: {
+            query?: {
+                force?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/gzip": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RestoreOut"];
+                };
+            };
+            /** @description Made by another version; resend with force=true */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionMismatchOut"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

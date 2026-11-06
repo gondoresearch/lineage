@@ -32,6 +32,8 @@ export interface Toast {
 
 export const app = $state({
   ws: null as Workspace | null,
+  /** running lineage version, from the backend */
+  version: null as string | null,
   error: null as string | null,
   view: 'timeline' as View,
   timeline: { mode: 'time' as Mode, zoom: { k: 1, x: 0 } as ZoomT },

@@ -118,7 +118,9 @@ data/
 - **Undo:** restores the most recent snapshot, one step at a time. There is no redo.
 - **Hand edits** to `workspace.yaml` or the description files are picked up automatically. If a hand edit leaves the workspace invalid, the page shows the problems until you fix the file. Comments in `workspace.yaml` are not kept when lineage writes it.
 - **Ids** are made from the name or title when an entity is created and never change, so renaming is safe.
-- **Backups:** copy the whole data folder, or keep it in git. It is plain text and diffs well. `data/` is in this repository's `.gitignore` because it may describe unpublished work.
+- **Backups:** in **Settings → Backup and restore**, *Download a backup* downloads one `.tar.gz` with `workspace.yaml`, every description and a `lineage-backup.json` manifest recording the lineage version and date (`.history/` is not included). You can also copy the data folder yourself or keep it in git: it is plain text and diffs well. `data/` is in this repository's `.gitignore` because it may describe unpublished work.
+- **Restoring** (*Restore from a backup…*) replaces the whole workspace with the backup's contents after you confirm. The archive is checked first (only lineage backups with safe paths and a valid workspace are accepted; nothing changes otherwise). If it was made by another lineage version you are warned and asked again. The current data is snapshotted first, so Undo reverts a restore.
+- **API:** `GET /api/backup` returns the archive; `POST /api/restore` takes it as the request body (`?force=true` to restore a backup from another version); `GET /api/version` returns the running version, which is also shown next to the logo.
 
 ## Security
 
