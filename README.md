@@ -51,9 +51,23 @@ Kinds, states, reference types and markers are your own vocabulary, edited in Se
 - **Hover** anything to highlight its ancestors and descendants. **Filters** by group, state and activity are shared by all three views.
 - **Hand edits:** changes to the files on disk show up in the page within about 5 seconds.
 
-## Running it (development setup)
+## Running it with Docker
 
-Docker packaging is planned but **not done yet**. Until then, run it from source.
+Requirements: Docker with Compose. Nothing else is needed on the machine, and the running app needs no internet access.
+
+```sh
+mkdir data                        # or: cp -r examples/papers data   (to start from the example)
+docker compose up -d              # builds the image the first time
+```
+
+Open http://localhost:8080. Your data lives in `./data` next to `docker-compose.yml`; an empty `data/` folder gets a starter vocabulary on first start.
+
+- **Create `data/` yourself before the first start.** If Docker creates it, it belongs to root and lineage cannot write to it.
+- **Your user:** the container runs as user and group id 1000 so that files in `data/` stay yours. If `id -u` / `id -g` print something else, start it with `LINEAGE_UID=$(id -u) LINEAGE_GID=$(id -g) docker compose up -d`. To make that permanent, put the two values in a `.env` file next to `docker-compose.yml` (`printf 'LINEAGE_UID=%s\nLINEAGE_GID=%s\n' $(id -u) $(id -g) > .env`); Compose reads it automatically.
+- **Only reachable from this machine:** the port is published on `127.0.0.1` because the data may describe unpublished work and there is no authentication. The comments in `docker-compose.yml` explain how to expose it on your network or behind a reverse proxy.
+- **Updating** after pulling new code: `docker compose up -d --build`. **Logs:** `docker compose logs -f`. **Stop:** `docker compose down` (your data stays in `data/`).
+
+## Running it from source (development)
 
 Requirements: Python 3.12 or newer, Node.js 22.12 or newer.
 
@@ -108,7 +122,7 @@ data/
 
 ## Security
 
-There is no authentication. By default it is meant to be reached from your own machine only. If you expose it on a network, put it behind a reverse proxy that does authentication.
+There is no authentication. By default it is meant to be reached from your own machine only (the Docker setup publishes it on `127.0.0.1:8080`). If you expose it on a network, put it behind a reverse proxy that does authentication.
 
 ## Tests
 
@@ -125,18 +139,19 @@ The frontend's TypeScript types are generated from the backend's OpenAPI schema;
 cd frontend && npm run gen-api
 ```
 
-The interactive API documentation is at http://localhost:8000/docs while the backend runs.
+The interactive API documentation is at http://localhost:8000/docs while the backend runs (that page loads its scripts from a CDN, so it needs internet; the app itself does not).
 
 ## Project layout
 
 - `backend/`: FastAPI app: `models.py` (data model), `graph.py` (derived data, validation, delete rules), `store.py` (files, snapshots, undo, reload), `app.py` (routes), `seed.py` (starter vocabulary), `tests/`.
 - `frontend/`: Svelte 5 + Vite + TypeScript single-page app: `src/layout` (pure, tested layout functions), `src/views`, `src/components`, `src/api` (generated types + fetch wrapper).
 - `examples/`: example data.
+- `Dockerfile`, `docker-compose.yml`: the image (frontend built with Node, served by a single uvicorn worker) and how to run it.
 
 ## Status
 
-- Done: backend, timeline, editing, settings, status board, dependencies view, hover, filters, polling.
-- Not yet: Docker image and `docker-compose.yml` (planned, not yet written or tested).
+- Done: backend, timeline, editing, settings, status board, dependencies view, hover, filters, polling, Docker packaging.
+- The Docker image has not yet been built on a machine with Docker. Its steps were tested one by one without Docker (clean frontend build, backend installed as a package and started with the image's command, data persisting across restarts, hand edits appearing in the page, no requests outside localhost).
 - Known rough edges:
   - line text and marker badges can crowd each other where many lines meet
   - the JavaScript bundle is large (about 0.6 MB), mostly the math renderer

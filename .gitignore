@@ -10,3 +10,6 @@ __pycache__/
 # Node
 node_modules/
 dist/
+
+# Local Docker Compose settings (your user/group ids)
+.env

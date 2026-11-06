@@ -1,0 +1,19 @@
+services:
+  lineage:
+    build: .
+    image: lineage
+    # Run as your own user so files in ./data stay yours (set LINEAGE_UID/LINEAGE_GID if `id -u`/`id -g` are not 1000).
+    user: "${LINEAGE_UID:-1000}:${LINEAGE_GID:-1000}"
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+    ports:
+      # Published on this machine only (http://localhost:8080): the data may describe
+      # unpublished work, and lineage has no authentication.
+      #
+      # To reach it from other machines on your network, use "8080:8000" instead, and put it
+      # behind a reverse proxy that does authentication. If that proxy runs on this same
+      # machine, keep the line below and point the proxy at http://127.0.0.1:8080.
+      - "127.0.0.1:8080:8000"
+    restart: unless-stopped
