@@ -1,0 +1,1 @@
+Applies the spectral filters to a graph of weather stations (forked across groups).

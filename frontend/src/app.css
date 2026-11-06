@@ -1,0 +1,323 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1f2328;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --panel: #f6f7f9;
+  --accent: #2563eb;
+  --danger: #c62828;
+  --today: #c62828;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.toolbar nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.toolbar nav a {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.toolbar nav a.active {
+  background: var(--bg);
+  box-shadow: 0 0 0 1px var(--line);
+  font-weight: 500;
+}
+
+.banner {
+  margin: 0.75rem 1rem 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  color: var(--danger);
+  background: #fdf2f2;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+main {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 0.75rem 1rem 4rem;
+}
+
+.toolbar .tools {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+button {
+  font: inherit;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--muted);
+}
+
+button.on {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--bg);
+}
+
+.seg {
+  display: inline-flex;
+}
+
+.seg button {
+  border-radius: 0;
+}
+
+.seg button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.seg button:last-child {
+  border-radius: 0 6px 6px 0;
+  margin-left: -1px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+button.link {
+  border: none;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  text-align: left;
+}
+
+button.link:hover {
+  text-decoration: underline;
+}
+
+.seg.small button {
+  padding: 0.1rem 0.6rem;
+  font-size: 12px;
+}
+
+.small {
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- forms */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.form h3 {
+  margin: 0 1.5rem 0.2rem 0;
+}
+
+.form label,
+.form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.form .field > :not(span:first-child),
+.form label > input,
+.form label > select {
+  color: var(--fg);
+  font-size: 14px;
+}
+
+.form label.check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--fg);
+  font-size: 14px;
+}
+
+input:not([type='checkbox']):not([type='color']),
+select,
+textarea {
+  font: inherit;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  width: 100%;
+}
+
+textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.6rem 0.8rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+legend {
+  padding: 0 0.3rem;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.errors {
+  margin: 0;
+  padding: 0.5rem 0.8rem 0.5rem 1.6rem;
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  background: #fdf2f2;
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions.wrap {
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.15rem 0.2rem 0.15rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.chip button {
+  border: none;
+  padding: 0 0.35rem;
+}
+
+.form > p,
+.form > ul {
+  margin: 0;
+}
+
+.form > ul:not(.errors) {
+  padding-left: 1.2rem;
+}
+
+.blockers li {
+  margin-bottom: 0.3rem;
+}
+
+/* ---------------------------------------------------------------- rendered Markdown */
+
+.md {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.md > :first-child {
+  margin-top: 0;
+}
+
+.md > :last-child {
+  margin-bottom: 0;
+}
+
+.md .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.form .opacity {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--fg);
+}
+
+.form .opacity input[type='range'] {
+  flex: 1;
+}
+
+.form .marker-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+}

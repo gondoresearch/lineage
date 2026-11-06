@@ -1,0 +1,12 @@
+# Your own workspace (may describe unpublished work); see examples/papers for sample data.
+/data/
+
+# Python
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
