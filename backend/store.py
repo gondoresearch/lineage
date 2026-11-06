@@ -105,6 +105,7 @@ class Store:
         if not isinstance(raw, dict):
             self.errors = ["workspace.yaml: the top level must be a mapping."]
             return
+        raw = graph.migrate(raw)
         try:
             ws = M.Workspace.model_validate(raw)
         except ValidationError as e:

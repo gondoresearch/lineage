@@ -1,16 +1,50 @@
 :root {
+  color-scheme: light;
   --bg: #ffffff;
   --fg: #1f2328;
   --muted: #6b7280;
   --line: #e5e7eb;
   --panel: #f6f7f9;
   --accent: #2563eb;
+  --accent-bg: #eff4ff;
   --danger: #c62828;
+  --danger-bg: #fdf2f2;
   --today: #c62828;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   color: var(--fg);
   background: var(--bg);
+}
+
+/* Dark theme: follows the system unless the toolbar toggle forces light or dark. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #16181d;
+  --fg: #e6e8eb;
+  --muted: #9aa1ab;
+  --line: #2e333b;
+  --panel: #1e2128;
+  --accent: #6ea8fe;
+  --accent-bg: #1c2a40;
+  --danger: #ff7b72;
+  --danger-bg: #3a1e1e;
+  --today: #ff7b72;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #16181d;
+    --fg: #e6e8eb;
+    --muted: #9aa1ab;
+    --line: #2e333b;
+    --panel: #1e2128;
+    --accent: #6ea8fe;
+    --accent-bg: #1c2a40;
+    --danger: #ff7b72;
+    --danger-bg: #3a1e1e;
+    --today: #ff7b72;
+  }
 }
 
 * {
@@ -32,6 +66,9 @@ body {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -60,7 +97,7 @@ body {
   border: 1px solid var(--danger);
   border-radius: 6px;
   color: var(--danger);
-  background: #fdf2f2;
+  background: var(--danger-bg);
 }
 
 /* ---------------------------------------------------------------- layout */
@@ -243,7 +280,7 @@ legend {
   padding: 0.5rem 0.8rem 0.5rem 1.6rem;
   border: 1px solid var(--danger);
   border-radius: 6px;
-  background: #fdf2f2;
+  background: var(--danger-bg);
   color: var(--danger);
 }
 

@@ -11,7 +11,6 @@ STATES = [
     ("paused", "dotted", "nobody"),
     ("accepted", "solid", "nobody"),
     ("published", "solid", "nobody"),
-    ("closed", "dotted", "nobody"),
 ]
 
 KINDS = [
@@ -22,6 +21,7 @@ KINDS = [
     ("accepted", "filled-circle", "accepted"),
     ("published", "filled-star", "published"),
     ("rejected", "cross", "revising"),
+    ("closed", "filled-square", None),
 ]
 
 REFTYPES = [
@@ -42,6 +42,7 @@ def workspace() -> M.Workspace:
                 name=n,
                 shape=shape,
                 default_state=slugify(d, "state") if d else None,
+                closes=n == "closed",
             )
             for n, shape, d in KINDS
         ],

@@ -19,6 +19,8 @@
     'filled-triangle',
     'star',
     'filled-star',
+    'arrows',
+    'filled-arrows',
     'cross',
   ] as const;
   let { id }: { id?: string } = $props();
@@ -29,6 +31,7 @@
     shape: existing?.shape ?? ('open-circle' as (typeof SHAPES)[number]),
     size: existing?.size ?? 1,
     default_state: existing?.default_state ?? '',
+    closes: existing?.closes ?? false,
     color: existing?.color ?? null,
     description: '',
   });
@@ -38,7 +41,7 @@
   async function submit() {
     busy = true;
     errors = [];
-    const body = { name: d.name, shape: d.shape, size: d.size, default_state: d.default_state || null, color: d.color };
+    const body = { name: d.name, shape: d.shape, size: d.size, default_state: d.closes ? null : d.default_state || null, closes: d.closes, color: d.color };
     try {
       const r = existing
         ? await change(() => api.update('kinds', existing.id, body), `Saved kind “${d.name}”.`)
@@ -64,12 +67,15 @@
       <svg width="28" height="28" aria-hidden="true"><NodeShape shape={d.shape} x={14} y={14} r={6 * d.size} color={d.color ?? NEUTRAL} /></svg>
     </span>
   </label>
+  <label class="check"><input type="checkbox" bind:checked={d.closes} /> Closes the project (its milestones have no state; the lane ends there)</label>
+  {#if !d.closes}
   <label>Default state
     <select bind:value={d.default_state}>
       <option value="">(none: inherit the previous milestone's state)</option>
       {#each ws.states as s}<option value={s.id}>{s.name}</option>{/each}
     </select>
   </label>
+  {/if}
   <div class="field"><span>Colour</span><ColorInput bind:value={d.color} /></div>
   {#if !existing}<div class="field"><span>Description</span><DescriptionEditor bind:value={d.description} /></div>{/if}
 </FormShell>

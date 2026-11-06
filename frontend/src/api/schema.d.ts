@@ -21,6 +21,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create */
+        post: operations["create_domains"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/domains/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_domains"];
+        options?: never;
+        head?: never;
+        /** Update */
+        patch: operations["update_domains"];
+        trace?: never;
+    };
     "/api/groups": {
         parameters: {
             query?: never;
@@ -367,6 +402,49 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        /**
+         * Domain
+         * @description The level above groups (e.g. Research, Teaching).
+         */
+        Domain: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+        };
+        /** DomainCreate */
+        DomainCreate: {
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+        };
+        /** DomainPatch */
+        DomainPatch: {
+            /** Name */
+            name?: string | null;
+            /** Color */
+            color?: string | null;
+            /** Description */
+            description?: string | null;
+            /**
+             * Position
+             * @description Move the domain to this index in the domain order.
+             */
+            position?: number | null;
+        };
         /** DryRunOut */
         DryRunOut: {
             /** Removes */
@@ -392,6 +470,11 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+            /**
+             * Domain
+             * @description Domain id; groups without one are listed first.
+             */
+            domain?: string | null;
             /** Color */
             color?: string | null;
             /**
@@ -404,6 +487,8 @@ export interface components {
         GroupCreate: {
             /** Name */
             name: string;
+            /** Domain */
+            domain?: string | null;
             /** Color */
             color: string;
             /**
@@ -416,6 +501,8 @@ export interface components {
         GroupPatch: {
             /** Name */
             name?: string | null;
+            /** Domain */
+            domain?: string | null;
             /** Color */
             color?: string | null;
             /** Description */
@@ -436,7 +523,7 @@ export interface components {
              * Shape
              * @enum {string}
              */
-            shape: "open-circle" | "filled-circle" | "diamond" | "filled-diamond" | "square" | "filled-square" | "triangle" | "filled-triangle" | "star" | "filled-star" | "cross";
+            shape: "open-circle" | "filled-circle" | "diamond" | "filled-diamond" | "square" | "filled-square" | "triangle" | "filled-triangle" | "star" | "filled-star" | "arrows" | "filled-arrows" | "cross";
             /**
              * Size
              * @default 1
@@ -444,6 +531,12 @@ export interface components {
             size: number;
             /** Default State */
             default_state?: string | null;
+            /**
+             * Closes
+             * @description Milestones of this kind close the project: they have no state and the lane ends there.
+             * @default false
+             */
+            closes: boolean;
             /** Color */
             color?: string | null;
             /**
@@ -460,7 +553,7 @@ export interface components {
              * Shape
              * @enum {string}
              */
-            shape: "open-circle" | "filled-circle" | "diamond" | "filled-diamond" | "square" | "filled-square" | "triangle" | "filled-triangle" | "star" | "filled-star" | "cross";
+            shape: "open-circle" | "filled-circle" | "diamond" | "filled-diamond" | "square" | "filled-square" | "triangle" | "filled-triangle" | "star" | "filled-star" | "arrows" | "filled-arrows" | "cross";
             /**
              * Size
              * @default 1
@@ -468,6 +561,11 @@ export interface components {
             size: number;
             /** Default State */
             default_state?: string | null;
+            /**
+             * Closes
+             * @default false
+             */
+            closes: boolean;
             /** Color */
             color?: string | null;
             /**
@@ -481,11 +579,13 @@ export interface components {
             /** Name */
             name?: string | null;
             /** Shape */
-            shape?: ("open-circle" | "filled-circle" | "diamond" | "filled-diamond" | "square" | "filled-square" | "triangle" | "filled-triangle" | "star" | "filled-star" | "cross") | null;
+            shape?: ("open-circle" | "filled-circle" | "diamond" | "filled-diamond" | "square" | "filled-square" | "triangle" | "filled-triangle" | "star" | "filled-star" | "arrows" | "filled-arrows" | "cross") | null;
             /** Size */
             size?: number | null;
             /** Default State */
             default_state?: string | null;
+            /** Closes */
+            closes?: boolean | null;
             /** Color */
             color?: string | null;
             /** Description */
@@ -583,6 +683,17 @@ export interface components {
              */
             markers: string[];
             /**
+             * Line Pattern
+             * @description Look of the lane line after this milestone; null = its state's.
+             */
+            line_pattern?: ("solid" | "dashed" | "dotted" | "long-dash" | "dash-dot" | "dash-dot-dot") | null;
+            /** Line Color */
+            line_color?: string | null;
+            /** Line Width */
+            line_width?: number | null;
+            /** Line Opacity */
+            line_opacity?: number | null;
+            /**
              * Line Text
              * @description Text on the lane line after this milestone (overrides the state's default text).
              * @default
@@ -651,6 +762,17 @@ export interface components {
              * @default []
              */
             markers: string[];
+            /**
+             * Line Pattern
+             * @description Look of the lane line after this milestone; null = its state's.
+             */
+            line_pattern?: ("solid" | "dashed" | "dotted" | "long-dash" | "dash-dot" | "dash-dot-dot") | null;
+            /** Line Color */
+            line_color?: string | null;
+            /** Line Width */
+            line_width?: number | null;
+            /** Line Opacity */
+            line_opacity?: number | null;
             /**
              * Line Text
              * @description Text on the lane line after this milestone (overrides the state's default text).
@@ -726,6 +848,17 @@ export interface components {
              */
             markers: string[];
             /**
+             * Line Pattern
+             * @description Look of the lane line after this milestone; null = its state's.
+             */
+            line_pattern?: ("solid" | "dashed" | "dotted" | "long-dash" | "dash-dot" | "dash-dot-dot") | null;
+            /** Line Color */
+            line_color?: string | null;
+            /** Line Width */
+            line_width?: number | null;
+            /** Line Opacity */
+            line_opacity?: number | null;
+            /**
              * Line Text
              * @description Text on the lane line after this milestone (overrides the state's default text).
              * @default
@@ -779,6 +912,14 @@ export interface components {
             merges?: string[] | null;
             /** Markers */
             markers?: string[] | null;
+            /** Line Pattern */
+            line_pattern?: ("solid" | "dashed" | "dotted" | "long-dash" | "dash-dot" | "dash-dot-dot") | null;
+            /** Line Color */
+            line_color?: string | null;
+            /** Line Width */
+            line_width?: number | null;
+            /** Line Opacity */
+            line_opacity?: number | null;
             /** Line Text */
             line_text?: string | null;
             /** Line Text Align */
@@ -855,6 +996,12 @@ export interface components {
             current_state: string | null;
             /** Merged */
             merged: boolean;
+            /**
+             * Closed
+             * @description The head milestone is of a closing kind.
+             * @default false
+             */
+            closed: boolean;
         };
         /** ProjectPatch */
         ProjectPatch: {
@@ -1243,6 +1390,11 @@ export interface components {
              */
             settings: components["schemas"]["Settings"];
             /**
+             * Domains
+             * @default []
+             */
+            domains: components["schemas"]["Domain"][];
+            /**
              * Groups
              * @default []
              */
@@ -1317,6 +1469,168 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_domains: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DomainCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Domain"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    delete_domains: {
+        parameters: {
+            query?: {
+                dry_run?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Dry run: what would happen */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DryRunOut"];
+                };
+            };
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlockedOut"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    update_domains: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DomainPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Domain"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
             };
             /** @description Internal Server Error */
             500: {

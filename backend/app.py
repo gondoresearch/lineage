@@ -16,6 +16,7 @@ from .store import Broken, NothingToUndo, Store
 ERR = {"model": M.ErrorOut}
 
 ENTITY_MODELS = {
+    "domains": (M.DomainCreate, M.DomainPatch, M.Domain),
     "groups": (M.GroupCreate, M.GroupPatch, M.Group),
     "projects": (M.ProjectCreate, M.ProjectPatch, M.Project),
     "milestones": (M.MilestoneCreate, M.MilestonePatch, M.Milestone),

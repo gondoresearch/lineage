@@ -2,6 +2,7 @@
 import type { EntityType, Workspace } from '../api/client';
 
 export const TYPE_LABEL: Record<EntityType, string> = {
+  domains: 'Domain',
   groups: 'Group',
   projects: 'Project',
   milestones: 'Milestone',

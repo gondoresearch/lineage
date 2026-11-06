@@ -20,6 +20,19 @@
     }),
   );
   const a = $derived(r * 0.72);
+  // Four arrows (✥): shaft half-width sw, head half-width hw, head base at hb, tips at p.
+  const arrows = $derived.by(() => {
+    const sw = p * 0.16;
+    const hw = p * 0.42;
+    const hb = p * 0.5;
+    const quarter: [number, number][] = [[0, -p], [hw, -hb], [sw, -hb], [sw, -sw]];
+    const pts: [number, number][] = [];
+    for (let k = 0; k < 4; k++) {
+      // rotate the top quarter by k × 90° clockwise
+      for (const [x0, y0] of quarter) pts.push(k === 0 ? [x0, y0] : k === 1 ? [-y0, x0] : k === 2 ? [-x0, -y0] : [y0, -x0]);
+    }
+    return pts;
+  });
 </script>
 
 {#if base === 'circle'}
@@ -32,6 +45,8 @@
   <polygon points={pts([[0, -p], [p * 0.866, p * 0.5], [-p * 0.866, p * 0.5]])} {fill} stroke={color} stroke-width="2" stroke-linejoin="round" />
 {:else if base === 'star'}
   <polygon points={pts(star)} {fill} stroke={color} stroke-width="1.6" stroke-linejoin="round" />
+{:else if base === 'arrows'}
+  <polygon points={pts(arrows)} {fill} stroke={color} stroke-width={filled ? 1 : 1.3} stroke-linejoin="round" />
 {:else if base === 'cross'}
   <path d="M{x - a},{y - a} L{x + a},{y + a} M{x + a},{y - a} L{x - a},{y + a}" stroke={color} stroke-width="2.4" stroke-linecap="round" />
 {:else}

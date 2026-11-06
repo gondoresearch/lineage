@@ -12,6 +12,7 @@ from pydantic import BaseModel, ValidationError
 from . import models as M
 
 TYPES: dict[str, type[BaseModel]] = {
+    "domains": M.Domain,
     "groups": M.Group,
     "projects": M.Project,
     "milestones": M.Milestone,
@@ -23,6 +24,7 @@ TYPES: dict[str, type[BaseModel]] = {
 }
 
 LABEL = {
+    "domains": "Domain",
     "groups": "Group",
     "projects": "Project",
     "milestones": "Milestone",
@@ -34,6 +36,7 @@ LABEL = {
 }
 
 SLUG_FALLBACK = {
+    "domains": "domain",
     "groups": "group",
     "projects": "project",
     "milestones": "milestone",
@@ -119,15 +122,18 @@ def head(ms: list[M.Milestone]) -> M.Milestone | None:
 def derive(ws: M.Workspace) -> M.Derived:
     order = ordered(ws)
     merge_sources = {s for m in ws.milestones for s in m.merges}
+    closing = {k.id for k in ws.kinds if k.closes}
     projects = {}
     for p in ws.projects:
         ms = order.get(p.id, [])
         h = head(ms)
+        closed = bool(h and h.kind in closing)
         projects[p.id] = M.ProjectDerived(
             milestones=[m.id for m in ms],
             head=h.id if h else None,
-            current_state=h.state if h else None,
+            current_state=h.state if h and not closed else None,
             merged=bool(h and h.id in merge_sources),
+            closed=closed,
         )
     return M.Derived(projects=projects, parents=parents(ws, order))
 
@@ -189,6 +195,8 @@ def validate(ws: M.Workspace) -> list[str]:
             if t == "groups" and e.color is None:
                 errs.append(f"{owner} has no colour.")
             color(owner, e.color)
+    for m in ws.milestones:
+        color(f"Milestone '{m.id}' line_color", m.line_color)
     color("Settings fork_color", ws.settings.fork_color)
     color("Settings merge_color", ws.settings.merge_color)
 
@@ -200,6 +208,10 @@ def validate(ws: M.Workspace) -> list[str]:
 
     order = ordered(ws)
     ms_by_id = idx["milestones"]
+
+    for g in ws.groups:
+        if g.domain is not None:
+            ref(f"Group '{g.id}'", "domain", "domains", g.domain)
 
     for p in ws.projects:
         owner = f"Project '{p.id}'"
@@ -221,8 +233,10 @@ def validate(ws: M.Workspace) -> list[str]:
         owner = f"Milestone '{m.id}'"
         ref(owner, "project", "projects", m.project)
         ref(owner, "kind", "kinds", m.kind)
+        closes = m.kind in idx["kinds"] and idx["kinds"][m.kind].closes
         if m.state is None:
-            errs.append(f"{owner} has no state.")
+            if not closes:
+                errs.append(f"{owner} has no state.")
         else:
             ref(owner, "state", "states", m.state)
         for mk in m.markers:
@@ -282,6 +296,8 @@ def default_state(ws: M.Workspace, kind: str, project: str, date) -> str | None:
     """Kind's default state, else the state of the milestone that will precede
     the new one (the fork origin for a project's first milestone)."""
     k = by_id(ws, "kinds").get(kind)
+    if k is not None and k.closes:
+        return None  # a closing milestone has no state
     if k is not None and k.default_state:
         return k.default_state
     prev = [m for m in ordered(ws).get(project, []) if m.date <= date]
@@ -383,7 +399,11 @@ def delete_plan(ws: M.Workspace, t: str, eid: str) -> tuple[list[dict], list[dic
             if r.from_ in mids or r.to in mids
         ]
 
-    if t == "groups":
+    if t == "domains":
+        for g in ws.groups:
+            if g.domain == eid:
+                block("groups", g.id, f"belongs to domain '{eid}'")
+    elif t == "groups":
         for p in ws.projects:
             if p.group == eid:
                 block("projects", p.id, f"belongs to group '{eid}'")
@@ -446,3 +466,31 @@ def delete(ws: M.Workspace, t: str, eid: str) -> None:
     if blockers:
         raise Blocked(blockers)
     apply_delete(ws, removes)
+
+
+# ---------------------------------------------------------------- migrations
+
+
+def migrate(raw: dict) -> dict:
+    """Bring older workspace.yaml files up to date (applied on load).
+
+    'closed' used to be a state; it is now a kind that closes the project
+    (its milestones have no state). Milestones in the old 'closed' state get
+    the 'closed' kind, and the state is removed.
+    """
+    states = raw.get("states") or []
+    if not any(isinstance(s, dict) and s.get("id") == "closed" for s in states):
+        return raw
+    raw["states"] = [s for s in states if s.get("id") != "closed"]
+    kinds = raw.get("kinds") or []
+    if not any(k.get("id") == "closed" for k in kinds):
+        kinds.append({"id": "closed", "name": "closed", "shape": "filled-square", "closes": True})
+    raw["kinds"] = kinds
+    for k in kinds:
+        if k.get("default_state") == "closed":
+            k["default_state"] = None
+    for m in raw.get("milestones") or []:
+        if m.get("state") == "closed":
+            m["kind"] = "closed"
+            m["state"] = None
+    return raw

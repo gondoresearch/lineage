@@ -325,3 +325,50 @@ describe('per-line text and text size', () => {
     expect(segmentText('abcdefghij', 0, 70, 0, 2, 'center', 'above', 16)).toBeNull(); // 89.6 + 8 > 70
   });
 });
+
+describe('closing kinds', () => {
+  const ws7 = makeWs({
+    groups: [{ id: 'g' }],
+    projects: [{ id: 'a', group: 'g' }, { id: 'b', group: 'g' }],
+    kinds: [{ id: 'draft', shape: 'open-circle' }, { id: 'closed', shape: 'filled-square', closes: true }],
+    milestones: [
+      { id: 'a.1', date: '2025-01-01' },
+      { id: 'a.2', date: '2025-06-01', kind: 'closed', state: null },
+      { id: 'b.1', date: '2025-01-01' },
+      { id: 'b.2', date: '2025-06-01', kind: 'closed', state: null },
+      { id: 'b.3', date: '2025-09-01', planned: true },
+    ],
+  });
+  const idx7 = indexWorkspace(ws7);
+  const g = computeTimeline(idx7, layoutLanes(idx7), timeScale(['2025-01-01', '2025-09-01'], TODAY, 1000), IDENTITY, TODAY);
+
+  it('draws the line up to a closing milestone, and nothing after it', () => {
+    expect(g.segments.filter((s) => s.project === 'a').map((s) => [s.from, s.to])).toEqual([['a.1', 'a.2']]);
+    expect(g.segments.filter((s) => s.project === 'b').map((s) => [s.from, s.to])).toEqual([['b.1', 'b.2']]);
+  });
+
+  it('a closed project has no state and no line to today', () => {
+    expect(ws7.derived.projects.a).toMatchObject({ head: 'a.2', closed: true, current_state: null });
+    expect(g.segments.some((s) => s.to === null)).toBe(false);
+  });
+});
+
+describe("a single line's own look", () => {
+  const ws8 = makeWs({
+    groups: [{ id: 'g' }],
+    projects: [{ id: 'a', group: 'g' }],
+    milestones: [
+      { id: 'a.1', date: '2025-01-01', line_pattern: 'dash-dot', line_color: '#123456', line_width: 6, line_opacity: 0.5 },
+      { id: 'a.2', date: '2025-06-01' },
+      { id: 'a.3', date: '2025-12-01' },
+    ],
+  });
+  const idx8 = indexWorkspace(ws8);
+  const g = computeTimeline(idx8, layoutLanes(idx8), timeScale(['2025-01-01', '2025-12-01'], TODAY, 1000), IDENTITY, TODAY);
+  const seg = (from: string) => g.segments.find((s) => s.from === from && s.to !== null)!;
+
+  it('overrides pattern, colour, thickness and opacity of that line only', () => {
+    expect([seg('a.1').line, seg('a.1').color, seg('a.1').width, seg('a.1').opacity]).toEqual(['dash-dot', '#123456', 6, 0.5]);
+    expect([seg('a.2').line, seg('a.2').width, seg('a.2').opacity]).toEqual(['solid', 2.5, 1]); // the state's look
+  });
+});

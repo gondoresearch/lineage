@@ -10,9 +10,9 @@
   let { ws }: { ws: Workspace } = $props();
   const WAIT = { me: 'on me', others: 'on others', nobody: 'inactive' } as const;
 
-  async function move(id: string, position: number) {
+  async function move(id: string, position: number, type: 'groups' | 'domains' = 'groups') {
     try {
-      await change(() => api.update('groups', id, { position }), 'Moved group.');
+      await change(() => api.update(type, id, { position }), type === 'groups' ? 'Moved group.' : 'Moved domain.');
     } catch (e) {
       showToast(messagesOf(e).join(' '), false);
     }
@@ -45,13 +45,33 @@
 
 <div class="settings">
   <section>
+    {@render header('Domains', 'domains', 'New domain')}
+    <ul class="rows">
+      {#each ws.domains ?? [] as dm, i (dm.id)}
+        <li class:selected={isSelected('domains', dm.id)}>
+          <button class="row" onclick={() => select('domains', dm.id)}>
+            <span class="sw" style:background={dm.color ?? 'var(--line)'}></span>{dm.name}
+            <span class="muted">{ws.groups.filter((g) => g.domain === dm.id).length} groups</span>
+          </button>
+          <span class="order">
+            <button aria-label="Move {dm.name} up" disabled={i === 0} onclick={() => move(dm.id, i - 1, 'domains')}>↑</button>
+            <button aria-label="Move {dm.name} down" disabled={i === (ws.domains ?? []).length - 1} onclick={() => move(dm.id, i + 1, 'domains')}>↓</button>
+          </span>
+        </li>
+      {:else}
+        <li class="muted">No domains yet. Groups without a domain are listed first on the timeline.</li>
+      {/each}
+    </ul>
+  </section>
+
+  <section>
     {@render header('Groups', 'groups', 'New group')}
     <ul class="rows">
       {#each ws.groups as g, i (g.id)}
         <li class:selected={isSelected('groups', g.id)}>
           <button class="row" onclick={() => select('groups', g.id)}>
             <span class="sw" style:background={g.color}></span>{g.name}
-            <span class="muted">{ws.projects.filter((p) => p.group === g.id).length} projects</span>
+            <span class="muted">{g.domain ? `${(ws.domains ?? []).find((d) => d.id === g.domain)?.name} · ` : ''}{ws.projects.filter((p) => p.group === g.id).length} projects</span>
           </button>
           <span class="order">
             <button aria-label="Move {g.name} up" disabled={i === 0} onclick={() => move(g.id, i - 1)}>↑</button>
@@ -198,6 +218,7 @@
   .row .muted {
     margin-left: auto;
     font-size: 12px;
+    white-space: nowrap;
   }
   .order {
     display: flex;
@@ -216,6 +237,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
   }
   .colors {
     display: grid;

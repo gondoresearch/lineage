@@ -23,6 +23,8 @@ Shape = Literal[
     "filled-triangle",
     "star",
     "filled-star",
+    "arrows",
+    "filled-arrows",
     "cross",
 ]
 # Line patterns shared by states (lane segments) and reference types.
@@ -54,9 +56,19 @@ class Link(Model):
 # that every group has one, so hand edits get readable messages.
 
 
+class Domain(Model):
+    """The level above groups (e.g. Research, Teaching)."""
+
+    id: str
+    name: str
+    color: str | None = None
+    description: str = ""
+
+
 class Group(Model):
     id: str
     name: str
+    domain: str | None = Field(default=None, description="Domain id; groups without one are listed first.")
     color: str | None = None
     description: str = ""
 
@@ -82,6 +94,10 @@ class Milestone(Model):
     labels: list[str] = []
     merges: list[str] = []
     markers: list[str] = []
+    line_pattern: Line | None = Field(default=None, description="Look of the lane line after this milestone; null = its state's.")
+    line_color: str | None = None
+    line_width: Width | None = None
+    line_opacity: Opacity | None = None
     line_text: str = Field(default="", description="Text on the lane line after this milestone (overrides the state's default text).")
     line_text_align: TextAlign = "center"
     line_text_position: TextPosition = "above"
@@ -111,6 +127,7 @@ class Kind(Model):
     shape: Shape
     size: Size = 1.0
     default_state: str | None = None
+    closes: bool = Field(default=False, description="Milestones of this kind close the project: they have no state and the lane ends there.")
     color: str | None = None
     description: str = ""
 
@@ -158,6 +175,7 @@ class Settings(Model):
 
 class Workspace(Model):
     settings: Settings = Settings()
+    domains: list[Domain] = []
     groups: list[Group] = []
     projects: list[Project] = []
     milestones: list[Milestone] = []
@@ -171,8 +189,15 @@ class Workspace(Model):
 # ---------------------------------------------------------------- create requests
 
 
+class DomainCreate(Model):
+    name: str
+    color: str | None = None
+    description: str = ""
+
+
 class GroupCreate(Model):
     name: str
+    domain: str | None = None
     color: str
     description: str = ""
 
@@ -188,6 +213,10 @@ class MilestoneInit(Model):
     labels: list[str] = []
     merges: list[str] = []
     markers: list[str] = []
+    line_pattern: Line | None = Field(default=None, description="Look of the lane line after this milestone; null = its state's.")
+    line_color: str | None = None
+    line_width: Width | None = None
+    line_opacity: Opacity | None = None
     line_text: str = Field(default="", description="Text on the lane line after this milestone (overrides the state's default text).")
     line_text_align: TextAlign = "center"
     line_text_position: TextPosition = "above"
@@ -229,6 +258,7 @@ class KindCreate(Model):
     shape: Shape
     size: Size = 1.0
     default_state: str | None = None
+    closes: bool = False
     color: str | None = None
     description: str = ""
 
@@ -268,8 +298,16 @@ class MarkerCreate(Model):
 # Only the fields that are sent are changed; null sets a field to null.
 
 
+class DomainPatch(Model):
+    name: str | None = None
+    color: str | None = None
+    description: str | None = None
+    position: int | None = Field(default=None, description="Move the domain to this index in the domain order.")
+
+
 class GroupPatch(Model):
     name: str | None = None
+    domain: str | None = None
     color: str | None = None
     description: str | None = None
     position: int | None = Field(
@@ -299,6 +337,10 @@ class MilestonePatch(Model):
     labels: list[str] | None = None
     merges: list[str] | None = None
     markers: list[str] | None = None
+    line_pattern: Line | None = None
+    line_color: str | None = None
+    line_width: Width | None = None
+    line_opacity: Opacity | None = None
     line_text: str | None = None
     line_text_align: TextAlign | None = None
     line_text_position: TextPosition | None = None
@@ -326,6 +368,7 @@ class KindPatch(Model):
     shape: Shape | None = None
     size: Size | None = None
     default_state: str | None = None
+    closes: bool | None = None
     color: str | None = None
     description: str | None = None
 
@@ -376,6 +419,7 @@ class ProjectDerived(Model):
     head: str | None = Field(description="Latest non-planned milestone.")
     current_state: str | None
     merged: bool
+    closed: bool = Field(default=False, description="The head milestone is of a closing kind.")
 
 
 class Derived(Model):

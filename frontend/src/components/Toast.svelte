@@ -25,13 +25,13 @@
     border-radius: 8px;
     background: var(--fg);
     color: var(--bg);
-    box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
     z-index: 20;
   }
   .toast button {
     background: transparent;
     color: var(--bg);
-    border-color: rgb(255 255 255 / 0.4);
+    border-color: color-mix(in srgb, var(--bg) 45%, transparent);
   }
   .toast .x {
     border: none;

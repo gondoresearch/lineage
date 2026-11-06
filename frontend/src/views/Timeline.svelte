@@ -14,13 +14,15 @@
   import { indexWorkspace, localToday } from '../layout/model';
   import { computeTimeline, ranks } from '../layout/timeline';
   import { eventScale, timeScale, type Mode } from '../layout/xscale';
-  import { app, change, isSelected, isSelectedLine, select, selectStateLine, showToast, stopPicking } from '../state.svelte';
+  import { app, change, isSelected, isSelectedLine, select, selectLine, showToast, stopPicking } from '../state.svelte';
 
   let { ws }: { ws: Workspace } = $props();
 
-  const LABEL_W = 230;
+  const LABEL_W = 250;
   const AXIS_H = 26;
   const INDENT = 12;
+  /** offset of the rule under a domain heading */
+  const DOMAIN_RULE = 9;
   /** marker badge size and spacing */
   const BADGE = 10;
   const BADGE_STEP = 11;
@@ -162,6 +164,8 @@
     },
     onkeydown: (e: KeyboardEvent) => e.key === 'Enter' && fn(),
   });
+  /** Extra indent for everything inside a domain block. */
+  const domainIndent = (group: string) => (idx.groups.get(group)?.domain && idx.domains.get(idx.groups.get(group)!.domain!) ? 10 : 0);
   const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
   const markerId = (color: string) => `arrow-${color.replace('#', '')}`;
 </script>
@@ -258,7 +262,7 @@
                 <line x1={s.x1} x2={s.x2} y1={s.y} y2={s.y} stroke="var(--accent)" stroke-width={s.width + 5} opacity="0.25" class="sel-line" />
               {/if}
               <line x1={s.x1} x2={s.x2} y1={s.y} y2={s.y} stroke="transparent" stroke-width={Math.max(10, s.width + 6)} class="hit"
-                {...pick(() => selectStateLine(st, s.from))} aria-label="State line" data-from={s.from}><title>{ws.states.find((x) => x.id === st)?.name}</title></line>
+                {...pick(() => selectLine(s.from))} aria-label="State line" data-from={s.from}><title>{ws.states.find((x) => x.id === st)?.name}</title></line>
             {/if}
           {/each}
 
@@ -313,17 +317,39 @@
       <!-- fixed label column (drawn last so it covers anything panned under it) -->
       <rect x="4" y="0" width={LABEL_W - 4} height={AXIS_H} fill="var(--bg)" />
       <g clip-path="url(#label-clip)">
+      <!-- domain and group headings -->
+      {#each lanes.headers as h}
+        {#if h.kind === 'domain'}
+          {@const d = idx.domains.get(h.id)}
+          <g class="heading" {...pick(() => select('domains', h.id))} data-domain={h.id}>
+            <!-- text in the normal text colour (readable in both themes); the domain colour marks it -->
+            <rect x="12" y={h.y + AXIS_H - 5} width="4" height="12" rx="1" fill={d?.color ?? 'var(--muted)'} />
+            <text x="21" y={h.y + AXIS_H + 1} dominant-baseline="central" class="domain-head"
+              class:selected={isSelected('domains', h.id)}>{clip((d?.name ?? h.id).toUpperCase(), 26)}</text>
+            <line x1="12" x2={LABEL_W - 12} y1={h.y + AXIS_H + DOMAIN_RULE} y2={h.y + AXIS_H + DOMAIN_RULE} stroke={d?.color ?? 'var(--line)'} stroke-width="1.5" />
+          </g>
+        {:else}
+          {@const g = idx.groups.get(h.id)}
+          {@const dx = domainIndent(h.id)}
+          <g class="heading" {...pick(() => select('groups', h.id))} data-group={h.id}>
+            <rect x={12 + dx} y={h.y + AXIS_H - 4.5} width="9" height="9" rx="2" fill={g?.color} />
+            <text x={26 + dx} y={h.y + AXIS_H} dominant-baseline="central" class="group-head"
+              class:selected={isSelected('groups', h.id)}>{clip(g?.name ?? h.id, Math.floor((LABEL_W - 40 - dx) / 7.4))}</text>
+          </g>
+        {/if}
+      {/each}
       {#each lanes.lanes as l}
         {@const p = idx.projects.get(l.project)}
+        {@const dx = domainIndent(l.group) + 12}
         {#if p}
           <g class="lane-label" class:lifted={drag?.active && drag.pid === p.id} class:dim={!litProject(p.id)}
             onpointerdown={(e) => dragStart(e, p.id)} onpointermove={dragMove} onpointerup={dragEnd}
             onpointercancel={() => (drag = null)} role="presentation">
             <rect x="4" y={l.y + AXIS_H - 17} width={LABEL_W - 8} height="34" fill="transparent" />
-            <rect x={10 + l.depth * INDENT} y={l.y + AXIS_H - 4} width="8" height="8" rx="2" fill={c.project(p)} />
-            <text x={22 + l.depth * INDENT} y={l.y + AXIS_H} dominant-baseline="central" class="label"
+            <rect x={10 + dx + l.depth * INDENT} y={l.y + AXIS_H - 4} width="8" height="8" rx="2" fill={c.project(p)} />
+            <text x={22 + dx + l.depth * INDENT} y={l.y + AXIS_H} dominant-baseline="central" class="label"
               class:selected={isSelected('projects', p.id)} {...pick(() => select('projects', p.id))} data-id={p.id}>
-              <title>{p.title} (drag to move)</title>{clip(p.title, Math.floor((LABEL_W - 30 - l.depth * INDENT) / 7.2))}
+              <title>{p.title} (drag to move)</title>{clip(p.title, Math.floor((LABEL_W - 30 - dx - l.depth * INDENT) / 7.2))}
             </text>
           </g>
         {/if}
@@ -388,6 +414,26 @@
     fill: var(--fg);
     cursor: pointer;
   }
+  .heading {
+    cursor: pointer;
+    outline: none;
+  }
+  .domain-head {
+    fill: var(--fg);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .group-head {
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--fg);
+  }
+  .heading:hover text,
+  .domain-head.selected,
+  .group-head.selected {
+    text-decoration: underline;
+  }
   .label:hover,
   .label.selected {
     fill: var(--accent);
@@ -404,7 +450,7 @@
     padding: 0.45rem 0.5rem 0.45rem 0.8rem;
     border: 1.5px dashed var(--accent);
     border-radius: 8px;
-    background: #eff4ff;
+    background: var(--accent-bg);
     color: var(--accent);
     font-weight: 500;
   }

@@ -3,7 +3,9 @@
   import { app, closePanel } from '../state.svelte';
   import DeleteConfirm from './DeleteConfirm.svelte';
   import EntityView from './EntityView.svelte';
+  import LineEditor from './LineEditor.svelte';
   import DescriptionForm from './forms/DescriptionForm.svelte';
+  import DomainForm from './forms/DomainForm.svelte';
   import GroupForm from './forms/GroupForm.svelte';
   import KindForm from './forms/KindForm.svelte';
   import MarkerForm from './forms/MarkerForm.svelte';
@@ -14,6 +16,7 @@
   import StateForm from './forms/StateForm.svelte';
 
   const FORMS = {
+    domains: DomainForm,
     groups: GroupForm,
     projects: ProjectForm,
     milestones: MilestoneForm,
@@ -34,7 +37,9 @@
     <button class="close" aria-label="Close panel" onclick={closePanel}>×</button>
     {#key key}
       {#if p.kind === 'view'}
-        <EntityView type={p.type} id={p.id} via={p.via} />
+        <EntityView type={p.type} id={p.id} />
+      {:else if p.kind === 'line'}
+        <LineEditor id={p.id} />
       {:else if p.kind === 'form'}
         {@const Form = FORMS[p.type]}
         <Form id={p.id} preset={p.preset} title={p.title} />

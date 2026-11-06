@@ -1,0 +1,1 @@
+Paper-writing threads. *Teaching* is left without a domain to show that domains are optional.

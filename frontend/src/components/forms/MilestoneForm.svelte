@@ -40,6 +40,7 @@
     color: existing?.color ?? null,
     description: '',
   });
+  const closes = $derived(!!ws.kinds.find((k) => k.id === d.kind)?.closes);
   let errors = $state<string[]>([]);
   let busy = $state(false);
 
@@ -63,9 +64,9 @@
     };
     try {
       const r = existing
-        ? await change(() => api.update('milestones', existing.id, { ...common, state: d.state || null }), `Saved milestone “${d.title}”.`)
+        ? await change(() => api.update('milestones', existing.id, { ...common, state: closes ? null : d.state || null }), `Saved milestone “${d.title}”.`)
         : await change(
-            () => api.create('milestones', { ...common, project: d.project, state: d.state || null, description: d.description }),
+            () => api.create('milestones', { ...common, project: d.project, state: closes ? null : d.state || null, description: d.description }),
             mergeSources.length ? `Merged into “${entityName(ws, 'projects', d.project)}”.` : `Created milestone “${d.title}”.`,
           );
       select('milestones', r.id);
@@ -93,12 +94,16 @@
   <label>Kind
     <select bind:value={d.kind}>{#each ws.kinds as k}<option value={k.id}>{k.name}</option>{/each}</select>
   </label>
+  {#if closes}
+    <p class="muted small">This kind closes the project: the milestone has no state and the lane ends here.</p>
+  {:else}
   <label>State
     <select bind:value={d.state}>
       {#if !existing}<option value="">(default: kind's default, else previous state)</option>{/if}
       {#each ws.states as s}<option value={s.id}>{s.name}</option>{/each}
     </select>
   </label>
+  {/if}
   <label class="check"><input type="checkbox" bind:checked={d.planned} /> Planned</label>
   <label>Labels <input bind:value={d.labels} placeholder="comma-separated" /></label>
   <div class="field">

@@ -9,8 +9,9 @@ export type View = (typeof VIEWS)[number];
 
 /** What the side panel shows. */
 export type Panel =
-  /** `via`: the milestone whose lane line was clicked to open this state */
-  | { kind: 'view'; type: EntityType; id: string; via?: string }
+  | { kind: 'view'; type: EntityType; id: string }
+  /** one lane line: the line after milestone `id` */
+  | { kind: 'line'; type: 'milestones'; id: string }
   | { kind: 'form'; type: EntityType; id?: string; preset?: Record<string, unknown>; title?: string }
   | { kind: 'description'; type: EntityType; id: string }
   | { kind: 'delete'; type: EntityType; id: string };
@@ -42,6 +43,32 @@ export const app = $state({
   /** what the pointer is over, for hover highlighting */
   hover: null as { type: 'milestones' | 'projects'; id: string } | null,
 });
+
+// ------------------------------------------------------------------ theme
+
+export type Theme = 'auto' | 'light' | 'dark';
+const THEME_KEY = 'lineage-theme';
+
+/** The saved theme choice ('auto' follows the system). Storage may be unavailable. */
+export function savedTheme(): Theme {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    return t === 'light' || t === 'dark' ? t : 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
+export function applyTheme(t: Theme): void {
+  if (t === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = t;
+  try {
+    if (t === 'auto') localStorage.removeItem(THEME_KEY);
+    else localStorage.setItem(THEME_KEY, t);
+  } catch {
+    // private mode etc.: the choice just isn't remembered
+  }
+}
 
 /** Re-fetch every 5 s (If-None-Match, so unchanged data costs a 304) to pick up hand edits. */
 export function startPolling(intervalMs = 5000): () => void {
@@ -87,9 +114,9 @@ export function select(type: EntityType, id: string): void {
   app.panel = { kind: 'view', type, id };
 }
 
-/** Open the state of a lane line, remembering the milestone the line follows. */
-export function selectStateLine(stateId: string, milestoneId: string): void {
-  app.panel = { kind: 'view', type: 'states', id: stateId, via: milestoneId };
+/** Open one lane line (the line after a milestone) for editing. */
+export function selectLine(milestoneId: string): void {
+  app.panel = { kind: 'line', type: 'milestones', id: milestoneId };
 }
 
 export function openForm(type: EntityType, opts: { id?: string; preset?: Record<string, unknown>; title?: string } = {}): void {
@@ -102,13 +129,14 @@ export function closePanel(): void {
 
 /**
  * Whether a lane line (the line after milestone `from`, in state `stateId`) is
- * the one being worked on: only the clicked line when a line was clicked, every
- * line of the state when the state itself was opened (e.g. from Settings).
+ * the one being worked on: the line opened for editing, or every line of a state
+ * opened from Settings.
  */
 export function isSelectedLine(stateId: string, from: string): boolean {
   const p = app.panel;
-  if (!p || p.kind !== 'view' || p.type !== 'states' || p.id !== stateId) return false;
-  return p.via ? p.via === from : true;
+  if (!p) return false;
+  if (p.kind === 'line') return p.id === from;
+  return p.kind === 'view' && p.type === 'states' && p.id === stateId;
 }
 
 /**
@@ -121,7 +149,6 @@ export function isSelected(type: EntityType, id: string): boolean {
   if (!p) return false;
   if (p.type === type && 'id' in p && p.id === id) return true;
   if (type !== 'milestones') return false;
-  if (p.kind === 'view') return p.via === id;
   if (p.kind === 'form' && !p.id) {
     const pre = (p.preset ?? {}) as { from?: string; merges?: string[] };
     return pre.from === id || (pre.merges ?? []).includes(id);

@@ -12,6 +12,7 @@ export type State = Schemas['State'];
 export type RefType = Schemas['RefType'];
 export type Settings = Schemas['Settings'];
 export type Marker = Schemas['Marker'];
+export type Domain = Schemas['Domain'];
 
 export class ApiError extends Error {
   constructor(
@@ -39,9 +40,10 @@ export async function fetchWorkspace(): Promise<Workspace | null> {
 
 // ------------------------------------------------------------------ writes
 
-export type EntityType = 'groups' | 'projects' | 'milestones' | 'references' | 'kinds' | 'states' | 'reftypes' | 'markers';
+export type EntityType = 'domains' | 'groups' | 'projects' | 'milestones' | 'references' | 'kinds' | 'states' | 'reftypes' | 'markers';
 
 interface CreateBody {
+  domains: Schemas['DomainCreate'];
   groups: Schemas['GroupCreate'];
   projects: Schemas['ProjectCreate'];
   milestones: Schemas['MilestoneCreate'];
@@ -53,6 +55,7 @@ interface CreateBody {
 }
 
 interface PatchBody {
+  domains: Schemas['DomainPatch'];
   groups: Schemas['GroupPatch'];
   projects: Schemas['ProjectPatch'];
   milestones: Schemas['MilestonePatch'];

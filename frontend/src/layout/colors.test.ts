@@ -47,6 +47,8 @@ describe('colour chains', () => {
     expect(c()).toBe('#000002');
     ws.states.find((s) => s.id === 'drafting')!.color = '#000003';
     expect(c()).toBe('#000003');
+    m.line_color = '#000009'; // the line's own colour wins
+    expect(c()).toBe('#000009');
   });
 
   it('fork: fork_color → forked project → group', () => {

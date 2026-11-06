@@ -32,7 +32,7 @@
     <path d="M6,11.6 C6,11.6 1.6,6.9 1.6,4.5 A4.4,4.4 0 0 1 10.4,4.5 C10.4,6.9 6,11.6 6,11.6 Z" fill={color} />
     <circle cx="6" cy="4.5" r="1.6" fill="#fff" />
   {:else if icon === 'clock'}
-    <circle cx="6" cy="6" r="5" fill="#fff" stroke={color} stroke-width="1.5" />
+    <circle cx="6" cy="6" r="5" fill="var(--bg)" stroke={color} stroke-width="1.5" />
     <path d="M6,3 L6,6.2 L8.2,7.5" fill="none" stroke={color} stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
   {:else if icon === 'lock'}
     <path d="M3.4,5.4 L3.4,3.8 A2.6,2.6 0 0 1 8.6,3.8 L8.6,5.4" fill="none" stroke={color} stroke-width="1.4" />

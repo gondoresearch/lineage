@@ -5,7 +5,8 @@ type P = Partial<Project> & { id: string; group: string };
 type M = Partial<Milestone> & { id: string; date: string };
 
 export function makeWs(spec: {
-  groups?: { id: string; color?: string }[];
+  groups?: { id: string; color?: string; domain?: string | null }[];
+  domains?: Workspace['domains'];
   projects: P[];
   milestones: M[];
   /** text fields are optional here; they default to no text */
@@ -16,7 +17,7 @@ export function makeWs(spec: {
   states?: Partial<Workspace['states'][number]>[];
   reftypes?: Workspace['reftypes'];
 }): Workspace {
-  const groups = (spec.groups ?? [{ id: 'g' }]).map((g) => ({ name: g.id, color: '#000000', description: '', ...g }));
+  const groups = (spec.groups ?? [{ id: 'g' }]).map((g) => ({ name: g.id, color: '#000000', domain: null, description: '', ...g }));
   const projects = spec.projects.map((p) => ({ title: p.id, from: null, links: [], color: null, description: '', ...p })) as Project[];
   const milestones = spec.milestones.map((m) => ({
     project: m.id.split('.')[0],
@@ -27,6 +28,10 @@ export function makeWs(spec: {
     labels: [],
     merges: [],
     markers: [],
+    line_pattern: null,
+    line_color: null,
+    line_width: null,
+    line_opacity: null,
     line_text: '',
     line_text_align: 'center',
     line_text_position: 'above',
@@ -37,7 +42,7 @@ export function makeWs(spec: {
     ...m,
   })) as Milestone[];
   const kinds = (spec.kinds ?? [{ id: 'draft', shape: 'open-circle' }]).map((k) => ({
-    name: k.id!, shape: 'open-circle', size: 1, default_state: null, color: null, description: '', ...k,
+    name: k.id!, shape: 'open-circle', size: 1, default_state: null, closes: false, color: null, description: '', ...k,
   })) as Workspace['kinds'];
   const states = (spec.states ?? [
     { id: 'drafting', line: 'solid', waiting_on: 'me' },
@@ -58,14 +63,16 @@ export function makeWs(spec: {
     derivedProjects[p.id] = {
       milestones: ms.map((m) => m.id),
       head: head?.id ?? null,
-      current_state: head?.state ?? null,
+      current_state: head && !kinds.find((k) => k.id === head.kind)?.closes ? (head.state ?? null) : null,
       merged: !!head && mergeSources.has(head.id),
+      closed: !!head && !!kinds.find((k) => k.id === head.kind)?.closes,
     };
     ms.forEach((m, i) => {
       parents[m.id] = [...(i > 0 ? [ms[i - 1].id] : p.from ? [p.from] : []), ...(m.merges ?? [])];
     });
   }
   return {
+    domains: spec.domains ?? [],
     settings: spec.settings ?? { fork_color: null, merge_color: null, fork_width: 1.8, merge_width: 1.8 },
     groups,
     projects,

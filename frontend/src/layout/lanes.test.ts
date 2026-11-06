@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { makeWs } from './fixture';
-import { dropSlots, GROUP_GAP, LANE_H, laneSubtree, layoutLanes, moveRequest, nearestSlot, type MovableProject } from './lanes';
+import {
+  DOMAIN_GAP,
+  DOMAIN_HEAD_H,
+  dropSlots,
+  GROUP_GAP,
+  GROUP_HEAD_H,
+  LANE_H,
+  laneSubtree,
+  layoutLanes,
+  moveRequest,
+  nearestSlot,
+  type MovableProject,
+} from './lanes';
 import { indexWorkspace } from './model';
 
 const ws = makeWs({
@@ -39,15 +51,22 @@ describe('layoutLanes', () => {
     expect(cross.depth).toBe(0);
   });
 
-  it('puts a gap between groups', () => {
+  it('gives each group a heading row and puts a gap between groups', () => {
+    const g1End = GROUP_HEAD_H + 5 * LANE_H;
+    const g2Start = g1End + GROUP_GAP;
     expect(L.bands).toEqual([
-      { group: 'g1', y0: 0, y1: 5 * LANE_H },
-      { group: 'g2', y0: 5 * LANE_H + GROUP_GAP, y1: 7 * LANE_H + GROUP_GAP },
+      { group: 'g1', domain: null, y0: 0, y1: g1End },
+      { group: 'g2', domain: null, y0: g2Start, y1: g2Start + GROUP_HEAD_H + 2 * LANE_H },
+    ]);
+    expect(L.headers).toEqual([
+      { kind: 'group', id: 'g1', y: GROUP_HEAD_H / 2, domain: null },
+      { kind: 'group', id: 'g2', y: g2Start + GROUP_HEAD_H / 2, domain: null },
     ]);
     const y = L.lanes.map((l) => l.y);
+    expect(y[0]).toBe(GROUP_HEAD_H + LANE_H / 2);
     expect(y[1] - y[0]).toBe(LANE_H);
-    expect(y[5] - y[4]).toBe(LANE_H + GROUP_GAP);
-    expect(L.height).toBe(7 * LANE_H + GROUP_GAP);
+    expect(y[5] - y[4]).toBe(LANE_H + GROUP_GAP + GROUP_HEAD_H);
+    expect(L.height).toBe(g2Start + GROUP_HEAD_H + 2 * LANE_H);
   });
 
   it('follows group order in the file', () => {
@@ -64,7 +83,7 @@ describe('layoutLanes', () => {
 
   it('omits empty groups without adding a gap', () => {
     const S = layoutLanes(indexWorkspace(ws), (p) => ['other', 'cross'].includes(p));
-    expect(S.bands).toEqual([{ group: 'g2', y0: 0, y1: 2 * LANE_H }]);
+    expect(S.bands).toEqual([{ group: 'g2', domain: null, y0: 0, y1: GROUP_HEAD_H + 2 * LANE_H }]);
   });
 });
 
@@ -104,15 +123,17 @@ describe('moving lanes', () => {
       ['g1', 'A'], ['g1', 'A1'], ['g1', 'B'], ['g1', null],
       ['g2', 'C'], ['g2', null],
     ]);
-    expect(slot('g1', 'A1').y).toBe(LANE_H);
-    expect(slot('g1', null).y).toBe(3 * LANE_H);
-    expect(slot('g2', 'C').y).toBe(3 * LANE_H + GROUP_GAP);
+    const g1End = GROUP_HEAD_H + 3 * LANE_H;
+    expect(slot('g1', 'A').y).toBe(GROUP_HEAD_H); // just under the group's heading
+    expect(slot('g1', 'A1').y).toBe(GROUP_HEAD_H + LANE_H);
+    expect(slot('g1', null).y).toBe(g1End);
+    expect(slot('g2', 'C').y).toBe(g1End + GROUP_GAP + GROUP_HEAD_H);
   });
 
   it('picks the nearest slot', () => {
     expect(nearestSlot(slots, 2)).toEqual(slot('g1', 'A'));
-    expect(nearestSlot(slots, 3 * LANE_H + 3)).toEqual(slot('g1', null));
-    expect(nearestSlot(slots, 3 * LANE_H + GROUP_GAP - 3)).toEqual(slot('g2', 'C'));
+    expect(nearestSlot(slots, slot('g1', null).y + 3)).toEqual(slot('g1', null));
+    expect(nearestSlot(slots, slot('g2', 'C').y - 3)).toEqual(slot('g2', 'C'));
   });
 
   it('moves a root above another root', () => {
@@ -172,5 +193,52 @@ describe('moving lanes', () => {
     expect(laneSubtree(tree, 'P').sort()).toEqual(['F', 'FF']);
     expect(laneSubtree(tree, 'F')).toEqual(['FF']);
     expect(laneSubtree(tree, 'Q')).toEqual([]);
+  });
+});
+
+describe('domains', () => {
+  // g0 has no domain; d1 holds g1 and g2; d2 holds g3; d3 is empty
+  const dws = makeWs({
+    domains: [
+      { id: 'd1', name: 'D1', color: null, description: '' },
+      { id: 'd2', name: 'D2', color: null, description: '' },
+      { id: 'd3', name: 'D3', color: null, description: '' },
+    ],
+    groups: [{ id: 'g1', domain: 'd1' }, { id: 'g3', domain: 'd2' }, { id: 'g0' }, { id: 'g2', domain: 'd1' }],
+    projects: [
+      { id: 'p1', group: 'g1' },
+      { id: 'p2', group: 'g2' },
+      { id: 'p3', group: 'g3' },
+      { id: 'p0', group: 'g0' },
+    ],
+    milestones: [
+      { id: 'p1.1', date: '2025-01-01' },
+      { id: 'p2.1', date: '2025-01-01' },
+      { id: 'p3.1', date: '2025-01-01' },
+      { id: 'p0.1', date: '2025-01-01' },
+    ],
+  });
+  const D = layoutLanes(indexWorkspace(dws));
+
+  it('lists groups without a domain first, then each domain in order with its groups', () => {
+    expect(D.lanes.map((l) => l.group)).toEqual(['g0', 'g1', 'g2', 'g3']);
+    expect(D.headers.map((h) => `${h.kind}:${h.id}`)).toEqual(['group:g0', 'domain:d1', 'group:g1', 'group:g2', 'domain:d2', 'group:g3']);
+    expect(D.headers.find((h) => h.id === 'g2')!.domain).toBe('d1');
+  });
+
+  it('separates domain blocks with a heading row and a gap; empty domains take no space', () => {
+    const g0End = GROUP_HEAD_H + LANE_H;
+    const d1 = D.headers.find((h) => h.id === 'd1')!;
+    expect(d1.y).toBe(g0End + DOMAIN_GAP + DOMAIN_HEAD_H / 2);
+    const g1 = D.bands.find((b) => b.group === 'g1')!;
+    expect(g1.y0).toBe(g0End + DOMAIN_GAP + DOMAIN_HEAD_H); // first group of a domain: no extra gap
+    const g2 = D.bands.find((b) => b.group === 'g2')!;
+    expect(g2.y0).toBe(g1.y1 + GROUP_GAP);
+    expect(D.headers.some((h) => h.id === 'd3')).toBe(false);
+  });
+
+  it('hides a domain whose groups are all filtered out', () => {
+    const F = layoutLanes(indexWorkspace(dws), (p) => p !== 'p3');
+    expect(F.headers.some((h) => h.id === 'd2')).toBe(false);
   });
 });

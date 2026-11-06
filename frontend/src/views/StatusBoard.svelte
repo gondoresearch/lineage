@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Workspace } from '../api/client';
-  import LineSample from '../components/LineSample.svelte';
-  import { colors, NEUTRAL } from '../layout/colors';
+  import { colors } from '../layout/colors';
   import { projectFilter } from '../layout/filters';
   import { relatedProjects } from '../layout/highlight';
   import { indexWorkspace, localToday } from '../layout/model';
@@ -39,16 +38,17 @@
           onmouseenter={() => hover(p.id)} onmouseleave={() => hover(null)} data-id={p.id}>
           <div class="title">{p.title}</div>
           <div class="group muted">{idx.groups.get(p.group)?.name}</div>
-          <div class="state">
+          <div class="row">
+            <span class="muted">Current state</span>
             {#if st}
-              <LineSample line={st.line} color={st.color ?? NEUTRAL} opacity={st.opacity} width={28} />
-              <span>{st.name}</span>
-              <span class="muted">· {card.days !== null ? formatDays(card.days) : ''}</span>
+              {st.name} <span class="muted">· {card.days !== null ? formatDays(card.days) : ''}</span>
+            {:else if ws.derived.projects[p.id]?.closed}
+              closed <span class="muted">· {card.days !== null ? formatDays(card.days) : ''}</span>
             {:else}
-              <span class="muted">no head yet</span>
+              <span class="muted">nothing has happened yet</span>
             {/if}
           </div>
-          {#if head}<div class="row"><span class="muted">Head</span> {head.title} <span class="muted">{head.date}</span></div>{/if}
+          {#if head}<div class="row"><span class="muted">Current milestone</span> {head.title} <span class="muted">{head.date}</span></div>{/if}
           {#if next}
             <div class="row" class:overdue={card.nextOverdue}>
               <span class="muted">Next</span> {next.title} <span class:muted={!card.nextOverdue}>{next.date}{card.nextOverdue ? ' · overdue' : ''}</span>
@@ -108,18 +108,17 @@
     font-size: 12px;
     margin-top: -0.15rem;
   }
-  .state {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.15rem;
+  .group + .row {
+    margin-top: 0.25rem;
   }
   .row {
     font-size: 12.5px;
   }
+  /* aligned row labels: Current state / Current milestone / Next */
   .row .muted:first-child {
     display: inline-block;
-    width: 2.6rem;
+    width: 8.6rem;
+    white-space: nowrap;
   }
   .overdue {
     color: var(--danger);

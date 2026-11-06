@@ -1,15 +1,24 @@
 settings:
   fork_color: '#7f7f7f'
   merge_color: '#8c564b'
+  fork_width: 1.8
+  merge_width: 1.8
+domains:
+- id: research
+  name: Research
+  color: '#2f3e5c'
 groups:
 - id: graph-learning
   name: Graph learning
+  domain: research
   color: '#4c72b0'
 - id: climate-statistics
   name: Climate statistics
+  domain: research
   color: '#55a868'
 - id: teaching
   name: Teaching
+  domain: null
   color: '#c44e52'
 projects:
 - id: spectral-filters
@@ -85,6 +94,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters.preprint
@@ -97,6 +110,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links:
   - label: PDF
     url: https://example.org/sf-v1.pdf
@@ -111,6 +128,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters.rejected
@@ -125,6 +146,10 @@ milestones:
   merges: []
   markers:
   - open-question
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters.resubmitted
@@ -137,6 +162,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters.accepted
@@ -149,6 +178,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: '#2ca02c'
 - id: spectral-filters.published
@@ -162,6 +195,10 @@ milestones:
   - camera-ready
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters-journal.draft
@@ -174,6 +211,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters-journal.submitted
@@ -186,6 +227,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters-journal.revision
@@ -198,6 +243,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters-journal.accepted
@@ -210,6 +259,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters-tutorial.draft
@@ -222,6 +275,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: spectral-filters-tutorial.on-hold
@@ -234,6 +291,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: graph-sampling.draft
@@ -246,6 +307,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: graph-sampling.submit
@@ -259,6 +324,10 @@ milestones:
   merges: []
   markers:
   - deadline
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: station-graphs.draft
@@ -271,6 +340,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: station-graphs.preprint
@@ -283,6 +356,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: station-graphs.submitted
@@ -297,6 +374,10 @@ milestones:
   markers:
   - check-numbers
   - open-question
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: bayesian-rainfall.draft
@@ -309,18 +390,26 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: bayesian-rainfall.v2
   project: bayesian-rainfall
   title: v2
   date: 2025-11-20
-  kind: draft
-  state: closed
+  kind: closed
+  state: null
   planned: false
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: extreme-rainfall.draft
@@ -333,6 +422,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: extreme-rainfall.preprint
@@ -345,6 +438,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: extreme-rainfall.submitted
@@ -359,6 +456,10 @@ milestones:
   - bayesian-rainfall.v2
   markers:
   - linked-code
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: extreme-rainfall.accepted
@@ -371,6 +472,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: extreme-rainfall.published
@@ -383,6 +488,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: drought-indices.draft
@@ -395,6 +504,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: drought-indices.preprint
@@ -407,6 +520,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: statistics-notes.draft
@@ -419,6 +536,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: statistics-notes.published
@@ -431,6 +552,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: graph-course.draft
@@ -443,6 +568,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 - id: graph-course.preprint
@@ -455,6 +584,10 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10
   links: []
   color: null
 references:
@@ -463,99 +596,164 @@ references:
   from: drought-indices.draft
   to: extreme-rainfall.preprint
   color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
+  text_orientation: horizontal
 - id: builds-on-2
   type: builds-on
   from: graph-course.draft
   to: spectral-filters.published
   color: '#dd8452'
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
+  text_orientation: horizontal
 - id: companion
   type: companion
   from: graph-course.preprint
   to: spectral-filters-tutorial.draft
   color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
+  text_orientation: horizontal
 kinds:
 - id: draft
   name: draft
   shape: open-circle
+  size: 1.0
   default_state: drafting
+  closes: false
   color: null
 - id: preprint
   name: preprint
   shape: star
+  size: 1.0
   default_state: null
+  closes: false
   color: null
 - id: submitted
   name: submitted
   shape: triangle
+  size: 1.0
   default_state: under-review
+  closes: false
   color: null
 - id: revision
   name: revision
   shape: diamond
+  size: 1.0
   default_state: under-review
+  closes: false
   color: null
 - id: accepted
   name: accepted
   shape: filled-circle
+  size: 1.0
   default_state: accepted
+  closes: false
   color: null
 - id: published
   name: published
   shape: filled-star
+  size: 1.0
   default_state: published
+  closes: false
   color: null
 - id: rejected
   name: rejected
   shape: cross
+  size: 1.0
   default_state: revising
+  closes: false
   color: '#d62728'
+- id: closed
+  name: closed
+  shape: filled-square
+  size: 1.0
+  default_state: null
+  closes: true
+  color: null
 states:
 - id: drafting
   name: drafting
   line: solid
   opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: me
   color: null
 - id: revising
   name: revising
   line: solid
   opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: me
   color: null
 - id: with-co-authors
   name: with co-authors
   line: dashed
   opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: others
   color: null
 - id: under-review
   name: under review
   line: dashed
   opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: others
   color: '#dd8452'
 - id: paused
   name: paused
   line: dotted
   opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: nobody
   color: '#999999'
 - id: accepted
   name: accepted
   line: solid
   opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: nobody
   color: null
 - id: published
   name: published
   line: solid
   opacity: 1.0
-  waiting_on: nobody
-  color: null
-- id: closed
-  name: closed
-  line: dotted
-  opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10
   waiting_on: nobody
   color: null
 reftypes:
@@ -564,12 +762,14 @@ reftypes:
   directed: true
   line: dashed
   opacity: 1.0
+  line_width: 1.4
   color: '#937860'
 - id: companion
   name: companion
   directed: false
   line: dotted
   opacity: 1.0
+  line_width: 1.4
   color: null
 markers:
 - id: deadline

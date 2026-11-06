@@ -3,13 +3,22 @@
   import Filters from './components/Filters.svelte';
   import SidePanel from './components/SidePanel.svelte';
   import Toast from './components/Toast.svelte';
-  import { app, load, openForm, routeFromHash, startPolling, undoLast } from './state.svelte';
+  import { app, applyTheme, load, openForm, routeFromHash, savedTheme, startPolling, undoLast, type Theme } from './state.svelte';
   import Dependencies from './views/Dependencies.svelte';
   import Settings from './views/Settings.svelte';
   import StatusBoard from './views/StatusBoard.svelte';
   import Timeline from './views/Timeline.svelte';
 
   const LABELS = { timeline: 'Timeline', status: 'Status', deps: 'Dependencies', settings: 'Settings' } as const;
+  const THEMES: Theme[] = ['auto', 'light', 'dark'];
+  const THEME_LABEL = { auto: 'Theme: auto', light: 'Theme: light', dark: 'Theme: dark' } as const;
+  const initialTheme = savedTheme();
+  let theme = $state<Theme>(initialTheme);
+  applyTheme(initialTheme);
+  function cycleTheme() {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    applyTheme(theme);
+  }
 
   onMount(() => {
     routeFromHash();
@@ -25,7 +34,7 @@
 
 <div class="shell">
   <header class="toolbar">
-    <span class="brand">lineage</span>
+    <span class="brand"><img src="/logo.svg" alt="" width="22" height="22" />lineage</span>
     <nav>
       {#each Object.entries(LABELS) as [id, label]}
         <a href="#/{id}" class:active={app.view === id}>{label}</a>
@@ -35,6 +44,7 @@
       <button onclick={() => openForm('projects')} disabled={!app.ws}>Add project</button>
       <button onclick={() => openForm('groups')} disabled={!app.ws}>Add group</button>
       <button onclick={undoLast} title="Undo the last change">Undo</button>
+      <button onclick={cycleTheme} title="Switch between following the system, light and dark">{THEME_LABEL[theme]}</button>
     </div>
   </header>
 

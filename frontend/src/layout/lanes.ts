@@ -5,7 +5,12 @@
 import type { Index } from './model';
 
 export const LANE_H = 34;
-export const GROUP_GAP = 22;
+/** heading rows in the label column */
+export const GROUP_HEAD_H = 22;
+export const DOMAIN_HEAD_H = 26;
+/** gaps before a group (after the first) and before a domain block */
+export const GROUP_GAP = 14;
+export const DOMAIN_GAP = 18;
 
 export interface Lane {
   project: string;
@@ -15,17 +20,44 @@ export interface Lane {
   y: number;
 }
 
+/** A group's area: its heading row and its lanes. */
 export interface GroupBand {
   group: string;
+  domain: string | null;
   y0: number;
   y1: number;
+}
+
+/** A heading row in the label column (domain, or group within it). */
+export interface Header {
+  kind: 'domain' | 'group';
+  id: string;
+  /** row centre */
+  y: number;
+  /** the group's domain (null for a domain row or a group without one) */
+  domain: string | null;
 }
 
 export interface LaneLayout {
   lanes: Lane[];
   bands: GroupBand[];
+  headers: Header[];
   height: number;
   y: Map<string, number>;
+}
+
+/**
+ * Groups in display order: those without a domain first (in file order),
+ * then each domain in domain order, with its groups in file order.
+ */
+export function groupOrder(idx: Index): { domain: string | null; groups: string[] }[] {
+  const domains = idx.ws.domains ?? [];
+  const known = new Set(domains.map((d) => d.id));
+  const blocks: { domain: string | null; groups: string[] }[] = [
+    { domain: null, groups: idx.ws.groups.filter((g) => !g.domain || !known.has(g.domain)).map((g) => g.id) },
+  ];
+  for (const d of domains) blocks.push({ domain: d.id, groups: idx.ws.groups.filter((g) => g.domain === d.id).map((g) => g.id) });
+  return blocks;
 }
 
 export function layoutLanes(idx: Index, visible: (pid: string) => boolean = () => true): LaneLayout {
@@ -39,32 +71,40 @@ export function layoutLanes(idx: Index, visible: (pid: string) => boolean = () =
 
   const lanes: Lane[] = [];
   const bands: GroupBand[] = [];
+  const headers: Header[] = [];
   let top = 0;
-  for (const g of idx.ws.groups) {
-    const members = projects.filter((p) => p.group === g.id).map((p) => p.id);
-    if (!members.length) continue;
-    const inGroup = new Set(members);
-    const children = new Map<string, string[]>();
-    const roots: string[] = [];
-    for (const pid of members) {
-      const parent = originProject(pid);
-      if (parent && inGroup.has(parent)) {
-        children.set(parent, [...(children.get(parent) ?? []), pid]);
-      } else {
-        roots.push(pid);
-      }
+  for (const block of groupOrder(idx)) {
+    const shown = block.groups.filter((gid) => projects.some((p) => p.group === gid));
+    if (!shown.length) continue; // empty domains (or all filtered out) take no space
+    if (block.domain) {
+      if (top > 0) top += DOMAIN_GAP;
+      headers.push({ kind: 'domain', id: block.domain, y: top + DOMAIN_HEAD_H / 2, domain: null });
+      top += DOMAIN_HEAD_H;
     }
-    if (bands.length) top += GROUP_GAP;
-    const y0 = top;
-    const visit = (pid: string, depth: number) => {
-      lanes.push({ project: pid, group: g.id, depth, y: top + LANE_H / 2 });
-      top += LANE_H;
-      for (const c of (children.get(pid) ?? []).sort(byOrder)) visit(c, depth + 1);
-    };
-    for (const r of roots.sort(byOrder)) visit(r, 0);
-    bands.push({ group: g.id, y0, y1: top });
+    shown.forEach((gid, gi) => {
+      const members = projects.filter((p) => p.group === gid).map((p) => p.id);
+      const inGroup = new Set(members);
+      const children = new Map<string, string[]>();
+      const roots: string[] = [];
+      for (const pid of members) {
+        const parent = originProject(pid);
+        if (parent && inGroup.has(parent)) children.set(parent, [...(children.get(parent) ?? []), pid]);
+        else roots.push(pid);
+      }
+      if (gi > 0 || (!block.domain && top > 0)) top += GROUP_GAP;
+      const y0 = top;
+      headers.push({ kind: 'group', id: gid, y: top + GROUP_HEAD_H / 2, domain: block.domain });
+      top += GROUP_HEAD_H;
+      const visit = (pid: string, depth: number) => {
+        lanes.push({ project: pid, group: gid, depth, y: top + LANE_H / 2 });
+        top += LANE_H;
+        for (const c of (children.get(pid) ?? []).sort(byOrder)) visit(c, depth + 1);
+      };
+      for (const r of roots.sort(byOrder)) visit(r, 0);
+      bands.push({ group: gid, domain: block.domain, y0, y1: top });
+    });
   }
-  return { lanes, bands, height: top, y: new Map(lanes.map((l) => [l.project, l.y])) };
+  return { lanes, bands, headers, height: top, y: new Map(lanes.map((l) => [l.project, l.y])) };
 }
 
 // ------------------------------------------------------------------ moving lanes

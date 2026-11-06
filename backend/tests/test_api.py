@@ -51,7 +51,7 @@ def test_openapi_complete(client):
 
 def test_all_kind_shapes_accepted(client):
     shapes = ["open-circle", "filled-circle", "diamond", "filled-diamond", "square", "filled-square",
-              "triangle", "filled-triangle", "star", "filled-star", "cross"]
+              "triangle", "filled-triangle", "star", "filled-star", "arrows", "filled-arrows", "cross"]
     for s in shapes:
         r = client.post("/api/kinds", json={"name": f"k {s}", "shape": s})
         assert r.status_code == 201, r.json()
@@ -139,3 +139,17 @@ def test_line_text_size(client):
     assert client.patch("/api/milestones/graph-sampling.draft", json={"line_text_size": 18}).json()["line_text_size"] == 18
     for bad in (6, 25):
         assert client.patch("/api/states/drafting", json={"text_size": bad}).status_code == 422
+
+
+def test_line_look_per_milestone(client):
+    m = client.get("/api/workspace").json()["milestones"][0]
+    assert [m[k] for k in ("line_pattern", "line_color", "line_width", "line_opacity")] == [None, None, None, None]
+    r = client.patch("/api/milestones/station-graphs.preprint",
+                     json={"line_pattern": "dash-dot", "line_color": "#123456", "line_width": 5, "line_opacity": 0.6})
+    assert r.status_code == 200
+    assert [r.json()[k] for k in ("line_pattern", "line_color", "line_width", "line_opacity")] == ["dash-dot", "#123456", 5, 0.6]
+    # back to the state's look
+    r = client.patch("/api/milestones/station-graphs.preprint", json={"line_pattern": None, "line_color": None})
+    assert (r.json()["line_pattern"], r.json()["line_color"]) == (None, None)
+    assert client.patch("/api/milestones/station-graphs.preprint", json={"line_color": "blue"}).status_code == 422
+    assert client.patch("/api/milestones/station-graphs.preprint", json={"line_width": 20}).status_code == 422

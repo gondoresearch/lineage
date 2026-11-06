@@ -15,17 +15,18 @@ def bump_mtime(path):
 
 def test_seed_on_first_run(empty_client, tmp_path):
     ws = empty_client.get("/api/workspace").json()
-    assert {k["id"] for k in ws["kinds"]} == {"draft", "preprint", "submitted", "revision", "accepted", "published", "rejected"}
+    assert {k["id"] for k in ws["kinds"]} == {"draft", "preprint", "submitted", "revision", "accepted", "published", "rejected", "closed"}
     assert {s["id"] for s in ws["states"]} == {"drafting", "revising", "with-co-authors", "under-review", "paused",
-                                               "accepted", "published", "closed"}
+                                               "accepted", "published"}  # 'closed' is a kind now
     assert {r["id"]: r["directed"] for r in ws["reftypes"]} == {"builds-on": True, "companion": False}
     assert ws["groups"] == [] and ws["projects"] == []
     kinds = {k["id"]: k for k in ws["kinds"]}
     assert kinds["rejected"]["default_state"] == "revising" and kinds["preprint"]["default_state"] is None
     assert {k: v["shape"] for k, v in kinds.items()} == {
         "draft": "open-circle", "preprint": "star", "submitted": "triangle", "revision": "diamond",
-        "accepted": "filled-circle", "published": "filled-star", "rejected": "cross",
+        "accepted": "filled-circle", "published": "filled-star", "rejected": "cross", "closed": "filled-square",
     }
+    assert [k["id"] for k in ws["kinds"] if k["closes"]] == ["closed"]
     assert all(e["color"] is None for t in ("kinds", "states", "reftypes") for e in ws[t])
     assert (tmp_path / "fresh" / "workspace.yaml").exists()
 

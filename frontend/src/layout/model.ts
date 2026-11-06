@@ -1,8 +1,9 @@
 // Lookup tables over a workspace, shared by the layout functions.
-import type { Group, Kind, Marker, Milestone, Project, RefType, State, Workspace } from '../api/client';
+import type { Domain, Group, Kind, Marker, Milestone, Project, RefType, State, Workspace } from '../api/client';
 
 export interface Index {
   ws: Workspace;
+  domains: Map<string, Domain>;
   groups: Map<string, Group>;
   projects: Map<string, Project>;
   milestones: Map<string, Milestone>;
@@ -19,6 +20,7 @@ function byId<T extends { id: string }>(items: T[]): Map<string, T> {
 export function indexWorkspace(ws: Workspace): Index {
   return {
     ws,
+    domains: byId(ws.domains ?? []),
     groups: byId(ws.groups),
     projects: byId(ws.projects),
     milestones: byId(ws.milestones),

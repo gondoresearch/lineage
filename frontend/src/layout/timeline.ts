@@ -213,7 +213,8 @@ export function computeTimeline(
   const segments: Segment[] = [];
   const edges: Edge[] = [];
   const stateOf = (m: Milestone) => (m.state ? idx.states.get(m.state) : undefined);
-  const lineOf = (m: Milestone): LineStyle => stateOf(m)?.line ?? 'solid';
+  // A lane line's look: the milestone's own settings for the line after it, else its state's.
+  const lineOf = (m: Milestone): LineStyle => m.line_pattern ?? stateOf(m)?.line ?? 'solid';
 
   for (const lane of lanes.lanes) {
     const ms = projectMilestones(idx, lane.project);
@@ -240,7 +241,7 @@ export function computeTimeline(
 
     // The milestone's own line text, else its state's default text.
     const lineText = (m: Milestone, st: State | undefined, x1: number, x2: number, y: number): LineText | null => {
-      const w = st?.line_width ?? 2.5;
+      const w = m.line_width ?? st?.line_width ?? 2.5;
       if (m.line_text) {
         return segmentText(m.line_text, x1, x2, y, w, m.line_text_align ?? 'center', m.line_text_position ?? 'above', m.line_text_size ?? 10);
       }
@@ -260,8 +261,8 @@ export function computeTimeline(
           y: lane.y,
           line: lineOf(from),
           color: c.segment(from),
-          opacity: st?.opacity ?? 1,
-          width: st?.line_width ?? 2.5,
+          opacity: from.line_opacity ?? st?.opacity ?? 1,
+          width: from.line_width ?? st?.line_width ?? 2.5,
           faded,
           label: lineText(from, st, x1, x2, lane.y),
         });
@@ -272,13 +273,16 @@ export function computeTimeline(
     const headIdx = d?.head ? ms.findIndex((m) => m.id === d.head) : -1;
     const head = headIdx >= 0 ? ms[headIdx] : undefined;
     // Head → today, in the head's state style, if someone is expected to act.
-    const toToday = !!head && !d.merged && head.date < today && stateOf(head)?.waiting_on !== 'nobody';
+    const toToday = !!head && !d.merged && !d.closed && head.date < today && stateOf(head)?.waiting_on !== 'nobody';
+    const closes = (m: Milestone) => !!idx.kinds.get(m.kind)?.closes;
 
     for (let i = 0; i + 1 < ms.length; i++) {
       const a = ms[i];
       const b = ms[i + 1];
       // Covered by the head → today line below.
       if (toToday && i >= headIdx && b.date < today) continue;
+      // A closing milestone ends the lane: no line after it.
+      if (closes(a)) continue;
       let x1 = laneNodes[i].x + laneNodes[i].r;
       // Before a future planned milestone, the faded part starts at today.
       if (b.planned && b.date > today && !(a.planned && a.date > today)) x1 = Math.max(x1, todayX);

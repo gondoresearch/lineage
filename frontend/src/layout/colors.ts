@@ -23,11 +23,11 @@ export function colors(idx: Index) {
       const p = idx.projects.get(m.project);
       return firstColor(m.color, idx.kinds.get(m.kind)?.color, ...projectChain(idx, p)) ?? NEUTRAL;
     },
-    /** state of the earlier milestone → project → group */
+    /** the line's own colour (on the earlier milestone) → its state → project → group */
     segment(earlier: Milestone): string {
       const p = idx.projects.get(earlier.project);
       const st = earlier.state ? idx.states.get(earlier.state) : undefined;
-      return firstColor(st?.color, ...projectChain(idx, p)) ?? NEUTRAL;
+      return firstColor(earlier.line_color, st?.color, ...projectChain(idx, p)) ?? NEUTRAL;
     },
     /** fork_color → forked project → group */
     fork(forked: Project): string {
