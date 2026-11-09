@@ -44,7 +44,8 @@ It is made for using lineage on your own machine. For a server that other machin
 |---|---|
 | Logs | `docker compose logs -f` |
 | Stop | `docker compose down` (your data stays in `data/`) |
-| Update after pulling new code | `docker compose up -d --build`, then read [Upgrading](upgrading.md) |
+| Update after pulling new code | `docker compose up -d --build`, then read [Upgrading](upgrading.md); the new version is built as a new image, `lineage:X.Y.Z` |
+| Go back to an earlier version | check out its tag (`git checkout v0.3.0`) and `docker compose up -d`: its image is still there (`docker image ls lineage`); restore a backup if the data format changed |
 | Manage accounts | `docker compose exec -it lineage python -m backend.manage …` ([Accounts](accounts.md)) |
 
 The container restarts on its own after a reboot (`restart: unless-stopped`).

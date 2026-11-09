@@ -52,7 +52,7 @@ Parts of the reference are generated from the code by `docs/hooks/generate.py`: 
 
 ## Releasing
 
-1. Update the version in `backend/pyproject.toml` and `frontend/package.json` (and `package-lock.json`).
+1. Update the version in `backend/pyproject.toml` and `frontend/package.json` (and `package-lock.json`), and the image tag (`lineage:X.Y.Z`) in `docker-compose.yml` and `docs/examples/docker-compose.https.yml` — a test checks that they match.
 2. Move the *unreleased* section of `CHANGELOG.md` under the new version and date.
 3. Run the tests, the build and the relevant sections of `TEST.md`.
 4. Commit as `Release X.Y.Z` and tag it `vX.Y.Z`.

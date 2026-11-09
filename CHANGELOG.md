@@ -2,6 +2,12 @@
 
 All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while lineage is below 1.0, a minor version may change the data layout (the upgrade steps are then in [Upgrading](https://gondoresearch.github.io/lineage/hosting/upgrading/)).
 
+## Unreleased
+
+### Changed
+
+- Docker: the image is tagged with the version (`lineage:0.3.1`), so each version is its own image and older ones stay available.
+
 ## 0.3.1 (2026-11-09)
 
 ### Added
