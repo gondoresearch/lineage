@@ -28,7 +28,7 @@ make install
 make start                           # then open http://localhost:5173; `make stop` to stop
 ```
 
-Log in as **demo** / **demo** to explore the example data, then create your own account (the first one you create becomes the admin, who can then manage the other accounts in **Settings → Users**):
+Log in as **demo** / **demo** (research papers) or **lineage** / **lineage** (lineage's own history, in GitHub words) to explore, then create your own account (the first one you create becomes the admin, who can then manage the other accounts in **Settings → Users**):
 
 ```sh
 docker compose exec -it lineage python -m backend.manage adduser NAME      # Docker
@@ -49,7 +49,7 @@ The documentation sources are in [`docs/`](docs/); build them locally with `make
 
 ## Security
 
-lineage has accounts, but speaks plain HTTP and is published on `127.0.0.1` only. Before reaching it from other machines, put it behind an HTTPS reverse proxy, set `LINEAGE_SECURE_COOKIE=1`, and delete or re-password the demo account. See [HTTPS and exposing it](https://gondoresearch.github.io/lineage/hosting/https/) and the [security model](https://gondoresearch.github.io/lineage/internals/security/).
+lineage has accounts, but speaks plain HTTP and is published on `127.0.0.1` only. Before reaching it from other machines, put it behind an HTTPS reverse proxy, set `LINEAGE_SECURE_COOKIE=1`, and delete or re-password the showcase accounts (demo, lineage). See [HTTPS and exposing it](https://gondoresearch.github.io/lineage/hosting/https/) and the [security model](https://gondoresearch.github.io/lineage/internals/security/).
 
 ## License
 

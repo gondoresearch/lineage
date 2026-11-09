@@ -210,20 +210,25 @@ def test_broken_accounts_file_fails_closed(client, root):
 # ------------------------------------------------------------------ demo account
 
 
-def test_demo_account_on_first_start(tmp_path, monkeypatch):
+def test_showcase_accounts_on_first_start(tmp_path, monkeypatch):
     monkeypatch.setenv("LINEAGE_DEMO", "1")
-    monkeypatch.setenv("LINEAGE_EXAMPLES", str(EXAMPLE))
+    monkeypatch.setenv("LINEAGE_EXAMPLES", str(EXAMPLE.parent))
     root = tmp_path / "data"
     c = login(make_client(root), "demo", "demo")
     ws = c.get("/api/workspace").json()
     assert "spectral-filters" in {p["id"] for p in ws["projects"]}
+    lin = login(make_client(root), "lineage", "lineage").get("/api/workspace").json()
+    assert "main" in {p["id"] for p in lin["projects"]}
+    assert {k["id"] for k in lin["kinds"]} >= {"commit", "pull-request", "merge", "release"}
+    assert Accounts(root).admins() == []  # showcase accounts are never admins automatically
+    assert Accounts(root).add("alice", PASSWORD) is True  # the first real account is
 
 
 def test_demo_disabled(tmp_path):
     root = tmp_path / "data"
     make_client(root)
     assert Accounts(root).names() == []
-    assert not (root / "users" / "demo").exists()
+    assert not (root / "users" / "demo").exists() and not (root / "users" / "lineage").exists()
 
 
 def test_demo_not_recreated(root, example_dir, monkeypatch):

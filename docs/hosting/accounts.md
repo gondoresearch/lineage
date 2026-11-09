@@ -22,7 +22,7 @@ An admin **cannot open** another user's workspace in the app, and can only manag
 
 **Who is admin:**
 
-- The **first account created** while there is no admin becomes one automatically, whether made with `manage adduser` or otherwise. The demo account never does.
+- The **first account created** while there is no admin becomes one automatically, whether made with `manage adduser` or otherwise. The showcase accounts (demo, lineage) never do.
 - More admins: `manage adduser NAME --admin`, or `manage admin NAME on` for an existing account; `manage admin NAME off` makes it a plain user again. Changes apply immediately, also to sessions already open.
 - `manage list` marks admins with `(admin)`. If no admin is left, the server log says so on start.
 
@@ -65,15 +65,20 @@ After **5 failed logins** for the same user from the same address, further attem
 
 ## The demo account
 
-On the **first start** — when `data/accounts.yaml` does not exist yet — lineage creates the account **demo** with the password **demo**, whose workspace is a copy of the example data. It is there so you can look around right away.
+On the **first start** — when `data/accounts.yaml` does not exist yet — lineage creates two showcase accounts, so you can look around right away:
 
-- It is created only once. If you delete it, it stays deleted.
-- To skip it entirely, start the first time with `LINEAGE_DEMO=0`. lineage then starts with no accounts, and logs a reminder to create one.
-- While the demo account still has the password `demo`, the server log warns about it on every start.
-- It is never made an admin automatically, and `manage admin demo on` is refused while its password is `demo`.
+| Account | Password | Workspace |
+|---|---|---|
+| **demo** | `demo` | fictional research papers and teaching projects (`examples/papers`) |
+| **lineage** | `lineage` | lineage's own development, in GitHub words: branches, commits, pull requests, merges and releases, with their real times (`examples/lineage`) |
+
+- They are created only once. If you delete one, it stays deleted.
+- To skip them entirely, start the first time with `LINEAGE_DEMO=0`. lineage then starts with no accounts, and logs a reminder to create one.
+- While a showcase account still has its public password, the server log warns about it on every start.
+- They are never made admins automatically, and `manage admin NAME on` is refused for them while they have their public password.
 
 !!! warning
-    Before you make lineage reachable from other machines, delete the demo account (`manage deluser demo --purge`) or give it a real password (`manage passwd demo`).
+    Before you make lineage reachable from other machines, delete the showcase accounts (`manage deluser demo --purge`, `manage deluser lineage --purge`) or give them real passwords (`manage passwd …`).
 
 ## Forgotten passwords
 

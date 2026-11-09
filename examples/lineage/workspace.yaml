@@ -1,0 +1,1259 @@
+settings:
+  fork_color: null
+  merge_color: null
+  fork_width: 1.8
+  merge_width: 1.8
+domains:
+- id: gondoresearch-lineage
+  name: gondoresearch/lineage
+  color: '#24292f'
+groups:
+- id: main
+  name: main
+  domain: gondoresearch-lineage
+  color: '#6b4c9a'
+- id: feature-branches
+  name: feature branches
+  domain: gondoresearch-lineage
+  color: '#2f8f83'
+- id: docs-branches
+  name: docs branches
+  domain: gondoresearch-lineage
+  color: '#9a7b4c'
+- id: issues
+  name: issues
+  domain: gondoresearch-lineage
+  color: '#c06c2b'
+projects:
+- id: main
+  title: main
+  group: main
+  from: null
+  links:
+  - label: repository
+    url: https://github.com/gondoresearch/lineage
+  color: null
+- id: docs-readme
+  title: docs/readme
+  group: docs-branches
+  from: main.initial-version
+  links: []
+  color: null
+- id: feature-domains
+  title: feature/domains
+  group: feature-branches
+  from: main.initial-version
+  links: []
+  color: null
+- id: feature-docker
+  title: feature/docker
+  group: feature-branches
+  from: main.initial-version
+  links: []
+  color: null
+- id: feature-backup-restore
+  title: feature/backup-restore
+  group: feature-branches
+  from: main.v0-1
+  links: []
+  color: null
+- id: feature-accounts
+  title: feature/accounts
+  group: feature-branches
+  from: main.v0-1-1
+  links: []
+  color: null
+- id: feature-lazy-loading
+  title: feature/lazy-loading
+  group: feature-branches
+  from: main.v0-1-1
+  links: []
+  color: null
+- id: docs-site
+  title: docs/site
+  group: docs-branches
+  from: main.v0-1-1
+  links: []
+  color: null
+- id: feature-admin
+  title: feature/admin
+  group: feature-branches
+  from: main.v0-2-0
+  links: []
+  color: null
+- id: fix-same-day-layout
+  title: fix/same-day-layout
+  group: feature-branches
+  from: main.v0-2-1
+  links: []
+  color: null
+- id: feature-timestamps
+  title: feature/timestamps
+  group: feature-branches
+  from: main.merge-fix-same-day-layout
+  links: []
+  color: null
+- id: 1-encrypted-backups
+  title: '#1 Encrypted backups'
+  group: issues
+  from: null
+  links: []
+  color: null
+milestones:
+- id: main.initial-version
+  project: main
+  title: Initial version
+  at: 2026-11-06T15:58
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit eac30ab
+    url: https://github.com/gondoresearch/lineage/commit/eac30ab
+  color: null
+- id: docs-readme.rewrite-the-readme
+  project: docs-readme
+  title: Rewrite the README
+  at: 2026-11-06T16:04
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit e06faa6
+    url: https://github.com/gondoresearch/lineage/commit/e06faa6
+  color: null
+- id: docs-readme.pull-request-docs-readme
+  project: docs-readme
+  title: 'Pull request: docs/readme'
+  at: 2026-11-06T16:05
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-docs-readme
+  project: main
+  title: Merge docs/readme
+  at: 2026-11-06T16:07
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - docs-readme.pull-request-docs-readme
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit e06faa6
+    url: https://github.com/gondoresearch/lineage/commit/e06faa6
+  color: null
+- id: feature-domains.domains-and-closing-kinds
+  project: feature-domains
+  title: Domains and closing kinds
+  at: 2026-11-06T16:40
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8f2ccdd
+    url: https://github.com/gondoresearch/lineage/commit/8f2ccdd
+  color: null
+- id: feature-domains.per-line-editing-dark-mode-logo
+  project: feature-domains
+  title: Per-line editing, dark mode, logo
+  at: 2026-11-06T17:02
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8f2ccdd
+    url: https://github.com/gondoresearch/lineage/commit/8f2ccdd
+  color: null
+- id: feature-domains.pull-request-feature-domains
+  project: feature-domains
+  title: 'Pull request: feature/domains'
+  at: 2026-11-06T17:05
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-domains
+  project: main
+  title: Merge feature/domains
+  at: 2026-11-06T17:08
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-domains.pull-request-feature-domains
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8f2ccdd
+    url: https://github.com/gondoresearch/lineage/commit/8f2ccdd
+  color: null
+- id: feature-docker.dockerfile-and-compose-file
+  project: feature-docker
+  title: Dockerfile and compose file
+  at: 2026-11-06T17:25
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 129970a
+    url: https://github.com/gondoresearch/lineage/commit/129970a
+  color: null
+- id: feature-docker.pull-request-feature-docker
+  project: feature-docker
+  title: 'Pull request: feature/docker'
+  at: 2026-11-06T17:28
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-docker
+  project: main
+  title: Merge feature/docker
+  at: 2026-11-06T17:31
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-docker.pull-request-feature-docker
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 129970a
+    url: https://github.com/gondoresearch/lineage/commit/129970a
+  color: null
+- id: main.v0-1
+  project: main
+  title: v0.1
+  at: 2026-11-06T17:31
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.1
+  color: null
+- id: feature-backup-restore.version-display-backup-and-restore
+  project: feature-backup-restore
+  title: Version display, backup and restore
+  at: 2026-11-06T17:38
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 2b7dee7
+    url: https://github.com/gondoresearch/lineage/commit/2b7dee7
+  color: null
+- id: feature-backup-restore.pull-request-feature-backup-restore
+  project: feature-backup-restore
+  title: 'Pull request: feature/backup-restore'
+  at: 2026-11-06T17:40
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-backup-restore
+  project: main
+  title: Merge feature/backup-restore
+  at: 2026-11-06T17:42
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-backup-restore.pull-request-feature-backup-restore
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 2b7dee7
+    url: https://github.com/gondoresearch/lineage/commit/2b7dee7
+  color: null
+- id: main.v0-1-1
+  project: main
+  title: v0.1.1
+  at: 2026-11-06T17:46
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.1.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.1.1
+  color: null
+- id: feature-accounts.accounts-and-private-workspaces
+  project: feature-accounts
+  title: Accounts and private workspaces
+  at: 2026-11-09T12:20
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: feature-accounts.demo-account-and-manage-cli
+  project: feature-accounts
+  title: Demo account and manage CLI
+  at: 2026-11-09T12:45
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: feature-accounts.pull-request-feature-accounts
+  project: feature-accounts
+  title: 'Pull request: feature/accounts'
+  at: 2026-11-09T13:05
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: feature-lazy-loading.load-katex-and-dagre-on-demand
+  project: feature-lazy-loading
+  title: Load KaTeX and dagre on demand
+  at: 2026-11-09T12:55
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: feature-lazy-loading.pull-request-feature-lazy-loading
+  project: feature-lazy-loading
+  title: 'Pull request: feature/lazy-loading'
+  at: 2026-11-09T13:00
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: docs-site.mkdocs-site-with-generated-reference
+  project: docs-site
+  title: MkDocs site with generated reference
+  at: 2026-11-09T13:02
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: docs-site.pull-request-docs-site
+  project: docs-site
+  title: 'Pull request: docs/site'
+  at: 2026-11-09T13:08
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-lazy-loading
+  project: main
+  title: Merge feature/lazy-loading
+  at: 2026-11-09T13:12
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-lazy-loading.pull-request-feature-lazy-loading
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: main.merge-feature-accounts
+  project: main
+  title: Merge feature/accounts
+  at: 2026-11-09T13:14
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-accounts.pull-request-feature-accounts
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: main.merge-docs-site
+  project: main
+  title: Merge docs/site
+  at: 2026-11-09T13:15
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - docs-site.pull-request-docs-site
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: main.v0-2-0
+  project: main
+  title: v0.2.0
+  at: 2026-11-09T13:15
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers:
+  - breaking-change
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: accounts
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.2.0
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.2.0
+  color: null
+- id: feature-admin.settings-users
+  project: feature-admin
+  title: Settings → Users
+  at: 2026-11-09T13:18
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 55a7e3b
+    url: https://github.com/gondoresearch/lineage/commit/55a7e3b
+  color: null
+- id: feature-admin.pull-request-feature-admin
+  project: feature-admin
+  title: 'Pull request: feature/admin'
+  at: 2026-11-09T13:20
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-admin
+  project: main
+  title: Merge feature/admin
+  at: 2026-11-09T13:22
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-admin.pull-request-feature-admin
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 55a7e3b
+    url: https://github.com/gondoresearch/lineage/commit/55a7e3b
+  color: null
+- id: main.v0-2-1
+  project: main
+  title: v0.2.1
+  at: 2026-11-09T13:22
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.2.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.2.1
+  color: null
+- id: docs-site.compose-examples
+  project: docs-site
+  title: Compose examples
+  at: 2026-11-09T13:27
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0ae58a6
+    url: https://github.com/gondoresearch/lineage/commit/0ae58a6
+  color: null
+- id: docs-site.pull-request-compose-examples
+  project: docs-site
+  title: 'Pull request: compose examples'
+  at: 2026-11-09T13:28
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-docs-site-compose-examples
+  project: main
+  title: Merge docs/site (compose examples)
+  at: 2026-11-09T13:29
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - docs-site.pull-request-compose-examples
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0ae58a6
+    url: https://github.com/gondoresearch/lineage/commit/0ae58a6
+  color: null
+- id: docs-site.screenshots
+  project: docs-site
+  title: Screenshots
+  at: 2026-11-09T13:36
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 7d93dae
+    url: https://github.com/gondoresearch/lineage/commit/7d93dae
+  color: null
+- id: docs-site.pull-request-screenshots
+  project: docs-site
+  title: 'Pull request: screenshots'
+  at: 2026-11-09T13:37
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-docs-site-screenshots
+  project: main
+  title: Merge docs/site (screenshots)
+  at: 2026-11-09T13:39
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - docs-site.pull-request-screenshots
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 7d93dae
+    url: https://github.com/gondoresearch/lineage/commit/7d93dae
+  color: null
+- id: fix-same-day-layout.order-same-day-milestones-by-history
+  project: fix-same-day-layout
+  title: Order same-day milestones by history
+  at: 2026-11-09T13:50
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0b6136f
+    url: https://github.com/gondoresearch/lineage/commit/0b6136f
+  color: null
+- id: fix-same-day-layout.pull-request-fix-same-day-layout
+  project: fix-same-day-layout
+  title: 'Pull request: fix/same-day-layout'
+  at: 2026-11-09T13:55
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-fix-same-day-layout
+  project: main
+  title: Merge fix/same-day-layout
+  at: 2026-11-09T13:57
+  kind: merge
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - fix-same-day-layout.pull-request-fix-same-day-layout
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0b6136f
+    url: https://github.com/gondoresearch/lineage/commit/0b6136f
+  color: null
+- id: feature-timestamps.milestone-timestamps
+  project: feature-timestamps
+  title: Milestone timestamps
+  at: 2026-11-09T14:20
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers:
+  - breaking-change
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: feature-timestamps.days-hours-view
+  project: feature-timestamps
+  title: Days / Hours view
+  at: 2026-11-09T14:40
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: feature-timestamps.pull-request-feature-timestamps
+  project: feature-timestamps
+  title: 'Pull request: feature/timestamps'
+  at: 2026-11-10T10:00
+  kind: pull-request
+  state: in-review
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.v0-3-0
+  project: main
+  title: v0.3.0
+  at: 2026-11-30T12:00
+  kind: release
+  state: in-progress
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: 1-encrypted-backups.admins-should-not-read-user-backups
+  project: 1-encrypted-backups
+  title: Admins should not read user backups
+  at: 2026-11-09T13:45
+  kind: issue
+  state: under-discussion
+  planned: false
+  labels: []
+  merges: []
+  markers:
+  - open-question
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: 1-encrypted-backups.sealed-admin-backups
+  project: 1-encrypted-backups
+  title: Sealed admin backups
+  at: 2026-11-23T12:00
+  kind: commit
+  state: in-progress
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+references:
+- id: depends-on
+  type: depends-on
+  from: feature-admin.settings-users
+  to: main.merge-feature-accounts
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  text_orientation: horizontal
+  created: 2026-11-09T13:18
+- id: related
+  type: related
+  from: 1-encrypted-backups.admins-should-not-read-user-backups
+  to: feature-admin.settings-users
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  text_orientation: horizontal
+  created: 2026-11-09T13:45
+- id: depends-on-2
+  type: depends-on
+  from: feature-timestamps.milestone-timestamps
+  to: main.merge-fix-same-day-layout
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  text_orientation: horizontal
+  created: 2026-11-09T14:20
+- id: related-2
+  type: related
+  from: docs-site.mkdocs-site-with-generated-reference
+  to: main.v0-2-0
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  text_orientation: horizontal
+  created: 2026-11-09T13:15
+kinds:
+- id: commit
+  name: commit
+  shape: filled-circle
+  size: 0.8
+  default_state: in-progress
+  closes: false
+  color: null
+- id: pull-request
+  name: pull request
+  shape: triangle
+  size: 1.0
+  default_state: in-review
+  closes: false
+  color: null
+- id: merge
+  name: merge
+  shape: filled-arrows
+  size: 1.0
+  default_state: in-progress
+  closes: false
+  color: null
+- id: release
+  name: release
+  shape: filled-diamond
+  size: 1.3
+  default_state: in-progress
+  closes: false
+  color: null
+- id: issue
+  name: issue
+  shape: open-circle
+  size: 1.0
+  default_state: under-discussion
+  closes: false
+  color: null
+- id: closed-2
+  name: closed
+  shape: filled-square
+  size: 1.0
+  default_state: null
+  closes: true
+  color: null
+states:
+- id: in-progress
+  name: in progress
+  line: solid
+  opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  waiting_on: me
+  color: null
+- id: in-review
+  name: in review
+  line: dashed
+  opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  waiting_on: others
+  color: null
+- id: under-discussion
+  name: under discussion
+  line: dotted
+  opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  waiting_on: me
+  color: null
+- id: merged
+  name: merged
+  line: solid
+  opacity: 0.6
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  waiting_on: nobody
+  color: null
+reftypes:
+- id: depends-on
+  name: depends on
+  directed: true
+  line: dashed
+  opacity: 1.0
+  line_width: 1.4
+  color: null
+- id: related
+  name: related
+  directed: false
+  line: dotted
+  opacity: 1.0
+  line_width: 1.4
+  color: null
+markers:
+- id: open-question
+  name: open question
+  icon: question
+  color: null
+- id: bug
+  name: bug
+  icon: warning
+  color: '#c62828'
+- id: blocked
+  name: blocked
+  icon: lock
+  color: null
+- id: breaking-change
+  name: breaking change
+  icon: flag
+  color: '#c62828'

@@ -7,9 +7,6 @@ domains:
 - id: research
   name: Research
   color: '#2f3e5c'
-- id: lineage-development
-  name: lineage development
-  color: '#6b4c9a'
 groups:
 - id: graph-learning
   name: Graph learning
@@ -23,18 +20,6 @@ groups:
   name: Teaching
   domain: null
   color: '#c44e52'
-- id: releases
-  name: Releases
-  domain: lineage-development
-  color: '#6b4c9a'
-- id: features
-  name: Features
-  domain: lineage-development
-  color: '#4c9a8f'
-- id: documentation
-  name: Documentation
-  domain: lineage-development
-  color: '#9a7b4c'
 projects:
 - id: spectral-filters
   title: Spectral filters for graph networks
@@ -98,73 +83,11 @@ projects:
   from: null
   links: []
   color: null
-- id: lineage
-  title: lineage
-  group: releases
-  from: null
-  links:
-  - label: repository
-    url: https://github.com/gondoresearch/lineage
-  color: null
-- id: domains-and-line-styling
-  title: Domains and line styling
-  group: features
-  from: lineage.milestones-1-to-4
-  links: []
-  color: null
-- id: docker-packaging
-  title: Docker packaging
-  group: features
-  from: lineage.milestones-1-to-4
-  links: []
-  color: null
-- id: backup-and-restore
-  title: Backup and restore
-  group: features
-  from: lineage.v0-1
-  links: []
-  color: null
-- id: accounts
-  title: Accounts
-  group: features
-  from: lineage.v0-1-1
-  links: []
-  color: null
-- id: lighter-frontend
-  title: Lighter frontend
-  group: features
-  from: lineage.v0-1-1
-  links: []
-  color: null
-- id: admin-accounts
-  title: Admin accounts
-  group: features
-  from: lineage.v0-2-0
-  links: []
-  color: null
-- id: encrypted-backups
-  title: Encrypted backups
-  group: features
-  from: lineage.v0-2-1
-  links: []
-  color: null
-- id: readme
-  title: README
-  group: documentation
-  from: null
-  links: []
-  color: null
-- id: documentation-site
-  title: Documentation site
-  group: documentation
-  from: null
-  links: []
-  color: null
 milestones:
 - id: spectral-filters.draft
   project: spectral-filters
   title: draft
-  date: 2025-01-10
+  at: 2025-01-10T00:00
   kind: draft
   state: drafting
   planned: false
@@ -184,7 +107,7 @@ milestones:
 - id: spectral-filters.preprint
   project: spectral-filters
   title: preprint
-  date: 2025-03-02
+  at: 2025-03-02T00:00
   kind: preprint
   state: with-co-authors
   planned: false
@@ -206,7 +129,7 @@ milestones:
 - id: spectral-filters.submitted
   project: spectral-filters
   title: submitted
-  date: 2025-04-15
+  at: 2025-04-15T00:00
   kind: submitted
   state: under-review
   planned: false
@@ -226,7 +149,7 @@ milestones:
 - id: spectral-filters.rejected
   project: spectral-filters
   title: rejected
-  date: 2025-07-20
+  at: 2025-07-20T00:00
   kind: rejected
   state: revising
   planned: false
@@ -248,7 +171,7 @@ milestones:
 - id: spectral-filters.resubmitted
   project: spectral-filters
   title: resubmitted
-  date: 2025-09-01
+  at: 2025-09-01T00:00
   kind: submitted
   state: under-review
   planned: false
@@ -268,7 +191,7 @@ milestones:
 - id: spectral-filters.accepted
   project: spectral-filters
   title: accepted
-  date: 2025-12-05
+  at: 2025-12-05T00:00
   kind: accepted
   state: accepted
   planned: false
@@ -288,7 +211,7 @@ milestones:
 - id: spectral-filters.published
   project: spectral-filters
   title: published
-  date: 2026-02-10
+  at: 2026-02-10T00:00
   kind: published
   state: published
   planned: false
@@ -309,7 +232,7 @@ milestones:
 - id: spectral-filters-journal.draft
   project: spectral-filters-journal
   title: draft
-  date: 2026-01-08
+  at: 2026-01-08T00:00
   kind: draft
   state: drafting
   planned: false
@@ -329,7 +252,7 @@ milestones:
 - id: spectral-filters-journal.submitted
   project: spectral-filters-journal
   title: submitted
-  date: 2026-05-02
+  at: 2026-05-02T00:00
   kind: submitted
   state: under-review
   planned: false
@@ -349,7 +272,7 @@ milestones:
 - id: spectral-filters-journal.revision
   project: spectral-filters-journal
   title: revision
-  date: 2026-08-20
+  at: 2026-08-20T00:00
   kind: revision
   state: under-review
   planned: false
@@ -369,7 +292,7 @@ milestones:
 - id: spectral-filters-journal.accepted
   project: spectral-filters-journal
   title: accepted
-  date: 2027-01-15
+  at: 2027-01-15T00:00
   kind: accepted
   state: accepted
   planned: true
@@ -389,7 +312,7 @@ milestones:
 - id: spectral-filters-tutorial.draft
   project: spectral-filters-tutorial
   title: draft
-  date: 2026-03-01
+  at: 2026-03-01T00:00
   kind: draft
   state: drafting
   planned: false
@@ -409,7 +332,7 @@ milestones:
 - id: spectral-filters-tutorial.on-hold
   project: spectral-filters-tutorial
   title: on hold
-  date: 2026-06-01
+  at: 2026-06-01T00:00
   kind: draft
   state: paused
   planned: false
@@ -429,7 +352,7 @@ milestones:
 - id: graph-sampling.draft
   project: graph-sampling
   title: draft
-  date: 2026-04-10
+  at: 2026-04-10T00:00
   kind: draft
   state: drafting
   planned: false
@@ -449,7 +372,7 @@ milestones:
 - id: graph-sampling.submit
   project: graph-sampling
   title: submit
-  date: 2026-09-30
+  at: 2026-09-30T00:00
   kind: submitted
   state: under-review
   planned: true
@@ -470,7 +393,7 @@ milestones:
 - id: station-graphs.draft
   project: station-graphs
   title: draft
-  date: 2025-04-20
+  at: 2025-04-20T00:00
   kind: draft
   state: drafting
   planned: false
@@ -490,7 +413,7 @@ milestones:
 - id: station-graphs.preprint
   project: station-graphs
   title: preprint
-  date: 2025-08-30
+  at: 2025-08-30T00:00
   kind: preprint
   state: with-co-authors
   planned: false
@@ -510,7 +433,7 @@ milestones:
 - id: station-graphs.submitted
   project: station-graphs
   title: submitted
-  date: 2026-10-01
+  at: 2026-10-01T00:00
   kind: submitted
   state: under-review
   planned: false
@@ -532,7 +455,7 @@ milestones:
 - id: bayesian-rainfall.draft
   project: bayesian-rainfall
   title: draft
-  date: 2025-06-15
+  at: 2025-06-15T00:00
   kind: draft
   state: drafting
   planned: false
@@ -552,7 +475,7 @@ milestones:
 - id: bayesian-rainfall.v2
   project: bayesian-rainfall
   title: v2
-  date: 2025-11-20
+  at: 2025-11-20T00:00
   kind: closed
   state: null
   planned: false
@@ -572,7 +495,7 @@ milestones:
 - id: extreme-rainfall.draft
   project: extreme-rainfall
   title: draft
-  date: 2025-05-01
+  at: 2025-05-01T00:00
   kind: draft
   state: drafting
   planned: false
@@ -592,7 +515,7 @@ milestones:
 - id: extreme-rainfall.preprint
   project: extreme-rainfall
   title: preprint
-  date: 2025-10-12
+  at: 2025-10-12T00:00
   kind: preprint
   state: with-co-authors
   planned: false
@@ -612,7 +535,7 @@ milestones:
 - id: extreme-rainfall.submitted
   project: extreme-rainfall
   title: submitted
-  date: 2026-03-03
+  at: 2026-03-03T00:00
   kind: submitted
   state: under-review
   planned: false
@@ -634,7 +557,7 @@ milestones:
 - id: extreme-rainfall.accepted
   project: extreme-rainfall
   title: accepted
-  date: 2026-07-01
+  at: 2026-07-01T00:00
   kind: accepted
   state: accepted
   planned: false
@@ -654,7 +577,7 @@ milestones:
 - id: extreme-rainfall.published
   project: extreme-rainfall
   title: published
-  date: 2026-10-02
+  at: 2026-10-02T00:00
   kind: published
   state: published
   planned: false
@@ -674,7 +597,7 @@ milestones:
 - id: drought-indices.draft
   project: drought-indices
   title: draft
-  date: 2026-02-14
+  at: 2026-02-14T00:00
   kind: draft
   state: drafting
   planned: false
@@ -694,7 +617,7 @@ milestones:
 - id: drought-indices.preprint
   project: drought-indices
   title: preprint
-  date: 2027-02-01
+  at: 2027-02-01T00:00
   kind: preprint
   state: with-co-authors
   planned: true
@@ -714,7 +637,7 @@ milestones:
 - id: statistics-notes.draft
   project: statistics-notes
   title: draft
-  date: 2024-09-01
+  at: 2024-09-01T00:00
   kind: draft
   state: drafting
   planned: false
@@ -734,7 +657,7 @@ milestones:
 - id: statistics-notes.published
   project: statistics-notes
   title: published
-  date: 2025-01-20
+  at: 2025-01-20T00:00
   kind: published
   state: published
   planned: false
@@ -754,7 +677,7 @@ milestones:
 - id: graph-course.draft
   project: graph-course
   title: draft
-  date: 2026-05-05
+  at: 2026-05-05T00:00
   kind: draft
   state: drafting
   planned: false
@@ -774,489 +697,10 @@ milestones:
 - id: graph-course.preprint
   project: graph-course
   title: preprint
-  date: 2026-09-15
+  at: 2026-09-15T00:00
   kind: preprint
   state: with-co-authors
   planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links: []
-  color: null
-- id: lineage.milestones-1-to-4
-  project: lineage
-  title: Milestones 1 to 4
-  date: 2026-11-06
-  kind: change
-  state: developing
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit eac30ab
-    url: https://github.com/gondoresearch/lineage/commit/eac30ab
-  color: null
-- id: domains-and-line-styling.domains-closing-kinds-per-line-editing
-  project: domains-and-line-styling
-  title: Domains, closing kinds, per-line editing
-  date: 2026-11-06
-  kind: accepted
-  state: accepted
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 8f2ccdd
-    url: https://github.com/gondoresearch/lineage/commit/8f2ccdd
-  color: null
-- id: docker-packaging.dockerfile-and-compose
-  project: docker-packaging
-  title: Dockerfile and compose
-  date: 2026-11-06
-  kind: accepted
-  state: accepted
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 129970a
-    url: https://github.com/gondoresearch/lineage/commit/129970a
-  color: null
-- id: lineage.v0-1
-  project: lineage
-  title: v0.1
-  date: 2026-11-06
-  kind: release
-  state: developing
-  planned: false
-  labels: []
-  merges:
-  - domains-and-line-styling.domains-closing-kinds-per-line-editing
-  - docker-packaging.dockerfile-and-compose
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: v0.1
-    url: https://github.com/gondoresearch/lineage/releases/tag/v0.1
-  color: null
-- id: backup-and-restore.version-display-backup-and-restore
-  project: backup-and-restore
-  title: Version display, backup and restore
-  date: 2026-11-06
-  kind: accepted
-  state: accepted
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 2b7dee7
-    url: https://github.com/gondoresearch/lineage/commit/2b7dee7
-  color: null
-- id: lineage.v0-1-1
-  project: lineage
-  title: v0.1.1
-  date: 2026-11-06
-  kind: release
-  state: developing
-  planned: false
-  labels: []
-  merges:
-  - backup-and-restore.version-display-backup-and-restore
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: v0.1.1
-    url: https://github.com/gondoresearch/lineage/releases/tag/v0.1.1
-  color: null
-- id: accounts.design-one-workspace-per-user
-  project: accounts
-  title: 'Design: one workspace per user'
-  date: 2026-11-09
-  kind: draft
-  state: drafting
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links: []
-  color: null
-- id: accounts.accounts-demo-user-manage-cli
-  project: accounts
-  title: Accounts, demo user, manage CLI
-  date: 2026-11-09
-  kind: accepted
-  state: accepted
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 0bc301d
-    url: https://github.com/gondoresearch/lineage/commit/0bc301d
-  color: null
-- id: lighter-frontend.load-katex-and-dagre-on-demand
-  project: lighter-frontend
-  title: Load KaTeX and dagre on demand
-  date: 2026-11-09
-  kind: accepted
-  state: accepted
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 0bc301d
-    url: https://github.com/gondoresearch/lineage/commit/0bc301d
-  color: null
-- id: lineage.v0-2-0
-  project: lineage
-  title: v0.2.0
-  date: 2026-11-09
-  kind: release
-  state: developing
-  planned: false
-  labels: []
-  merges:
-  - accounts.accounts-demo-user-manage-cli
-  - lighter-frontend.load-katex-and-dagre-on-demand
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: v0.2.0
-    url: https://github.com/gondoresearch/lineage/releases/tag/v0.2.0
-  color: null
-- id: admin-accounts.settings-users
-  project: admin-accounts
-  title: Settings → Users
-  date: 2026-11-09
-  kind: accepted
-  state: accepted
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 55a7e3b
-    url: https://github.com/gondoresearch/lineage/commit/55a7e3b
-  color: null
-- id: lineage.v0-2-1
-  project: lineage
-  title: v0.2.1
-  date: 2026-11-09
-  kind: release
-  state: developing
-  planned: false
-  labels: []
-  merges:
-  - admin-accounts.settings-users
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: v0.2.1
-    url: https://github.com/gondoresearch/lineage/releases/tag/v0.2.1
-  color: null
-- id: encrypted-backups.options-sealed-backups-or-encryption-at-rest
-  project: encrypted-backups
-  title: 'Options: sealed backups or encryption at rest'
-  date: 2026-11-09
-  kind: draft
-  state: drafting
-  planned: false
-  labels: []
-  merges: []
-  markers:
-  - open-question
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links: []
-  color: null
-- id: encrypted-backups.sealed-admin-backups
-  project: encrypted-backups
-  title: Sealed admin backups
-  date: 2026-11-23
-  kind: change
-  state: developing
-  planned: true
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links: []
-  color: null
-- id: lineage.v0-3-0
-  project: lineage
-  title: v0.3.0
-  date: 2026-11-30
-  kind: release
-  state: developing
-  planned: true
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links: []
-  color: null
-- id: readme.redo-readme
-  project: readme
-  title: Redo README
-  date: 2026-11-06
-  kind: change
-  state: developing
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit e06faa6
-    url: https://github.com/gondoresearch/lineage/commit/e06faa6
-  color: null
-- id: readme.slim-readme-pointing-at-the-site
-  project: readme
-  title: Slim README pointing at the site
-  date: 2026-11-09
-  kind: change
-  state: developing
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 0bc301d
-    url: https://github.com/gondoresearch/lineage/commit/0bc301d
-  color: null
-- id: documentation-site.mkdocs-site-with-generated-reference
-  project: documentation-site
-  title: MkDocs site with generated reference
-  date: 2026-11-09
-  kind: change
-  state: developing
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 0bc301d
-    url: https://github.com/gondoresearch/lineage/commit/0bc301d
-  color: null
-- id: documentation-site.admin-accounts-documented
-  project: documentation-site
-  title: Admin accounts documented
-  date: 2026-11-09
-  kind: change
-  state: developing
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 55a7e3b
-    url: https://github.com/gondoresearch/lineage/commit/55a7e3b
-  color: null
-- id: documentation-site.compose-examples
-  project: documentation-site
-  title: Compose examples
-  date: 2026-11-09
-  kind: change
-  state: developing
-  planned: false
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links:
-  - label: commit 0ae58a6
-    url: https://github.com/gondoresearch/lineage/commit/0ae58a6
-  color: null
-- id: documentation-site.screenshots
-  project: documentation-site
-  title: Screenshots
-  date: 2026-11-10
-  kind: change
-  state: developing
-  planned: true
-  labels: []
-  merges: []
-  markers: []
-  line_pattern: null
-  line_color: null
-  line_width: null
-  line_opacity: null
-  line_text: ''
-  line_text_align: center
-  line_text_position: above
-  line_text_size: 10.0
-  links: []
-  color: null
-- id: documentation-site.published-on-github-pages
-  project: documentation-site
-  title: Published on GitHub Pages
-  date: 2026-11-12
-  kind: release
-  state: developing
-  planned: true
   labels: []
   merges: []
   markers: []
@@ -1281,6 +725,7 @@ references:
   text_position: above
   text_size: 10.0
   text_orientation: horizontal
+  created: null
 - id: builds-on-2
   type: builds-on
   from: graph-course.draft
@@ -1291,6 +736,7 @@ references:
   text_position: above
   text_size: 10.0
   text_orientation: horizontal
+  created: null
 - id: companion
   type: companion
   from: graph-course.preprint
@@ -1301,36 +747,7 @@ references:
   text_position: above
   text_size: 10.0
   text_orientation: horizontal
-- id: builds-on-3
-  type: builds-on
-  from: admin-accounts.settings-users
-  to: accounts.accounts-demo-user-manage-cli
-  color: null
-  text: ''
-  text_align: center
-  text_position: above
-  text_size: 10.0
-  text_orientation: horizontal
-- id: builds-on-4
-  type: builds-on
-  from: encrypted-backups.options-sealed-backups-or-encryption-at-rest
-  to: admin-accounts.settings-users
-  color: null
-  text: ''
-  text_align: center
-  text_position: above
-  text_size: 10.0
-  text_orientation: horizontal
-- id: companion-2
-  type: companion
-  from: documentation-site.mkdocs-site-with-generated-reference
-  to: lineage.v0-2-0
-  color: null
-  text: ''
-  text_align: center
-  text_position: above
-  text_size: 10.0
-  text_orientation: horizontal
+  created: null
 kinds:
 - id: draft
   name: draft
@@ -1387,20 +804,6 @@ kinds:
   size: 1.0
   default_state: null
   closes: true
-  color: null
-- id: change
-  name: change
-  shape: square
-  size: 1.0
-  default_state: developing
-  closes: false
-  color: null
-- id: release
-  name: release
-  shape: filled-diamond
-  size: 1.3
-  default_state: developing
-  closes: false
   color: null
 states:
 - id: drafting
@@ -1479,17 +882,6 @@ states:
   text_position: above
   text_size: 10.0
   waiting_on: nobody
-  color: null
-- id: developing
-  name: developing
-  line: solid
-  opacity: 1.0
-  line_width: 2.5
-  text: ''
-  text_align: center
-  text_position: above
-  text_size: 10.0
-  waiting_on: me
   color: null
 reftypes:
 - id: builds-on

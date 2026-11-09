@@ -2,7 +2,7 @@
   import { untrack } from 'svelte';
   // Create (optionally as a merge: preset.merges) or edit a milestone.
   import { api, messagesOf } from '../../api/client';
-  import { localToday } from '../../layout/model';
+  import { localNow } from '../../layout/model';
   import { entityName } from '../../lib/entities';
   import { app, change, select } from '../../state.svelte';
   import ColorInput from '../ColorInput.svelte';
@@ -18,14 +18,14 @@
   let { id, preset = {}, title }: { id?: string; preset?: Record<string, unknown>; title?: string } = $props();
   const ws = app.ws!;
   const existing = untrack(() => (id ? ws.milestones.find((m) => m.id === id) : undefined));
-  const p = untrack(() => preset) as { project?: string; merges?: string[]; date?: string };
+  const p = untrack(() => preset) as { project?: string; merges?: string[]; at?: string };
   const mergeSources = existing ? [] : (p.merges ?? []);
   const sourceProjects = mergeSources.map((s) => ws.milestones.find((m) => m.id === s)?.project);
 
   let d = $state({
     project: existing?.project ?? p.project ?? '',
     title: existing?.title ?? '',
-    date: existing?.date ?? p.date ?? localToday(),
+    at: existing?.at ?? p.at ?? localNow(),
     kind: existing?.kind ?? ws.kinds[0]?.id ?? '',
     state: existing?.state ?? '',
     planned: existing?.planned ?? false,
@@ -49,7 +49,7 @@
     errors = [];
     const common = {
       title: d.title,
-      date: d.date,
+      at: d.at,
       kind: d.kind,
       planned: d.planned,
       labels: d.labels.split(',').map((s) => s.trim()).filter(Boolean),
@@ -90,7 +90,7 @@
     </label>
   {/if}
   <label>Title <input bind:value={d.title} required placeholder="e.g. v2" /></label>
-  <label>Date <input type="date" bind:value={d.date} required /></label>
+  <label>Date and time <input type="datetime-local" bind:value={d.at} required /></label>
   <label>Kind
     <select bind:value={d.kind}>{#each ws.kinds as k}<option value={k.id}>{k.name}</option>{/each}</select>
   </label>

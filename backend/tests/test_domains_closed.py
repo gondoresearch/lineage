@@ -40,14 +40,14 @@ def test_domain_order(client):
     for n in ("A", "B", "C"):
         client.post("/api/domains", json={"name": n})
     client.patch("/api/domains/c", json={"position": 0})
-    assert [d["id"] for d in client.get("/api/workspace").json()["domains"]] == ["c", "research", "lineage-development", "a", "b"]
+    assert [d["id"] for d in client.get("/api/workspace").json()["domains"]] == ["c", "research", "a", "b"]
 
 
 # ------------------------------------------------------------------ closing kinds
 
 
 def test_closing_milestone_needs_no_state(client):
-    r = client.post("/api/milestones", json={"project": "graph-course", "title": "end", "date": "2026-10-30", "kind": "closed"})
+    r = client.post("/api/milestones", json={"project": "graph-course", "title": "end", "at": "2026-10-30", "kind": "closed"})
     assert r.status_code == 201 and r.json()["state"] is None
     d = client.get("/api/workspace").json()["derived"]["projects"]["graph-course"]
     assert d["head"] == "graph-course.end" and d["closed"] is True and d["current_state"] is None
@@ -62,7 +62,7 @@ def test_other_kinds_still_need_a_state(example_ws):
 
 
 def test_closing_kind_does_not_inherit_a_state(example_ws):
-    assert graph.default_state(example_ws, "closed", "graph-course", __import__("datetime").date(2026, 12, 1)) is None
+    assert graph.default_state(example_ws, "closed", "graph-course", __import__("datetime").datetime(2026, 12, 1)) is None
 
 
 # ------------------------------------------------------------------ migration of the old 'closed' state
@@ -77,8 +77,8 @@ def test_old_closed_state_is_converted_on_load(tmp_path):
         kinds=[M.Kind(id="draft", name="draft", shape="open-circle")],
         states=[M.State(id="drafting", name="drafting", line="solid", waiting_on="me"),
                 M.State(id="closed", name="closed", line="dotted", waiting_on="nobody")],
-        milestones=[M.Milestone(id="p.1", project="p", title="1", date="2025-01-01", kind="draft", state="drafting"),
-                    M.Milestone(id="p.2", project="p", title="2", date="2025-02-01", kind="draft", state="closed")],
+        milestones=[M.Milestone(id="p.1", project="p", title="1", at="2025-01-01", kind="draft", state="drafting"),
+                    M.Milestone(id="p.2", project="p", title="2", at="2025-02-01", kind="draft", state="closed")],
     )
     d.mkdir()
     (d / "workspace.yaml").write_text(yaml.safe_dump(ws.model_dump(by_alias=True, mode="json"), sort_keys=False))

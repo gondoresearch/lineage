@@ -1,6 +1,7 @@
 // Shared UI state (Svelte runes). Survives view switches.
 import { api, ApiError, auth, fetchMe, fetchWorkspace, messagesOf, resetEtag, type EntityType, type Workspace } from './api/client';
 import type { Filters } from './layout/filters';
+import type { Unit } from './layout/model';
 import type { Mode, ZoomT } from './layout/xscale';
 import { findEntity } from './lib/entities';
 
@@ -40,7 +41,7 @@ export const app = $state({
   version: null as string | null,
   error: null as string | null,
   view: 'timeline' as View,
-  timeline: { mode: 'time' as Mode, zoom: { k: 1, x: 0 } as ZoomT },
+  timeline: { mode: 'time' as Mode, unit: 'day' as Unit, zoom: { k: 1, x: 0 } as ZoomT },
   panel: null as Panel | null,
   toast: null as Toast | null,
   picking: null as Picking | null,

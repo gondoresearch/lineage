@@ -1,0 +1,1 @@
+Milestones get a date and a time; references record when they were made; the timeline gets a Days / Hours switch.

@@ -91,15 +91,41 @@ describe('timeScale', () => {
     const many = Array.from({ length: 12 }, (_, r) => ({ date: '2025-12-30', rank: r }));
     const t = timeScale([{ date: '2025-01-01', rank: 0 }, ...many], '2025-06-01', 400);
     const ticks = t.ticks(IDENTITY, 400);
-    // every label left of the crowded day stays left of it, and labels keep their order and spacing
-    const crowded = t.x('2025-12-30', 0, IDENTITY);
-    for (const tick of ticks.filter((k) => k.label !== '2026')) expect(tick.x).toBeLessThanOrEqual(crowded + 1);
+    // labels are in order and never closer than 60 px; the stretched crowded day gets finer labels
     for (let i = 1; i < ticks.length; i++) expect(ticks[i].x - ticks[i - 1].x).toBeGreaterThanOrEqual(60);
+    // no label lands among the slots of the crowded day; the next year's label comes after them
+    const first = t.x('2025-12-30', 0, IDENTITY);
+    const last = t.x('2025-12-30', 11, IDENTITY);
+    for (const k of ticks) expect(k.x <= first + 1 || k.x >= last - 1).toBe(true);
+    const y2026 = ticks.find((k) => k.label === '2026');
+    if (y2026) expect(y2026.x).toBeGreaterThanOrEqual(last);
+  });
+
+  it('adds finer labels where crowded times are stretched apart', () => {
+    // 20 milestones a minute apart on one afternoon, in a year-long axis: stretched far apart
+    const busy = Array.from({ length: 20 }, (_, i) => ({ date: `2025-06-01T14:${String(i).padStart(2, '0')}`, rank: 0 }));
+    const t = timeScale([{ date: '2025-01-01T00:00', rank: 0 }, ...busy, { date: '2025-12-31T00:00', rank: 0 }], '2025-03-01T00:00', 1000);
+    const z = { k: 40, x: -16_500 }; // that afternoon in view
+    const a = t.x('2025-06-01T14:00', 0, z);
+    const b = t.x('2025-06-01T14:19', 0, z);
+    expect(b - a).toBeGreaterThanOrEqual(19 * 20); // stretched
+    const inside = t.ticks(z, 1000).filter((k) => k.x > a && k.x < b);
+    expect(inside.length).toBeGreaterThan(0); // and labelled inside
   });
 
   it('ticks follow the zoom', () => {
     const t = xs.ticks({ k: 4, x: -1500 }, 1000);
     expect(t.length).toBeGreaterThan(1);
     for (const tick of t) expect(tick.x).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('timestamps', () => {
+  it('timeMs reads dates and timestamps', async () => {
+    const { timeMs, when, localNow } = await import('./model');
+    expect(timeMs('2025-03-01T14:30') - timeMs('2025-03-01')).toBe((14 * 60 + 30) * 60_000);
+    expect(when('2025-03-01T00:00')).toBe('2025-03-01');
+    expect(when('2025-03-01T14:30')).toBe('2025-03-01 14:30');
+    expect(localNow(new Date(2026, 10, 9, 8, 5))).toBe('2026-11-09T08:05');
   });
 });

@@ -55,6 +55,16 @@ Work on a **scratch data folder**, never on your real `data/` folder. Most secti
 - [ ] The legend lists groups, kinds (with their shapes and sizes), states (pattern, colour, opacity, thickness), references, fork/merge lines, markers, planned/overdue and today.
 - [ ] Switch to another view and back → zoom and pan are kept.
 
+### Days and hours (0.3)
+
+- [ ] Log in as **lineage** / **lineage** → branches under *gondoresearch/lineage*; feature branches fork from *main* and their pull requests are merged back by merge commits; nothing overlaps.
+- [ ] **Hours** → the label "today" becomes "now"; scroll-zoom into 9 November → the axis shows hours, then half-hours and minutes; each commit sits at its time (hover shows it).
+- [ ] **Days** → back to whole days; same-day steps keep their history order.
+- [ ] Open a milestone's **Edit** → "Date and time" shows its time; change it to an earlier time on the same day → it moves left in Hours.
+- [ ] **Add milestone** → date and time start at the current time.
+- [ ] **Add reference** → a "Recorded" field with the current time; the reference's panel shows it; references from before 0.3 say "unknown".
+- [ ] Open a milestone (side panel open) → the whole timeline stays in view.
+
 ## 4. Selecting and the side panel
 
 - [ ] Click a milestone symbol → the side panel shows it (project, date, kind, state, markers, labels, merges, links, colour, description) and a blue ring around it on the timeline.
@@ -185,7 +195,7 @@ For each type below: create one, edit it, check the change on screen and in `wor
 
 ## 16. Backup and restore
 
-- [ ] Toolbar shows **lineage v0.2.1** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
+- [ ] Toolbar shows **lineage v0.3.0** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
 - [ ] Settings → **Download a backup** → the browser downloads `lineage-backup-<version>-<date>-<time>.tar.gz`.
 - [ ] `tar -tzf <file>` → `lineage-backup.json`, `workspace.yaml`, `descriptions/…`; no `.history`.
 - [ ] `tar -xzOf <file> lineage-backup.json` → app "lineage", format 1, the version and the creation time.

@@ -30,7 +30,7 @@ This walks you through running lineage and exploring the example data. It takes 
 
 ## 2. Log in as the demo user
 
-On its first start, lineage creates an account **demo** with password **demo**, whose workspace is a copy of the example data: a few fictional research papers, a teaching project, and lineage's own development history (the *lineage development* domain). Log in with it.
+On its first start, lineage creates two showcase accounts. Log in as **demo** with password **demo**: its workspace is a copy of the example data, a few fictional research papers and teaching projects. The other one, **lineage** (password **lineage**), holds lineage's own development history in GitHub words — try it after this tour.
 
 <figure markdown="span">
   [![The login page.](assets/screenshots/login.png){ width="320" }](assets/screenshots/login.png)
@@ -38,7 +38,7 @@ On its first start, lineage creates an account **demo** with password **demo**, 
 </figure>
 
 !!! note
-    The demo account exists so you can look around. Before making lineage reachable from other machines, delete it or change its password — see [Accounts](hosting/accounts.md#the-demo-account).
+    The showcase accounts exist so you can look around. Before making lineage reachable from other machines, delete it or change its password — see [Accounts](hosting/accounts.md#the-demo-account).
 
 ## 3. Read the timeline
 

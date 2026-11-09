@@ -10,7 +10,7 @@ lineage borrows git's model of history and adds what git does not record: what h
 | **Domain** | an optional top-level area that groups are drawn under | none |
 | **Group** | a set of projects drawn together (e.g. a research thread) | closest: a branch namespace such as `feature/*` |
 | **Project** | a line of work (e.g. a paper) | branch |
-| **Milestone** | a dated step in a project | commit |
+| **Milestone** | a step in a project, with a date and time | commit |
 | **Fork** | a project started from a milestone of another project | a branch created from a commit |
 | **Merge** | a milestone that brings in milestones of other projects | merge commit |
 | **Head** | a project's latest milestone that has happened | branch tip |
@@ -21,15 +21,15 @@ lineage borrows git's model of history and adds what git does not record: what h
 | **Marker** | a flag on milestones (warning, open question…) | closest: a tag |
 
 <figure markdown="span">
-  [![The *lineage development* domain of the demo workspace. **Releases** is one project, whose milestones (diamonds) are versions. Each project under **Features** forks from a release (grey curves); its last step is *accepted* (filled circle) and merged back into the next release (brown curves). Dashed arrows are *builds on* references; faded symbols are planned milestones.](../assets/screenshots/timeline-lineage.png)](../assets/screenshots/timeline-lineage.png)
-  <figcaption>The *lineage development* domain of the demo workspace. **Releases** is one project, whose milestones (diamonds) are versions. Each project under **Features** forks from a release (grey curves); its last step is *accepted* (filled circle) and merged back into the next release (brown curves). Dashed arrows are *builds on* references; faded symbols are planned milestones.</figcaption>
+  [![The **lineage** showcase account: this repository's history. Each feature branch forks from *main*, gets commits (dots) and a pull request (triangle), and is merged back by a merge commit on *main* (arrows); releases are diamonds. Dashed arrows are *depends on* references; faded symbols are planned.](../assets/screenshots/timeline-lineage.png)](../assets/screenshots/timeline-lineage.png)
+  <figcaption>The **lineage** showcase account: this repository's history. Each feature branch forks from *main*, gets commits (dots) and a pull request (triangle), and is merged back by a merge commit on *main* (arrows); releases are diamonds. Dashed arrows are *depends on* references; faded symbols are planned.</figcaption>
 </figure>
 
 ## What is derived, never stored
 
 lineage stores as little as possible and computes the rest, so the files stay simple and cannot contradict themselves:
 
-- Within a project, milestones are ordered by **date**, then by the order they were created; each one's parent is the previous one.
+- Within a project, milestones are ordered by **date and time**, then by the order they were created; each one's parent is the previous one.
 - A project is a **fork** if its `from` points at a milestone of another project. A milestone is a **merge** if its `merges` lists milestones of other projects.
 - A project's **head** is its latest non-planned milestone. Its **current state** is the head's state, and its **time in state** is today minus the head's date.
 - A project whose head is merged into another project is **merged**. A project whose head has a kind that *closes* the project (such as "closed") ends there and has no state.

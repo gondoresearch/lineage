@@ -11,7 +11,7 @@
   import { dropSlots, laneSubtree, layoutLanes, moveRequest, nearestSlot } from '../layout/lanes';
   import { projectFilter } from '../layout/filters';
   import { relatedMilestones } from '../layout/highlight';
-  import { indexWorkspace, localToday } from '../layout/model';
+  import { indexWorkspace, keyAt, localNow, localToday, when } from '../layout/model';
   import { computeTimeline, ranks } from '../layout/timeline';
   import { eventScale, timeScale, type Mode } from '../layout/xscale';
   import { app, change, isSelected, isSelectedLine, select, selectLine, showToast, stopPicking } from '../state.svelte';
@@ -32,7 +32,8 @@
   let plotEl: SVGGElement | undefined = $state();
   let zoomer: ZoomBehavior<SVGGElement, unknown> | undefined;
 
-  const today = localToday();
+  /** today (Days) or now (Hours), at the unit the timeline uses */
+  const today = $derived(app.timeline.unit === 'hour' ? localNow() : localToday());
   const idx = $derived(indexWorkspace(ws));
   const c = $derived(colors(idx));
   const lanes = $derived(layoutLanes(idx, projectFilter(ws, app.filters)));
@@ -43,11 +44,12 @@
   const plotW = $derived(Math.max(100, width - LABEL_W));
   const plotH = $derived(lanes.height);
   const xs = $derived.by(() => {
-    const rk = ranks(idx);
-    const slots = ws.milestones.map((m) => ({ date: m.date, rank: rk.get(m.id) ?? 0 }));
+    const unit = app.timeline.unit;
+    const rk = ranks(idx, unit);
+    const slots = ws.milestones.map((m) => ({ date: keyAt(m.at, unit), rank: rk.get(m.id) ?? 0 }));
     return app.timeline.mode === 'time' ? timeScale(slots, today, plotW) : eventScale(slots, today, plotW);
   });
-  const geo = $derived(computeTimeline(idx, lanes, xs, app.timeline.zoom, today));
+  const geo = $derived(computeTimeline(idx, lanes, xs, app.timeline.zoom, today, app.timeline.unit));
   const ticks = $derived(xs.ticks(app.timeline.zoom, plotW));
   const arrowColors = $derived([...new Set(geo.edges.filter((e) => e.arrow).map((e) => e.color))]);
   const titles = $derived(new Map(ws.milestones.map((m) => [m.id, m])));
@@ -57,7 +59,7 @@
     if (!plotEl) return;
     const sel = d3select(plotEl);
     zoomer = zoom<SVGGElement, unknown>()
-      .scaleExtent([0.25, 80])
+      .scaleExtent([0.25, 20_000]) // deep enough to read minutes in the Hours view
       .on('zoom', (e) => {
         app.timeline.zoom = { k: e.transform.k, x: e.transform.x };
       });
@@ -70,6 +72,10 @@
       sel.on('.zoom', null);
     };
   });
+
+  function setUnit(u: 'day' | 'hour') {
+    app.timeline.unit = u;
+  }
 
   function setMode(mode: Mode) {
     app.timeline.mode = mode;
@@ -184,6 +190,10 @@
     <button class:on={app.timeline.mode === 'time'} onclick={() => setMode('time')}>Time</button>
     <button class:on={app.timeline.mode === 'event'} onclick={() => setMode('event')}>Event order</button>
   </div>
+  <div class="seg" role="group" aria-label="Unit">
+    <button class:on={app.timeline.unit === 'day'} onclick={() => setUnit('day')} title="Place milestones by their day">Days</button>
+    <button class:on={app.timeline.unit === 'hour'} onclick={() => setUnit('hour')} title="Place milestones at their time of day">Hours</button>
+  </div>
   <button onclick={resetZoom}>Reset zoom</button>
   <span class="muted hint">Drag to pan, scroll to zoom.</span>
 </div>
@@ -221,7 +231,7 @@
           {/each}
 
           <line x1={geo.todayX} x2={geo.todayX} y1="-4" y2={plotH} stroke="var(--today)" stroke-width="1.5" />
-          <text x={geo.todayX + 4} y="-9" class="today">today</text>
+          <text x={geo.todayX + 4} y="-9" class="today">{app.timeline.unit === 'hour' ? 'now' : 'today'}</text>
 
           <!-- references first, so they never cover lanes, forks, merges or symbols -->
           {#each geo.edges.filter((e) => e.kind === 'reference') as e}
@@ -289,7 +299,7 @@
                   pickMilestone(n.id);
                 }
               }} aria-label={m?.title} data-id={n.id}>
-              <title>{m?.title} · {m?.date}{n.planned ? (n.overdue ? ' · planned, overdue' : ' · planned') : ''}</title>
+              <title>{m?.title} · {when(m?.at)}{n.planned ? (n.overdue ? ' · planned, overdue' : ' · planned') : ''}</title>
               <NodeShape shape={n.shape} x={n.x} y={n.y} r={n.r} color={n.color} />
               <circle cx={n.x} cy={n.y} r={n.r + 3} fill="transparent" />
             </g>

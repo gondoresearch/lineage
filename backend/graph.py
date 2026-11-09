@@ -82,14 +82,19 @@ def by_id(ws: M.Workspace, t: str) -> dict:
     return {e.id: e for e in getattr(ws, t)}
 
 
+def stamp(v) -> str:
+    """A timestamp as written in the files: 2026-11-09T14:30."""
+    return v.strftime("%Y-%m-%dT%H:%M")
+
+
 # ---------------------------------------------------------------- derived
 
 
 def ordered(ws: M.Workspace) -> dict[str, list[M.Milestone]]:
-    """Milestones per project, by date then creation (= list) order."""
+    """Milestones per project, by time then creation (= list) order."""
     out: dict[str, list] = {p.id: [] for p in ws.projects}
     for i, m in enumerate(ws.milestones):
-        out.setdefault(m.project, []).append((m.date, i, m))
+        out.setdefault(m.project, []).append((m.at, i, m))
     return {
         pid: [m for _, _, m in sorted(lst, key=lambda x: (x[0], x[1]))]
         for pid, lst in out.items()
@@ -223,10 +228,10 @@ def validate(ws: M.Workspace) -> list[str]:
             origin = ms_by_id[p.from_]
             if origin.project == p.id:
                 errs.append(f"{owner}: cannot fork from its own milestone '{p.from_}'.")
-            elif mine and origin.date > mine[0].date:
+            elif mine and origin.at > mine[0].at:
                 errs.append(
-                    f"{owner}: fork origin '{p.from_}' ({origin.date}) is dated after "
-                    f"the project's first milestone '{mine[0].id}' ({mine[0].date})."
+                    f"{owner}: fork origin '{p.from_}' ({stamp(origin.at)}) is dated after "
+                    f"the project's first milestone '{mine[0].id}' ({stamp(mine[0].at)})."
                 )
 
     for m in ws.milestones:
@@ -247,10 +252,10 @@ def validate(ws: M.Workspace) -> list[str]:
             src = ms_by_id[s]
             if src.project == m.project:
                 errs.append(f"{owner}: cannot merge '{s}' from its own project.")
-            elif src.date > m.date:
+            elif src.at > m.at:
                 errs.append(
-                    f"{owner}: merge source '{s}' ({src.date}) is dated after "
-                    f"the merging milestone ({m.date})."
+                    f"{owner}: merge source '{s}' ({stamp(src.at)}) is dated after "
+                    f"the merging milestone ({stamp(m.at)})."
                 )
 
     for r in ws.references:
@@ -292,7 +297,7 @@ def unique(base: str, existing) -> str:
 # ---------------------------------------------------------------- create / patch
 
 
-def default_state(ws: M.Workspace, kind: str, project: str, date) -> str | None:
+def default_state(ws: M.Workspace, kind: str, project: str, at) -> str | None:
     """Kind's default state, else the state of the milestone that will precede
     the new one (the fork origin for a project's first milestone)."""
     k = by_id(ws, "kinds").get(kind)
@@ -300,7 +305,7 @@ def default_state(ws: M.Workspace, kind: str, project: str, date) -> str | None:
         return None  # a closing milestone has no state
     if k is not None and k.default_state:
         return k.default_state
-    prev = [m for m in ordered(ws).get(project, []) if m.date <= date]
+    prev = [m for m in ordered(ws).get(project, []) if m.at <= at]
     if prev:
         return prev[-1].state
     p = by_id(ws, "projects").get(project)
@@ -314,9 +319,9 @@ def default_state(ws: M.Workspace, kind: str, project: str, date) -> str | None:
 def _add_milestone(ws: M.Workspace, fields: dict) -> M.Milestone:
     pid = fields["project"]
     mid = unique(f"{pid}.{slugify(fields['title'], 'milestone')}", by_id(ws, "milestones"))
-    if fields.get("state") is None:
-        fields["state"] = default_state(ws, fields["kind"], pid, fields["date"])
     m = M.Milestone.model_validate({"id": mid, **fields})
+    if m.state is None:
+        m.state = default_state(ws, m.kind, pid, m.at)
     ws.milestones.append(m)
     return m
 
@@ -332,6 +337,8 @@ def create(ws: M.Workspace, t: str, data: BaseModel):
     fields = data.model_dump(by_alias=True)
     if t == "milestones":
         return _add_milestone(ws, fields)
+    if t == "references" and fields.get("created") is None:
+        fields["created"] = M.now()
     source = fields["type"] if t == "references" else fields["name"]
     eid = unique(slugify(source, SLUG_FALLBACK[t]), by_id(ws, t))
     e = TYPES[t].model_validate({"id": eid, **fields})
@@ -472,12 +479,24 @@ def delete(ws: M.Workspace, t: str, eid: str) -> None:
 
 
 def migrate(raw: dict) -> dict:
-    """Bring older workspace.yaml files up to date (applied on load).
+    """Bring older workspace.yaml files up to date (applied on load)."""
+    _migrate_dates(raw)
+    _migrate_closed(raw)
+    return raw
 
-    'closed' used to be a state; it is now a kind that closes the project
+
+def _migrate_dates(raw: dict) -> None:
+    """Before 0.3, milestones had a `date` (a day); now they have `at` (a day and a time).
+    An old date becomes that day at 00:00."""
+    for m in raw.get("milestones") or []:
+        if isinstance(m, dict) and "date" in m and "at" not in m:
+            m["at"] = m.pop("date")
+
+
+def _migrate_closed(raw: dict) -> dict:
+    """'closed' used to be a state; it is now a kind that closes the project
     (its milestones have no state). Milestones in the old 'closed' state get
-    the 'closed' kind, and the state is removed.
-    """
+    the 'closed' kind, and the state is removed."""
     states = raw.get("states") or []
     if not any(isinstance(s, dict) and s.get("id") == "closed" for s in states):
         return raw

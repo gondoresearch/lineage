@@ -3,7 +3,7 @@
   import { colors } from '../layout/colors';
   import { projectFilter } from '../layout/filters';
   import { relatedProjects } from '../layout/highlight';
-  import { indexWorkspace, localToday } from '../layout/model';
+  import { indexWorkspace, localToday, when } from '../layout/model';
   import { formatDays, statusBoard, type Column } from '../layout/status';
   import { app, isSelected, select } from '../state.svelte';
 
@@ -48,10 +48,10 @@
               <span class="muted">nothing has happened yet</span>
             {/if}
           </div>
-          {#if head}<div class="row"><span class="muted">Current milestone</span> {head.title} <span class="muted">{head.date}</span></div>{/if}
+          {#if head}<div class="row"><span class="muted">Current milestone</span> {head.title} <span class="muted">{when(head.at)}</span></div>{/if}
           {#if next}
             <div class="row" class:overdue={card.nextOverdue}>
-              <span class="muted">Next</span> {next.title} <span class:muted={!card.nextOverdue}>{next.date}{card.nextOverdue ? ' · overdue' : ''}</span>
+              <span class="muted">Next</span> {next.title} <span class:muted={!card.nextOverdue}>{when(next.at)}{card.nextOverdue ? ' · overdue' : ''}</span>
             </div>
           {/if}
         </button>

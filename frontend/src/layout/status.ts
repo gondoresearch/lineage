@@ -1,7 +1,7 @@
 // Status board: one card per project, in three columns by who the current state waits on.
 import type { Workspace } from '../api/client';
 import { isInactive } from './filters';
-import { dayMs } from './model';
+import { timeMs as dayMs } from './model';
 
 export type Column = 'me' | 'others' | 'inactive';
 
@@ -31,10 +31,10 @@ export function statusBoard(ws: Workspace, today: string, visible: (pid: string)
       project: p.id,
       group: p.group,
       state: d?.current_state ?? null,
-      days: head ? Math.round((dayMs(today) - dayMs(head.date)) / 86_400_000) : null,
+      days: head ? Math.round((dayMs(today) - dayMs(head.at.slice(0, 10))) / 86_400_000) : null,
       head: head?.id ?? null,
       next: next?.id ?? null,
-      nextOverdue: !!next && next.date < today,
+      nextOverdue: !!next && next.at.slice(0, 10) < today,
     };
     const col: Column = isInactive(ws, p.id) ? 'inactive' : waiting.get(card.state!) === 'me' ? 'me' : 'others';
     cols[col].push(card);

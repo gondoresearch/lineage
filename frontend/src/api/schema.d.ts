@@ -883,10 +883,12 @@ export interface components {
             /** Title */
             title: string;
             /**
-             * Date
-             * Format: date
+             * At
+             * Format: date-time
+             * @description When it happened (or is planned): local date and time, 'YYYY-MM-DDTHH:MM'.
+             * @example 2026-11-09T14:30
              */
-            date: string;
+            at: string;
             /** Kind */
             kind: string;
             /** State */
@@ -963,10 +965,12 @@ export interface components {
             /** Title */
             title: string;
             /**
-             * Date
-             * Format: date
+             * At
+             * Format: date-time
+             * @description When it happened (or is planned): local date and time, 'YYYY-MM-DDTHH:MM'.
+             * @example 2026-11-09T14:30
              */
-            date: string;
+            at: string;
             /** Kind */
             kind: string;
             /** State */
@@ -1048,10 +1052,12 @@ export interface components {
             /** Title */
             title: string;
             /**
-             * Date
-             * Format: date
+             * At
+             * Format: date-time
+             * @description When it happened (or is planned): local date and time, 'YYYY-MM-DDTHH:MM'.
+             * @example 2026-11-09T14:30
              */
-            date: string;
+            at: string;
             /** Kind */
             kind: string;
             /** State */
@@ -1127,8 +1133,8 @@ export interface components {
         MilestonePatch: {
             /** Title */
             title?: string | null;
-            /** Date */
-            date?: string | null;
+            /** At */
+            at?: string | null;
             /** Kind */
             kind?: string | null;
             /** State */
@@ -1385,6 +1391,11 @@ export interface components {
              */
             text_orientation: "horizontal" | "along";
             /**
+             * Created
+             * @description When the reference was recorded (null: unknown, e.g. made before lineage 0.3).
+             */
+            created?: string | null;
+            /**
              * Description
              * @default
              */
@@ -1430,6 +1441,11 @@ export interface components {
              */
             text_orientation: "horizontal" | "along";
             /**
+             * Created
+             * @description When the reference was recorded; defaults to now.
+             */
+            created?: string | null;
+            /**
              * Description
              * @default
              */
@@ -1455,6 +1471,8 @@ export interface components {
             text_size?: number | null;
             /** Text Orientation */
             text_orientation?: ("horizontal" | "along") | null;
+            /** Created */
+            created?: string | null;
             /** Description */
             description?: string | null;
         };

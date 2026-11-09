@@ -2,7 +2,7 @@
   // Fields, rendered description and actions of the selected entity.
   import type { Domain, EntityType, Group, Kind, Marker, Milestone, Project, Reference, RefType, State } from '../api/client';
   import { colors } from '../layout/colors';
-  import { indexWorkspace, localToday } from '../layout/model';
+  import { indexWorkspace, localToday, when } from '../layout/model';
   import { entityName, findEntity, TYPE_LABEL } from '../lib/entities';
   import { app, openForm } from '../state.svelte';
   import EntityLink from './EntityLink.svelte';
@@ -50,7 +50,7 @@
         {@const mergedInto = ws.milestones.filter((x) => x.merges?.includes(m.id))}
         {@const refs = ws.references.filter((r) => r.from === m.id || r.to === m.id)}
         <dt>Project</dt><dd><EntityLink type="projects" id={m.project} /></dd>
-        <dt>Date</dt><dd>{m.date}{#if m.planned} · planned{#if m.date < localToday()} · <span class="danger-text">overdue</span>{/if}{/if}</dd>
+        <dt>When</dt><dd>{when(m.at)}{#if m.planned} · planned{#if m.at.slice(0, 10) < localToday()} · <span class="danger-text">overdue</span>{/if}{/if}</dd>
         <dt>Kind</dt><dd><EntityLink type="kinds" id={m.kind} /></dd>
         <dt>State</dt><dd>{#if m.state}<EntityLink type="states" id={m.state} />{:else if ws.kinds.find((k) => k.id === m.kind)?.closes}<span class="muted">none: closes the project</span>{/if}</dd>
         {#if m.markers?.length}
@@ -85,7 +85,7 @@
         <dd>
           {#each d?.milestones ?? [] as mid}
             {@const ms = ws.milestones.find((x) => x.id === mid)}
-            <div><EntityLink type="milestones" id={mid} label={ms?.title} /> <span class="muted">{ms?.date}{ms?.planned ? ' · planned' : ''}</span></div>
+            <div><EntityLink type="milestones" id={mid} label={ms?.title} /> <span class="muted">{when(ms?.at)}{ms?.planned ? ' · planned' : ''}</span></div>
           {/each}
         </dd>
         {@render links(p.links ?? [])}
@@ -95,6 +95,7 @@
         <dt>Type</dt><dd><EntityLink type="reftypes" id={r.type} /></dd>
         <dt>From</dt><dd><EntityLink type="milestones" id={r.from} /></dd>
         <dt>To</dt><dd><EntityLink type="milestones" id={r.to} /></dd>
+        <dt>Recorded</dt><dd>{r.created ? when(r.created) : 'unknown'}</dd>
         {#if r.text}<dt>Line text</dt><dd>“{r.text}” <span class="muted">· {PLACE[r.text_align]} · {r.text_position} · {r.text_orientation === 'along' ? 'along the line' : 'horizontal'}</span></dd>{/if}
         <dt>Colour</dt><dd>{@render swatch(r.color, c.reference(r))}</dd>
       {:else if type === 'domains'}
@@ -147,8 +148,8 @@
       <button onclick={editDescription}>Edit description</button>
       {#if type === 'milestones'}
         {@const m = e as Milestone}
-        <button onclick={() => openForm('projects', { preset: { from: m.id, group: ws.projects.find((p) => p.id === m.project)?.group, date: m.date }, title: 'Fork from here' })}>Fork from here</button>
-        <button onclick={() => openForm('milestones', { preset: { merges: [m.id], date: m.date }, title: 'Merge into…' })}>Merge into…</button>
+        <button onclick={() => openForm('projects', { preset: { from: m.id, group: ws.projects.find((p) => p.id === m.project)?.group, at: m.at }, title: 'Fork from here' })}>Fork from here</button>
+        <button onclick={() => openForm('milestones', { preset: { merges: [m.id], at: m.at }, title: 'Merge into…' })}>Merge into…</button>
         <button onclick={() => openForm('references', { preset: { from: m.id } })}>Add reference</button>
       {:else if type === 'projects'}
         <button onclick={() => openForm('milestones', { preset: { project: id } })}>Add milestone</button>

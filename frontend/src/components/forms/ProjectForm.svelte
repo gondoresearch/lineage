@@ -2,7 +2,7 @@
   import { untrack } from 'svelte';
   // Create a project with its first milestone (a fork if `from` is set), or edit one.
   import { api, messagesOf } from '../../api/client';
-  import { localToday } from '../../layout/model';
+  import { localNow } from '../../layout/model';
   import { app, change, select } from '../../state.svelte';
   import ColorInput from '../ColorInput.svelte';
   import DescriptionEditor from '../DescriptionEditor.svelte';
@@ -22,7 +22,7 @@
     links: $state.snapshot(existing?.links ?? []),
     color: existing?.color ?? null,
     description: '',
-    first: { title: '', date: p.date ?? localToday(), kind: ws.kinds[0]?.id ?? '', state: '', planned: false },
+    first: { title: '', at: (p.at as string | undefined) ?? localNow(), kind: ws.kinds[0]?.id ?? '', state: '', planned: false },
   });
   let errors = $state<string[]>([]);
   let busy = $state(false);
@@ -65,7 +65,7 @@
     <fieldset>
       <legend>First milestone</legend>
       <label>Title <input bind:value={d.first.title} required placeholder="e.g. draft" /></label>
-      <label>Date <input type="date" bind:value={d.first.date} required /></label>
+      <label>Date and time <input type="datetime-local" bind:value={d.first.at} required /></label>
       <label>Kind
         <select bind:value={d.first.kind}>{#each ws.kinds as k}<option value={k.id}>{k.name}</option>{/each}</select>
       </label>

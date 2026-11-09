@@ -7,8 +7,8 @@ It started as a manager for papers and theses: "commits" are versions of a paper
 All data lives in **plain files** (one YAML file plus Markdown descriptions per user) that you can read, edit by hand, back up and keep in git.
 
 <figure markdown="span">
-  [![lineage's own development, drawn with lineage: releases on the main line, features forked from it and merged back.](assets/screenshots/timeline-lineage.png)](assets/screenshots/timeline-lineage.png)
-  <figcaption>lineage's own development, drawn with lineage: releases on the main line, features forked from it and merged back.</figcaption>
+  [![lineage's own development, drawn with lineage (the *lineage* showcase account): branches fork from main, pull requests are merged back, releases are tagged.](assets/screenshots/timeline-lineage.png)](assets/screenshots/timeline-lineage.png)
+  <figcaption>lineage's own development, drawn with lineage (the *lineage* showcase account): branches fork from main, pull requests are merged back, releases are tagged.</figcaption>
 </figure>
 
 !!! warning "Preliminary, and heavily AI-assisted"

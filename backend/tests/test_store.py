@@ -45,9 +45,9 @@ def test_ids_are_slugs_with_suffix(empty_client):
     assert c.post("/api/groups", json={"name": "My Group", "color": "#000000"}).json()["id"] == "my-group"
     assert c.post("/api/groups", json={"name": "My group!", "color": "#000000"}).json()["id"] == "my-group-2"
     p = c.post("/api/projects", json={"title": "Paper", "group": "my-group",
-                                      "first_milestone": {"title": "v1", "date": "2026-01-01", "kind": "draft"}})
+                                      "first_milestone": {"title": "v1", "at": "2026-01-01", "kind": "draft"}})
     assert p.status_code == 201 and p.json()["id"] == "paper"
-    m = c.post("/api/milestones", json={"project": "paper", "title": "V1", "date": "2026-02-01", "kind": "draft"})
+    m = c.post("/api/milestones", json={"project": "paper", "title": "V1", "at": "2026-02-01", "kind": "draft"})
     assert m.json()["id"] == "paper.v1-2"
     r = c.post("/api/references", json={"type": "companion", "from": "paper.v1", "to": "paper.v1-2"})
     assert r.json()["id"] == "companion"
@@ -68,14 +68,14 @@ def test_milestone_project_not_patchable(client):
 
 
 def test_created_milestone_default_states(client):
-    m = client.post("/api/milestones", json={"project": "graph-course", "title": "sub", "date": "2026-10-01",
+    m = client.post("/api/milestones", json={"project": "graph-course", "title": "sub", "at": "2026-10-01",
                                              "kind": "submitted"}).json()
     assert m["state"] == "under-review"
-    m = client.post("/api/milestones", json={"project": "graph-course", "title": "pp", "date": "2026-10-02",
+    m = client.post("/api/milestones", json={"project": "graph-course", "title": "pp", "at": "2026-10-02",
                                              "kind": "preprint"}).json()
     assert m["state"] == "under-review"  # previous milestone's state
     p = client.post("/api/projects", json={"title": "Fork", "group": "teaching", "from": "graph-course.preprint",
-                                           "first_milestone": {"title": "v1", "date": "2026-09-20", "kind": "preprint"}})
+                                           "first_milestone": {"title": "v1", "at": "2026-09-20", "kind": "preprint"}})
     assert p.status_code == 201
     ws = client.get("/api/workspace").json()
     first = next(m for m in ws["milestones"] if m["id"] == "fork.v1")
@@ -84,12 +84,12 @@ def test_created_milestone_default_states(client):
 
 def test_milestone_without_inheritable_state_rejected(client):
     r = client.post("/api/projects", json={"title": "X", "group": "teaching",
-                                           "first_milestone": {"title": "v1", "date": "2026-01-01", "kind": "preprint"}})
+                                           "first_milestone": {"title": "v1", "at": "2026-01-01", "kind": "preprint"}})
     assert r.status_code == 422 and any("has no state" in e for e in r.json()["errors"])
 
 
 def test_merge_is_milestone_with_merges(client):
-    r = client.post("/api/milestones", json={"project": "graph-course", "title": "merge", "date": "2026-10-10",
+    r = client.post("/api/milestones", json={"project": "graph-course", "title": "merge", "at": "2026-10-10",
                                              "kind": "draft", "merges": ["graph-sampling.draft"]})
     assert r.status_code == 201
     d = client.get("/api/workspace").json()["derived"]
@@ -99,12 +99,11 @@ def test_merge_is_milestone_with_merges(client):
 def test_group_reorder(client):
     def order():
         return [g["id"] for g in client.get("/api/workspace").json()["groups"]]
-    lineage = ["releases", "features", "documentation"]
-    assert order() == ["graph-learning", "climate-statistics", "teaching", *lineage]
+    assert order() == ["graph-learning", "climate-statistics", "teaching"]
     client.patch("/api/groups/teaching", json={"position": 0})
-    assert order() == ["teaching", "graph-learning", "climate-statistics", *lineage]
+    assert order() == ["teaching", "graph-learning", "climate-statistics"]
     client.patch("/api/groups/teaching", json={"position": 99})
-    assert order() == ["graph-learning", "climate-statistics", *lineage, "teaching"]
+    assert order() == ["graph-learning", "climate-statistics", "teaching"]
 
 
 def test_settings_patch(client):
@@ -287,3 +286,36 @@ def test_moving_a_fork_takes_only_its_own_subtree(client):
     groups = {p["id"]: p["group"] for p in client.get("/api/workspace").json()["projects"]}
     assert groups["spectral-filters-journal"] == groups["spectral-filters-tutorial"] == "teaching"
     assert groups["spectral-filters"] == "graph-learning"
+
+
+# ------------------------------------------------------------------ timestamps (0.3)
+
+
+def test_old_dates_load_as_midnight_and_are_written_as_timestamps(example_dir):
+    p = example_dir / "workspace.yaml"
+    p.write_text(p.read_text().replace("  at: 2025-01-10T00:00", "  date: 2025-01-10"))
+    ws = S.Store(example_dir).read()
+    m = next(m for m in ws.milestones if m.id == "spectral-filters.draft")
+    assert m.at.isoformat() == "2025-01-10T00:00:00"
+    assert "at: 2025-01-10T00:00" in S.to_yaml(ws)
+
+
+def test_milestone_times_order_and_api(client):
+    r = client.post("/api/milestones", json={"project": "graph-course", "title": "late", "at": "2026-10-01T18:00", "kind": "draft"})
+    assert r.status_code == 201 and r.json()["at"] == "2026-10-01T18:00"
+    r = client.post("/api/milestones", json={"project": "graph-course", "title": "early", "at": "2026-10-01T09:30:45", "kind": "draft"})
+    assert r.json()["at"] == "2026-10-01T09:30"  # seconds dropped
+    order = client.get("/api/workspace").json()["derived"]["projects"]["graph-course"]["milestones"]
+    assert order.index("graph-course.early") < order.index("graph-course.late")  # by time, not creation
+    bad = client.post("/api/milestones", json={"project": "graph-course", "title": "tz", "at": "2026-10-01T09:30+02:00", "kind": "draft"})
+    assert bad.status_code == 422 and "time zone" in bad.json()["errors"][0]
+
+
+def test_references_record_when_they_were_made(client):
+    r = client.post("/api/references", json={"type": "builds-on", "from": "graph-sampling.draft", "to": "spectral-filters.draft"})
+    assert r.status_code == 201 and len(r.json()["created"]) == 16  # YYYY-MM-DDTHH:MM, now
+    r = client.post("/api/references", json={"type": "builds-on", "from": "graph-sampling.draft", "to": "spectral-filters.preprint",
+                                             "created": "2026-01-02T03:04"})
+    assert r.json()["created"] == "2026-01-02T03:04"
+    rid = r.json()["id"]
+    assert client.patch(f"/api/references/{rid}", json={"created": "2026-02-03T04:05"}).json()["created"] == "2026-02-03T04:05"

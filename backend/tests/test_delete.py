@@ -45,8 +45,7 @@ def test_project_delete_cascades(client, example_dir):
     ws = workspace(client)
     assert "graph-course" not in ids(ws, "projects")
     assert not any(m["project"] == "graph-course" for m in ws["milestones"])
-    # the other references of the example data (incl. the lineage-development domain) are untouched
-    assert ids(ws, "references") == {"builds-on", "builds-on-3", "builds-on-4", "companion-2"}
+    assert ids(ws, "references") == {"builds-on"}
 
 
 def test_project_delete_removes_description_files(client, example_dir):
@@ -102,7 +101,7 @@ def test_milestone_blocked_as_merge_source(client):
 
 def test_only_milestone_blocked(client):
     client.post("/api/projects", json={"title": "Solo", "group": "teaching",
-                                       "first_milestone": {"title": "v1", "date": "2026-01-01", "kind": "draft"}})
+                                       "first_milestone": {"title": "v1", "at": "2026-01-01", "kind": "draft"}})
     r = client.delete("/api/milestones/solo.v1")
     assert r.status_code == 409
     assert r.json()["blockers"][0]["reason"] == "this is the project's only milestone"
@@ -142,7 +141,7 @@ def test_state_blocked_by_milestones_and_kinds(client):
 def test_reftype_blocked_while_in_use(client):
     r = client.delete("/api/reftypes/companion")
     assert r.status_code == 409
-    assert refs(r.json()["blockers"]) == {("references", "companion"), ("references", "companion-2")}
+    assert refs(r.json()["blockers"]) == {("references", "companion")}
 
 
 def test_unused_vocabulary_deleted(client):

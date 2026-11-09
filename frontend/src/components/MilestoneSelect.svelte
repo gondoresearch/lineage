@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { when } from '../layout/model';
   // A <select> of milestones grouped by project (project order).
   import { app } from '../state.svelte';
 
@@ -42,7 +43,7 @@
   {#each groups as g}
     <optgroup label={g.project.title}>
       {#each g.milestones as m}
-        <option value={m.id}>{m.title} · {m.date}{m.planned ? ' (planned)' : ''}</option>
+        <option value={m.id}>{m.title} · {when(m.at)}{m.planned ? ' (planned)' : ''}</option>
       {/each}
     </optgroup>
   {/each}

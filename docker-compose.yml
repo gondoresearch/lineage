@@ -6,8 +6,9 @@ services:
     user: "${LINEAGE_UID:-1000}:${LINEAGE_GID:-1000}"
     environment:
       DATA_DIR: /data
-      # On the first start a "demo" account (password "demo") is created with the example data.
-      # Set to "0" to skip it; change or delete it before exposing lineage (see the README).
+      # On the first start two showcase accounts are created with the example data: "demo"
+      # (password "demo") and "lineage" (password "lineage"). Set to "0" to skip them; change or
+      # delete them before exposing lineage (see the README).
       LINEAGE_DEMO: "${LINEAGE_DEMO:-1}"
       # Set to "1" when lineage is served over HTTPS, so the login cookie is only sent over HTTPS.
       LINEAGE_SECURE_COOKIE: "${LINEAGE_SECURE_COOKIE:-0}"

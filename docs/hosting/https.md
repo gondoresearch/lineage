@@ -4,7 +4,7 @@ lineage speaks plain HTTP. On your own machine that is fine: the Docker setup pu
 
 ## Checklist
 
-1. Delete the demo account or change its password ([Accounts](accounts.md#the-demo-account)).
+1. Delete the showcase accounts (demo, lineage) or change their passwords ([Accounts](accounts.md#the-demo-account)).
 2. Put lineage behind an HTTPS reverse proxy (examples below).
 3. Set `LINEAGE_SECURE_COOKIE=1`, so browsers send the login cookie over HTTPS only.
 4. Keep the published port on `127.0.0.1` if the proxy runs on the same machine; otherwise publish `8080:8000` and make sure only the proxy can reach it.

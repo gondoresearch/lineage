@@ -1,0 +1,1 @@
+Admins add users, set passwords, delete users and back up or restore their workspaces.

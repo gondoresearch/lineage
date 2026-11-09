@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localNow } from '../../layout/model';
   // Create a reference from a milestone (type, then click the target milestone on
   // the timeline), or edit an existing reference's type and colour.
   import { untrack } from 'svelte';
@@ -24,6 +25,7 @@
     text_position: existing?.text_position ?? ('above' as 'above' | 'middle' | 'below'),
     text_orientation: existing?.text_orientation ?? ('horizontal' as 'horizontal' | 'along'),
     text_size: existing?.text_size ?? 10,
+    created: existing?.created ?? localNow(),
     description: '',
   });
   const directed = $derived(ws.reftypes.find((t) => t.id === d.type)?.directed);
@@ -59,8 +61,8 @@
     const text = { text: d.text, text_align: d.text_align, text_position: d.text_position, text_orientation: d.text_orientation, text_size: d.text_size };
     try {
       const r = existing
-        ? await change(() => api.update('references', existing.id, { type: d.type, color: d.color, ...text }), 'Saved reference.')
-        : await change(() => api.create('references', { type: d.type, from, to: d.to, color: d.color, ...text, description: d.description }), 'Added reference.');
+        ? await change(() => api.update('references', existing.id, { type: d.type, color: d.color, created: d.created || null, ...text }), 'Saved reference.')
+        : await change(() => api.create('references', { type: d.type, from, to: d.to, color: d.color, created: d.created || null, ...text, description: d.description }), 'Added reference.');
       select('references', r.id);
     } catch (e) {
       errors = messagesOf(e);
@@ -98,6 +100,7 @@
   <LineTextFields bind:text={d.text} bind:align={d.text_align} bind:position={d.text_position} bind:orientation={d.text_orientation} bind:size={d.text_size}
     alongLabels={['near the source', 'middle', 'near the target']} />
   <div class="field"><span>Colour</span><ColorInput bind:value={d.color} /></div>
+  <label>Recorded <input type="datetime-local" bind:value={d.created} /></label>
   {#if !existing}<div class="field"><span>Description</span><DescriptionEditor bind:value={d.description} /></div>{/if}
 </FormShell>
 

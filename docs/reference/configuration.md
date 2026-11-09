@@ -7,8 +7,8 @@ lineage is configured with environment variables.
 | Variable | Default | Effect |
 |---|---|---|
 | `DATA_DIR` | `/data` | The data folder: `accounts.yaml`, `.secret` and `users/`. Created if missing. Also used by the [command line](cli.md). |
-| `LINEAGE_DEMO` | `1` | Create the demo account (`demo` / `demo`, with the example data) on the first start, when `accounts.yaml` does not exist yet. `0` skips it. |
-| `LINEAGE_EXAMPLES` | `<repo>/examples/papers` | The data folder the demo account is copied from. Set to `/app/examples/papers` in the Docker image. |
+| `LINEAGE_DEMO` | `1` | Create the showcase accounts on the first start, when `accounts.yaml` does not exist yet: `demo` / `demo` (papers) and `lineage` / `lineage` (this repository's history). `0` skips them. |
+| `LINEAGE_EXAMPLES` | `<repo>/examples` | The folder holding the example data folders (`papers/`, `lineage/`) the showcase accounts are copied from. Set to `/app/examples` in the Docker image. |
 | `LINEAGE_SECURE_COOKIE` | `0` | `1` marks the login cookie *Secure*: browsers send it over HTTPS only. Turn it on when lineage is served over HTTPS. |
 | `FRONTEND_DIR` | `<repo>/frontend/dist` | The built frontend, served at `/` if the folder exists. Set to `/app/frontend/dist` in the Docker image. |
 

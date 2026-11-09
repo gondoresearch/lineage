@@ -1,1 +1,0 @@
-The main bundle went from 685 kB to 243 kB.

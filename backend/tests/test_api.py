@@ -127,7 +127,7 @@ def test_line_text_per_milestone(client):
     assert [m["id"] for m in ws["milestones"] if m["line_text"]] == ["station-graphs.preprint"]
     assert next(s for s in ws["states"] if s["id"] == "with-co-authors")["text"] == ""
     # can be set when creating a milestone too
-    r = client.post("/api/milestones", json={"project": "graph-course", "title": "x", "date": "2026-10-20", "kind": "draft",
+    r = client.post("/api/milestones", json={"project": "graph-course", "title": "x", "at": "2026-10-20", "kind": "draft",
                                              "line_text": "next step"})
     assert r.status_code == 201 and r.json()["line_text"] == "next step"
 

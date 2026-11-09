@@ -2,8 +2,8 @@
 
     make screenshots          # = make build, then: .venv/bin/python docs/screenshots.py
 
-Runs lineage on a scratch copy of the example data (user "alice", an admin, plus a few
-plain users), drives it with Playwright, and writes one PNG per screenshot. The clock is
+Runs lineage on scratch copies of the example data (user "alice", an admin, with the papers
+example; a few plain users; and the "lineage" showcase account), drives it with Playwright, and writes one PNG per screenshot. The clock is
 fixed, so retaking the screenshots only changes them when the app changed.
 
 Needs: the built frontend (make build), and Playwright (pip install playwright). It uses the
@@ -12,6 +12,7 @@ Chromium given by $CHROMIUM, else /usr/bin/chromium if present, else Playwright'
 """
 
 import math
+import re
 import os
 import shutil
 import socket
@@ -47,6 +48,8 @@ def prepare(root: Path) -> None:
     acc.add("alice", PASSWORD)  # first account: admin
     for name in ("bob", "carol", "dave"):
         acc.add(name, PASSWORD)
+    copy_workspace(ROOT / "examples" / "lineage", user_dir(root, "lineage"))
+    acc.add("lineage", "lineage", enforce_length=False)
 
 
 def start_server(root: Path, port: int) -> subprocess.Popen:
@@ -102,11 +105,16 @@ def content_shot(page: Page, name: str, container: str, *, pad: int = 12) -> Non
     print("  ", (OUT / f"{name}.png").relative_to(ROOT))
 
 
-def fit_timeline(page: Page) -> None:
+def fit_timeline(page: Page, after: str | None = None, before: str | None = None) -> None:
     """Zoom the timeline (with the mouse wheel, like a user) so the visible milestones fill its width."""
     svg = page.locator("svg[aria-label=Timeline]")
     sbox = svg.bounding_box()
-    xs = [b["x"] + b["width"] / 2 for b in (n.bounding_box() for n in page.locator("g.node").all()) if b]
+    nodes = page.locator("g.node").all()
+    if after or before:  # only milestones in this time window (their tooltip says "title · YYYY-MM-DD HH:MM")
+        def at(n):
+            return (n.locator("title").text_content() or "").split(" · ")[1][:16].replace(" ", "T")
+        nodes = [n for n in nodes if (not after or at(n) >= after) and (not before or at(n) <= before)]
+    xs = [b["x"] + b["width"] / 2 for b in (n.bounding_box() for n in nodes) if b]
     labels = [b["x"] + b["width"] for b in (t.bounding_box() for t in page.locator("text.label").all()) if b]
     left, right = max(labels) + 40, sbox["x"] + sbox["width"] - 40
     lo, hi = min(xs), max(xs)
@@ -120,6 +128,37 @@ def fit_timeline(page: Page) -> None:
     for _ in range(steps):
         page.mouse.wheel(0, total / steps)
         page.wait_for_timeout(30)
+    page.mouse.move(5, 5)
+
+
+def zoom_to_hours(page: Page, milestone_id: str) -> None:
+    """Zoom in around a milestone until the axis is labelled in hours, keeping it in view."""
+    svg = page.locator("svg[aria-label=Timeline]").bounding_box()
+    left = svg["x"] + 250  # the plot starts after the 250 px of lane labels
+    centre = left + (svg["width"] - 250) / 2
+    y = svg["y"] + svg["height"] - 20
+
+    def recentre():
+        box = node(page, milestone_id).bounding_box()
+        page.mouse.move(box["x"] + box["width"] / 2, y)
+        page.mouse.down()
+        page.mouse.move(centre, y, steps=8)
+        page.mouse.up()
+        page.wait_for_timeout(60)
+
+    for _ in range(80):
+        labels = [t.text_content() or "" for t in page.locator("text.tick").all()]
+        # hour labels ("01 PM", "02 PM"…), not just the noon marks d3 puts between days
+        if sum(bool(re.fullmatch(r"\d\d (AM|PM)", t)) and t != "12 PM" for t in labels) >= 3:
+            break
+        box = node(page, milestone_id).bounding_box()
+        if not (left + 60 < box["x"] < svg["x"] + svg["width"] - 60):
+            recentre()
+            box = node(page, milestone_id).bounding_box()
+        page.mouse.move(box["x"] + box["width"] / 2, y)
+        page.mouse.wheel(0, -200)
+        page.wait_for_timeout(50)
+    recentre()
     page.mouse.move(5, 5)
 
 
@@ -147,6 +186,18 @@ def close_panel(page: Page) -> None:
 # ------------------------------------------------------------------ the screenshots
 
 
+def log_in(page: Page, base: str, name: str, password: str = PASSWORD) -> None:
+    page.goto(base)
+    if page.get_by_role("button", name="Log out").count():
+        page.get_by_role("button", name="Log out").click()
+    page.get_by_label("User name").wait_for()
+    page.get_by_label("User name").fill(name)
+    page.get_by_label("Password").fill(password)
+    page.get_by_role("button", name="Log in").click()
+    page.locator("svg[aria-label=Timeline]").wait_for()
+    settle(page)
+
+
 def take(page: Page, base: str) -> None:
     page.clock.set_fixed_time(TODAY)
 
@@ -154,43 +205,12 @@ def take(page: Page, base: str) -> None:
     page.goto(base)
     page.get_by_label("User name").wait_for()
     shot(page, "login", page.locator("form.login"), pad=24)
-    page.get_by_label("User name").fill("alice")
-    page.get_by_label("Password").fill(PASSWORD)
-    page.get_by_role("button", name="Log in").click()
-    page.locator("svg[aria-label=Timeline]").wait_for()
 
-    # the timeline of the research example
-    only_groups(page, "Graph learning", "Climate statistics", "Teaching")
+    # ---------------------------------------------------------------- alice: the papers example
+    log_in(page, base, "alice")
     shot(page, "timeline")
 
-    # lineage's own history: forks, merges, releases, planned work (event order spreads same-day steps)
-    only_groups(page, "Releases", "Features", "Documentation")
-    page.get_by_role("button", name="Event order").click()
-    settle(page)
-    fit_timeline(page)
-    shot(page, "timeline-lineage")
-
-    # hover highlighting
-    node(page, "accounts.accounts-demo-user-manage-cli").hover()
-    shot(page, "hover")
-    page.mouse.move(5, 5)
-
-    # side panel of a merge milestone, then its edit form
-    node(page, "lineage.v0-2-0").click()
-    settle(page)
-    page.get_by_role("button", name="Reset zoom").click()  # the panel narrowed the timeline: fit it again
-    settle(page)
-    fit_timeline(page)
-    shot(page, "panel-milestone")
-    page.set_viewport_size({"width": VIEWPORT["width"], "height": 1400})
-    page.locator("aside.panel").get_by_role("button", name="Edit", exact=True).click()
-    content_shot(page, "edit-milestone", "aside.panel")
-    page.set_viewport_size(VIEWPORT)
-    close_panel(page)
-
     # a project with a description, and the description editor with math
-    page.get_by_role("button", name="Reset zoom").click()
-    page.get_by_role("button", name="Time", exact=True).click()
     only_groups(page, "Graph learning")
     page.locator('text.label[data-id="spectral-filters"]').click()
     shot(page, "panel-project")
@@ -205,7 +225,7 @@ def take(page: Page, base: str) -> None:
     content_shot(page, "delete", "aside.panel")
     close_panel(page)
 
-    # fork: picking a milestone on the timeline
+    # adding a reference: picking a milestone on the timeline
     node(page, "spectral-filters.accepted").click()
     page.locator("aside.panel").get_by_role("button", name="Add reference").click()
     page.wait_for_timeout(200)
@@ -231,13 +251,42 @@ def take(page: Page, base: str) -> None:
         sec = page.locator("section", has=page.locator("h2", has_text=section)).first
         sec.scroll_into_view_if_needed()
         shot(page, name, sec, pad=8)
+    go(page, "timeline")
+
+    # ---------------------------------------------------------------- lineage: the repository, in GitHub words
+    log_in(page, base, "lineage", "lineage")
+    fit_timeline(page)
+    shot(page, "timeline-lineage")
+
+    # hover highlighting
+    node(page, "feature-accounts.demo-account-and-manage-cli").hover()
+    shot(page, "hover")
+    page.mouse.move(5, 5)
+
+    # hours: the second day at its times of day
+    page.get_by_role("button", name="Hours", exact=True).click()
+    page.get_by_role("button", name="Reset zoom").click()
+    settle(page)
+    zoom_to_hours(page, "main.v0-2-0")
+    shot(page, "timeline-hours")
+    page.get_by_role("button", name="Days", exact=True).click()
+
+    # side panel of a release, then its edit form
+    page.get_by_role("button", name="Reset zoom").click()
+    node(page, "main.v0-2-0").click()
+    settle(page)
+    fit_timeline(page)
+    shot(page, "panel-milestone")
+    page.set_viewport_size({"width": VIEWPORT["width"], "height": 1400})
+    page.locator("aside.panel").get_by_role("button", name="Edit", exact=True).click()
+    content_shot(page, "edit-milestone", "aside.panel")
+    page.set_viewport_size(VIEWPORT)
+    close_panel(page)
 
     # dark mode
-    go(page, "timeline")
+    page.get_by_role("button", name="Reset zoom").click()
     while "dark" not in page.locator("button", has_text="Theme:").inner_text():
         page.locator("button", has_text="Theme:").click()
-    only_groups(page, "Releases", "Features", "Documentation")
-    page.get_by_role("button", name="Event order").click()
     settle(page)
     fit_timeline(page)
     shot(page, "timeline-dark")

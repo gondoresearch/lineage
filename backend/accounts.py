@@ -32,8 +32,20 @@ MIN_PASSWORD = 8
 SESSION_DAYS = 30
 SESSION_SECONDS = SESSION_DAYS * 24 * 3600
 COOKIE = "lineage_session"
+# Showcase accounts created on the first start: name -> (password, example folder in examples/).
+# Their passwords are public: they are never made admins automatically, and the log warns
+# while a showcase account still has its showcase password.
+SHOWCASE = {
+    "demo": ("demo", "papers"),
+    "lineage": ("lineage", "lineage"),
+}
 DEMO_NAME = "demo"
 DEMO_PASSWORD = "demo"
+
+
+def has_showcase_password(name: str, user: dict | None) -> bool:
+    """Whether this account is a showcase account that still has its public password."""
+    return name in SHOWCASE and user is not None and verify_password(SHOWCASE[name][0], user.get("password", ""))
 
 # scrypt parameters: ~16 MiB of memory, well under a tenth of a second.
 SCRYPT_N, SCRYPT_R, SCRYPT_P = 2**14, 8, 1
@@ -166,7 +178,7 @@ class Accounts:
             if name in self.users:
                 raise AccountError(f"User {name!r} already exists.")
             if admin is None:
-                admin = name != DEMO_NAME and not self.admins()
+                admin = name not in SHOWCASE and not self.admins()
             self.users[name] = {
                 "password": hash_password(password),
                 "epoch": 1,
@@ -355,7 +367,8 @@ class Registry:
 
 
 def default_examples() -> Path:
-    return Path(os.environ.get("LINEAGE_EXAMPLES", Path(__file__).resolve().parent.parent / "examples" / "papers"))
+    """The folder holding the example data folders (papers/, lineage/)."""
+    return Path(os.environ.get("LINEAGE_EXAMPLES", Path(__file__).resolve().parent.parent / "examples"))
 
 
 def copy_workspace(src: Path, dest: Path) -> None:
@@ -393,30 +406,32 @@ def adopt_legacy(root: Path, name: str) -> None:
 
 
 def bootstrap(root: Path, accounts: Accounts) -> None:
-    """First start: create the demo account (unless LINEAGE_DEMO=0). Warn
-    about an old single-user layout and about the demo password."""
+    """First start: create the showcase accounts (unless LINEAGE_DEMO=0). Warn about an
+    old single-user layout and about showcase accounts that still have their public password."""
     root = Path(root)
     if not accounts.exists() and os.environ.get("LINEAGE_DEMO", "1") != "0":
-        dest = user_dir(root, DEMO_NAME)
-        examples = default_examples()
-        if not dest.exists() and (examples / "workspace.yaml").is_file():
-            copy_workspace(examples, dest)
-        elif not dest.exists():
-            log.warning("Example data not found at %s; the demo user starts with an empty workspace.", examples)
-        accounts.add(DEMO_NAME, DEMO_PASSWORD, enforce_length=False)
-        log.warning("Created the demo account (user 'demo', password 'demo').")
+        for name, (password, folder) in SHOWCASE.items():
+            dest = user_dir(root, name)
+            example = default_examples() / folder
+            if not dest.exists() and (example / "workspace.yaml").is_file():
+                copy_workspace(example, dest)
+            elif not dest.exists():
+                log.warning("Example data not found at %s; %s starts with an empty workspace.", example, name)
+            accounts.add(name, password, enforce_length=False)
+            log.warning("Created the showcase account '%s' (password '%s').", name, password)
     if has_legacy_layout(root):
         log.warning(
             "%s holds a workspace from before accounts existed. Move it to a user with: "
             "python -m backend.manage adduser NAME --adopt",
             root,
         )
-    demo = accounts.get(DEMO_NAME)
-    if demo and verify_password(DEMO_PASSWORD, demo.get("password", "")):
-        log.warning(
-            "The demo account still has the password 'demo'. Change it or delete it before exposing lineage: "
-            "python -m backend.manage passwd demo | deluser demo"
-        )
+    for name, (password, _) in SHOWCASE.items():
+        if has_showcase_password(name, accounts.get(name)):
+            log.warning(
+                "The account '%s' still has its public password '%s'. Change it or delete it before exposing "
+                "lineage: python -m backend.manage passwd %s | deluser %s",
+                name, password, name, name,
+            )
     if not accounts.names():
         log.warning("There are no accounts. Create one with: python -m backend.manage adduser NAME")
     elif not accounts.admins():

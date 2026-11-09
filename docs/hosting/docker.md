@@ -8,7 +8,7 @@ mkdir data
 docker compose up -d              # builds the image the first time
 ```
 
-Open <http://localhost:8080> and log in as **demo** / **demo** (see [the demo account](accounts.md#the-demo-account)). Then create your own account:
+Open <http://localhost:8080> and log in as **demo** / **demo** or **lineage** / **lineage** (see [the showcase accounts](accounts.md#the-demo-account)). Then create your own account:
 
 ```sh
 docker compose exec -it lineage python -m backend.manage adduser alice
@@ -60,9 +60,9 @@ Set these in `.env` (or the environment of `docker compose`); all are described 
 | Variable | Default | Effect |
 |---|---|---|
 | `LINEAGE_UID`, `LINEAGE_GID` | `1000` | the user and group the container runs as |
-| `LINEAGE_DEMO` | `1` | `0`: do not create the demo account on the first start |
+| `LINEAGE_DEMO` | `1` | `0`: do not create the showcase accounts (demo, lineage) on the first start |
 | `LINEAGE_SECURE_COOKIE` | `0` | `1`: send the login cookie over HTTPS only |
 
 ## The image
 
-The image is built in two stages: Node builds the frontend, then a `python:3.13-slim` image installs the backend and serves the built frontend from a single uvicorn worker on port 8000. It includes the example data, used for the demo account.
+The image is built in two stages: Node builds the frontend, then a `python:3.13-slim` image installs the backend and serves the built frontend from a single uvicorn worker on port 8000. It includes the example data, used for the showcase accounts.

@@ -2,7 +2,7 @@
 import type { Milestone, Schemas, State } from '../api/client';
 import { colors } from './colors';
 import type { LaneLayout } from './lanes';
-import { projectMilestones, type Index } from './model';
+import { projectMilestones, type Index, keyAt, type Unit } from './model';
 import type { XScale, ZoomT } from './xscale';
 
 /** Default node radius; a kind's `size` scales it. Lines stop at a node's radius. */
@@ -167,12 +167,12 @@ export interface TimelineGeometry {
 }
 
 /**
- * Rank of each milestone among the milestones of its day, across all projects: its depth
- * along history links (previous milestone in the project, fork origin, merge sources)
- * that stay within the same day. A same-day fork therefore sits right of its origin, and
+ * Rank of each milestone among the milestones of its day (or, in hours, of its exact time),
+ * across all projects: its depth along history links (previous milestone in the project,
+ * fork origin, merge sources) that stay within the same day. A same-day fork therefore sits right of its origin, and
  * a same-day merge right of what it merges; unrelated same-day milestones share a rank.
  */
-export function ranks(idx: Index): Map<string, number> {
+export function ranks(idx: Index, unit: Unit = 'day'): Map<string, number> {
   const parents = new Map<string, string[]>();
   for (const p of idx.ws.projects) {
     const ms = projectMilestones(idx, p.id);
@@ -181,7 +181,7 @@ export function ranks(idx: Index): Map<string, number> {
       parents.set(m.id, [...prev, ...(m.merges ?? [])]);
     });
   }
-  const date = new Map(idx.ws.milestones.map((m) => [m.id, m.date]));
+  const date = new Map(idx.ws.milestones.map((m) => [m.id, keyAt(m.at, unit)]));
   const out = new Map<string, number>();
   const visiting = new Set<string>();
   const rank = (id: string): number => {
@@ -222,9 +222,12 @@ export function computeTimeline(
   xs: XScale,
   t: ZoomT,
   today: string,
+  unit: Unit = 'day',
 ): TimelineGeometry {
   const c = colors(idx);
-  const rank = ranks(idx);
+  const rank = ranks(idx, unit);
+  /** a milestone's place at the unit; `today` is given at the same unit */
+  const at = (m: Milestone) => keyAt(m.at, unit);
   const todayX = xs.today(t);
   const nodes: Node[] = [];
   const nodeById = new Map<string, Node>();
@@ -240,13 +243,13 @@ export function computeTimeline(
       const n: Node = {
         id: m.id,
         project: m.project,
-        x: xs.x(m.date, rank.get(m.id) ?? 0, t),
+        x: xs.x(at(m), rank.get(m.id) ?? 0, t),
         y: lane.y,
         r: R * (idx.kinds.get(m.kind)?.size ?? 1),
         shape: idx.kinds.get(m.kind)?.shape ?? 'open-circle',
         color: c.milestone(m),
         planned: !!m.planned,
-        overdue: !!m.planned && m.date < today,
+        overdue: !!m.planned && at(m) < today,
         markers: (m.markers ?? []).flatMap((id) => {
           const mk = idx.markers.get(id);
           return mk ? [{ id, icon: mk.icon, color: c.marker(mk), name: mk.name }] : [];
@@ -291,26 +294,26 @@ export function computeTimeline(
     const headIdx = d?.head ? ms.findIndex((m) => m.id === d.head) : -1;
     const head = headIdx >= 0 ? ms[headIdx] : undefined;
     // Head → today, in the head's state style, if someone is expected to act.
-    const toToday = !!head && !d.merged && !d.closed && head.date < today && stateOf(head)?.waiting_on !== 'nobody';
+    const toToday = !!head && !d.merged && !d.closed && at(head) < today && stateOf(head)?.waiting_on !== 'nobody';
     const closes = (m: Milestone) => !!idx.kinds.get(m.kind)?.closes;
 
     for (let i = 0; i + 1 < ms.length; i++) {
       const a = ms[i];
       const b = ms[i + 1];
       // Covered by the head → today line below.
-      if (toToday && i >= headIdx && b.date < today) continue;
+      if (toToday && i >= headIdx && at(b) < today) continue;
       // A closing milestone ends the lane: no line after it.
       if (closes(a)) continue;
       let x1 = laneNodes[i].x + laneNodes[i].r;
       // Before a future planned milestone, the faded part starts at today.
-      if (b.planned && b.date > today && !(a.planned && a.date > today)) x1 = Math.max(x1, todayX);
+      if (b.planned && at(b) > today && !(a.planned && at(a) > today)) x1 = Math.max(x1, todayX);
       seg(a, b, x1, laneNodes[i + 1].x - laneNodes[i + 1].r, !!(a.planned || b.planned));
     }
 
     if (toToday) {
       // Broken around overdue planned milestones so the line stops at their edges.
       let x1 = laneNodes[headIdx].x + laneNodes[headIdx].r;
-      for (let i = headIdx + 1; i < ms.length && ms[i].date < today; i++) {
+      for (let i = headIdx + 1; i < ms.length && at(ms[i]) < today; i++) {
         seg(head!, null, x1, laneNodes[i].x - laneNodes[i].r, false);
         x1 = laneNodes[i].x + laneNodes[i].r;
       }

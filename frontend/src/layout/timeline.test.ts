@@ -39,11 +39,11 @@ const ws = makeWs({
 });
 const idx = indexWorkspace(ws);
 const lanes = layoutLanes(idx);
-const dates = ws.milestones.map((m) => m.date);
+const dates = ws.milestones.map((m) => m.at.slice(0, 10));
 
 for (const [name, xs] of [
-  ['time', timeScale(ws.milestones.map((m) => ({ date: m.date, rank: ranks(idx).get(m.id)! })), TODAY, 1000)],
-  ['event', eventScale(ws.milestones.map((m) => ({ date: m.date, rank: ranks(idx).get(m.id)! })), TODAY, 1000)],
+  ['time', timeScale(ws.milestones.map((m) => ({ date: m.at.slice(0, 10), rank: ranks(idx).get(m.id)! })), TODAY, 1000)],
+  ['event', eventScale(ws.milestones.map((m) => ({ date: m.at.slice(0, 10), rank: ranks(idx).get(m.id)! })), TODAY, 1000)],
 ] as const) {
   describe(`computeTimeline (${name} scale)`, () => {
     const g = computeTimeline(idx, lanes, xs, { k: 1.5, x: -20 }, TODAY);
@@ -181,7 +181,7 @@ describe('kind size and markers', () => {
     markers: [{ id: 'flag', name: 'deadline', icon: 'flag', color: null, description: '' }],
   });
   const idx3 = indexWorkspace(ws3);
-  const g = computeTimeline(idx3, layoutLanes(idx3), timeScale(day0(ws3.milestones.map((m) => m.date)), TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx3, layoutLanes(idx3), timeScale(day0(ws3.milestones.map((m) => m.at.slice(0, 10))), TODAY, 1000), IDENTITY, TODAY);
   const node = (id: string) => g.nodes.find((n) => n.id === id)!;
 
   it('scales the node radius by the kind size', () => {
@@ -227,7 +227,7 @@ describe('line thickness and text', () => {
     settings: { fork_color: null, merge_color: null, fork_width: 3, merge_width: 1.8 },
   });
   const idx4 = indexWorkspace(ws4);
-  const g = computeTimeline(idx4, layoutLanes(idx4), timeScale(day0(ws4.milestones.map((m) => m.date)), TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx4, layoutLanes(idx4), timeScale(day0(ws4.milestones.map((m) => m.at.slice(0, 10))), TODAY, 1000), IDENTITY, TODAY);
 
   it('takes widths from the state, the reference type and the fork/merge settings', () => {
     expect(g.segments.find((s) => s.from === 'a.1')!.width).toBe(4);
@@ -397,7 +397,7 @@ describe('same-day milestones across projects', () => {
   });
   const idxd = indexWorkspace(wsd);
   const rk = ranks(idxd);
-  const slots = wsd.milestones.map((m) => ({ date: m.date, rank: rk.get(m.id)! }));
+  const slots = wsd.milestones.map((m) => ({ date: m.at.slice(0, 10), rank: rk.get(m.id)! }));
 
   it('ranks follow history within the day, across projects', () => {
     expect(['main.1', 'f.1', 'f.2', 'main.2', 'u.1', 'main.3'].map((id) => rk.get(id))).toEqual([0, 1, 2, 3, 0, 0]);
@@ -429,5 +429,47 @@ describe('same-day milestones across projects', () => {
     const far = { k: 400, x: -150_000 };
     const gap = near.x('2025-02-02', 0, far) - near.x('2025-02-01', 0, far);
     expect(gap).toBeGreaterThan(3 * NUDGE); // a day is wide: no pushing
+  });
+});
+
+describe('hours', () => {
+  // Two milestones on one day, at 09:00 and 14:00, in two unrelated projects; one planned for 16:00.
+  const wsh = makeWs({
+    groups: [{ id: 'g' }],
+    projects: [{ id: 'a', group: 'g' }, { id: 'b', group: 'g' }],
+    milestones: [
+      { id: 'a.1', at: '2025-03-01T14:00' },
+      { id: 'b.1', at: '2025-03-01T09:00' },
+      { id: 'b.2', at: '2025-03-01T16:00', planned: true },
+    ],
+  });
+  const idxh = indexWorkspace(wsh);
+  const slots = (unit: 'day' | 'hour') => {
+    const rk = ranks(idxh, unit);
+    return wsh.milestones.map((m) => ({ date: unit === 'day' ? m.at.slice(0, 10) : m.at, rank: rk.get(m.id)! }));
+  };
+
+  it('in days, same-day milestones of unrelated projects share a place', () => {
+    const g = computeTimeline(idxh, layoutLanes(idxh), timeScale(slots('day'), '2025-03-02', 1000), IDENTITY, '2025-03-02', 'day');
+    const x = (id: string) => g.nodes.find((n) => n.id === id)!.x;
+    expect(x('a.1')).toBe(x('b.1'));
+  });
+
+  it('in hours, milestones sit at their time of day', () => {
+    const now = '2025-03-01T15:00';
+    const xs = timeScale(slots('hour'), now, 1000);
+    const g = computeTimeline(idxh, layoutLanes(idxh), xs, { k: 200, x: -150_000 }, now, 'hour');
+    const x = (id: string) => g.nodes.find((n) => n.id === id)!.x;
+    expect(x('b.1')).toBeLessThan(x('a.1'));
+    expect(g.todayX).toBeGreaterThan(x('a.1'));
+    expect(g.todayX).toBeLessThan(x('b.2'));
+  });
+
+  it('overdue follows the unit: in hours, a planned time already past is overdue', () => {
+    const later = '2025-03-01T17:00';
+    const gh = computeTimeline(idxh, layoutLanes(idxh), timeScale(slots('hour'), later, 1000), IDENTITY, later, 'hour');
+    const gd = computeTimeline(idxh, layoutLanes(idxh), timeScale(slots('day'), '2025-03-01', 1000), IDENTITY, '2025-03-01', 'day');
+    expect(gh.nodes.find((n) => n.id === 'b.2')!.overdue).toBe(true);
+    expect(gd.nodes.find((n) => n.id === 'b.2')!.overdue).toBe(false); // still today
   });
 });

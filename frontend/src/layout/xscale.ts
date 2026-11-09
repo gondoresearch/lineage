@@ -2,7 +2,7 @@
 // zoom transform {k, x} is applied on top: screenX = k * baseX + x.
 // `rank` orders the milestones of one day (0, 1, 2…; see ranks() in timeline.ts).
 import { scaleUtc } from 'd3-scale';
-import { dayMs } from './model';
+import { timeMs as dayMs } from './model';
 
 export type Mode = 'time' | 'event';
 
@@ -61,7 +61,7 @@ export function timeScale(slots: Slot[], today: string, width: number): XScale {
   // For one zoom transform (recomputed when it changes): each day's exact screen x (`n`)
   // and the screen x of its first slot (`s`) once crowded days are moved apart.
   let cachedFor: ZoomT | null = null;
-  let layout = { start: new Map<string, number>(), n: [] as number[], s: [] as number[], gap: NUDGE };
+  let layout = { start: new Map<string, number>(), n: [] as number[], s: [] as number[], e: [] as number[], gap: NUDGE };
   const placed = (t: ZoomT) => {
     if (cachedFor?.k === t.k && cachedFor.x === t.x) return layout;
     const begin = apply(t, 0) + NUDGE / 2;
@@ -83,19 +83,23 @@ export function timeScale(slots: Slot[], today: string, width: number): XScale {
       s[i] = Math.min(s[i], limit - span(days[i]));
       limit = s[i] - gap;
     }
-    layout = { start: new Map(days.map((d, i) => [d, s[i]])), n, s, gap };
+    const e = days.map((d, i) => s[i] + span(d)); // each day's last slot
+    layout = { start: new Map(days.map((d, i) => [d, s[i]])), n, s, e, gap };
     cachedFor = { ...t };
     return layout;
   };
-  /** Where an exact screen x ends up: between two days, proportionally between where they ended up. */
+  /** Where an exact screen x ends up: a day's own moment at its first slot; a moment between
+   * two days proportionally between the first one's last slot and the next one's first. */
   const warp = (t: ZoomT, x: number) => {
-    const { n, s } = placed(t);
+    const { n, s, e } = placed(t);
     if (!n.length) return x;
     if (x <= n[0]) return x + s[0] - n[0];
     for (let i = 0; i < n.length - 1; i++) {
-      if (x <= n[i + 1]) return s[i] + ((x - n[i]) / (n[i + 1] - n[i] || 1)) * (s[i + 1] - s[i]);
+      if (x === n[i]) return s[i];
+      if (x < n[i + 1]) return e[i] + ((x - n[i]) / (n[i + 1] - n[i] || 1)) * (s[i + 1] - e[i]);
     }
-    return x + s[n.length - 1] - n[n.length - 1];
+    const last = n.length - 1;
+    return x === n[last] ? s[last] : x + e[last] - n[last];
   };
 
   return {
@@ -108,17 +112,19 @@ export function timeScale(slots: Slot[], today: string, width: number): XScale {
     ticks(t, w) {
       // Ticks follow the same moves as the milestones, so a label sits where its dates are drawn;
       // labels squeezed together by crowded days are dropped.
+      // Where crowded days are stretched, finer ticks (4× to 256× as many) fill the room.
       const r = scale.copy().domain([0, width].map((v) => scale.invert((v - t.x) / t.k)));
+      const format = r.tickFormat();
+      const base = Math.max(2, Math.floor(w / 90));
       const out: Tick[] = [];
-      let prev = -Infinity;
-      for (const d of r.ticks(Math.max(2, Math.floor(w / 90)))) {
-        const x = warp(t, r(d));
-        if (x - prev >= 60) {
-          out.push({ x, label: r.tickFormat()(d) });
-          prev = x;
+      for (const mult of [1, 4, 16, 64, 256]) {
+        for (const d of r.ticks(base * mult)) {
+          const x = warp(t, r(d));
+          if (x < -60 || x > w + 60 || out.some((o) => Math.abs(o.x - x) < 60)) continue;
+          out.push({ x, label: format(d) });
         }
       }
-      return out;
+      return out.sort((a, b) => a.x - b.x);
     },
   };
 }

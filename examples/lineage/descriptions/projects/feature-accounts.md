@@ -1,0 +1,1 @@
+Built-in accounts, each with a private workspace: scrypt passwords, signed session cookies, a demo account and a command line to manage accounts.

@@ -31,20 +31,38 @@ export function indexWorkspace(ws: Workspace): Index {
   };
 }
 
-/** Milestones of a project in project order (date, then creation). */
+/** Milestones of a project in project order (time, then creation). */
 export function projectMilestones(idx: Index, pid: string): Milestone[] {
   const ids = idx.ws.derived.projects[pid]?.milestones ?? [];
   return ids.map((id) => idx.milestones.get(id)!).filter(Boolean);
 }
 
-/** Milliseconds (UTC) of a YYYY-MM-DD date. */
-export function dayMs(date: string): number {
+/** The timeline's unit: whole days, or the time of day too. */
+export type Unit = 'day' | 'hour';
+
+/** Where a timestamp (YYYY-MM-DDTHH:MM) sits at a unit: its day, or itself. */
+export const keyAt = (at: string, unit: Unit): string => (unit === 'day' ? at.slice(0, 10) : at);
+
+/** Milliseconds of a YYYY-MM-DD date or YYYY-MM-DDTHH:MM timestamp (local time, computed as UTC). */
+export function timeMs(s: string): number {
+  const [date, time = '00:00'] = s.split('T');
   const [y, m, d] = date.split('-').map(Number);
-  return Date.UTC(y, m - 1, d);
+  const [h, min] = time.split(':').map(Number);
+  return Date.UTC(y, m - 1, d, h, min);
 }
+
+const pad = (n: number) => String(n).padStart(2, '0');
 
 /** Today's local date as YYYY-MM-DD. */
 export function localToday(now = new Date()): string {
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
+
+/** The current local time as YYYY-MM-DDTHH:MM (the format of milestone timestamps). */
+export function localNow(now = new Date()): string {
+  return `${localToday(now)}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+/** A timestamp for people: "2026-11-09 14:30", or just the date at midnight. */
+export const when = (at: string | null | undefined): string =>
+  !at ? '' : at.endsWith('T00:00') ? at.slice(0, 10) : at.replace('T', ' ');

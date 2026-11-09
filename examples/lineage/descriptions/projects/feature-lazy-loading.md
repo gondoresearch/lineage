@@ -1,0 +1,1 @@
+The main JavaScript bundle went from 685 kB to 243 kB.

@@ -1,0 +1,1 @@
+A merge commit on the target branch: it merges a pull request.

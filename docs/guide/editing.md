@@ -3,15 +3,15 @@
 Click anything on the timeline — a milestone, a lane, a reference, a lane label — and the **side panel** shows it, with its description and the actions that apply.
 
 <figure markdown="span">
-  [![The side panel of a release that merges two features.](../assets/screenshots/panel-milestone.png)](../assets/screenshots/panel-milestone.png)
-  <figcaption>The side panel of a release that merges two features.</figcaption>
+  [![The side panel of a release on *main*.](../assets/screenshots/panel-milestone.png)](../assets/screenshots/panel-milestone.png)
+  <figcaption>The side panel of a release on *main*.</figcaption>
 </figure>
 
 ## Creating
 
 - **Add project** (toolbar) creates a project together with its first milestone.
 - **Add group** (toolbar) creates a group; domains, kinds, states, reference types and markers are created in **Settings**.
-- **Add milestone** in a project's panel adds a milestone to it.
+- **Add milestone** in a project's panel adds a milestone to it. Its **date and time** start at the current time; change them as you like.
 
 <figure markdown="span">
   [![Editing a milestone: kind, state, planned, merges, markers, line text, links and colour.](../assets/screenshots/edit-milestone.png){ width="360" }](../assets/screenshots/edit-milestone.png)
@@ -24,7 +24,7 @@ From a milestone's panel:
 
 - **Fork from here** creates a new project starting at this milestone.
 - **Merge into…** merges this project into another one: lineage asks you to pick the milestone on the timeline that does the merging.
-- **Add reference** links this milestone to a milestone of another project; pick the target on the timeline, then its reference type.
+- **Add reference** links this milestone to a milestone of another project; pick the target on the timeline, then its reference type. A reference records **when it was recorded** (now, unless you change it).
 
 While lineage waits for you to pick a milestone, it says what it is waiting for at the top of the timeline. Press **Esc** to cancel.
 

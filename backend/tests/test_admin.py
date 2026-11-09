@@ -185,5 +185,7 @@ def test_cli_warns_when_no_admin_left(root, monkeypatch, capsys):
 def test_cli_demo_cannot_be_admin_with_demo_password(root, monkeypatch):
     Accounts(root).add(A.DEMO_NAME, "demo", enforce_length=False)
     assert run(root, "admin", "demo", "on") == 1
+    Accounts(root).add("lineage", "lineage", enforce_length=False)
+    assert run(root, "admin", "lineage", "on") == 1
     run(root, "passwd", "demo", "--password-stdin", stdin="a real password", monkeypatch=monkeypatch)
     assert run(root, "admin", "demo", "on") == 0

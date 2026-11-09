@@ -2,21 +2,28 @@
 
 All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while lineage is below 1.0, a minor version may change the data layout (the upgrade steps are then in [Upgrading](https://gondoresearch.github.io/lineage/hosting/upgrading/)).
 
-## Unreleased
+## 0.3.0 (unreleased)
+
+**Changes the data format** (read automatically; see Upgrading).
 
 ### Added
 
-- The example data (and so the demo account) includes a **lineage development** domain: lineage's own releases, features and documentation, with forks, merges, references and planned work, linked to the commits. It reuses the paper kinds where they fit (draft, accepted) and adds *change* and *release*.
+- **Timestamps.** Milestones have a date and a time (`at: 2026-11-09T14:30`); new ones start at the current time, editable. References record when they were made (`created`).
+- **Days / Hours** switch on the timeline: by day (as before) or at the time of day, with "now" and hour labels when zoomed in.
+- A second showcase account, **lineage** / **lineage**: lineage's own history in GitHub words (branches, commits, pull requests, merges, releases) with their real times. The **demo** account is back to papers only.
 - Screenshots throughout the documentation, taken by `make screenshots` (`docs/screenshots.py`, Playwright).
 
 ### Changed
 
-- Same-day milestones: their order within a day now follows history across projects, so a fork drawn on the day of its origin starts to the right of it, and a merge lands to the right of what it merges (before, all of them shared one spot). In *Time* mode, steps of one day are a symbol's width apart; crowded days are moved apart just enough, and the date axis moves with them.
+- Same-day milestones: their order within a day follows history across projects, so a fork drawn on the day of its origin starts to the right of it, and a merge lands to the right of what it merges. In *Time*, close milestones never overlap: crowded stretches are spread out just enough (less in a narrow window), the date axis follows them and gains finer labels where it is stretched, and zooming in restores exact times.
+- The timeline can zoom in much further (to read minutes).
+- The API: milestones use `at` instead of `date` (a `date` alone is still accepted: midnight).
 
 ### Fixed
 
 - Settings: long domain names no longer push the group reorder buttons out of the list; counts say "1 project" rather than "1 projects".
 - Settings → Users: the table's action buttons no longer break its layout.
+- Opening the side panel no longer pushes the start of the timeline out of view.
 
 ## 0.2.1 (2026-11-09)
 

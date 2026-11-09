@@ -87,8 +87,8 @@ def main(argv: list[str] | None = None) -> int:
                 A.adopt_legacy(root, args.name)
             elif args.from_dir:
                 A.copy_workspace(Path(args.from_dir), dest)
-            if args.admin and args.name == A.DEMO_NAME and password == A.DEMO_PASSWORD:
-                raise A.AccountError("The demo account cannot be an admin while its password is 'demo'.")
+            if args.admin and args.name in A.SHOWCASE and password == A.SHOWCASE[args.name][0]:
+                raise A.AccountError(f"'{args.name}' cannot be an admin with its public password.")
             is_admin = accounts.add(args.name, password, admin=True if args.admin else None)
             where = "with the adopted workspace" if args.adopt else f"from {args.from_dir}" if args.from_dir else "with an empty workspace"
             print(f"Created {'admin' if is_admin else 'user'} {args.name!r} {where} ({dest}).")
@@ -97,8 +97,9 @@ def main(argv: list[str] | None = None) -> int:
             if u is None:
                 raise A.AccountError(f"User {args.name!r} does not exist.")
             on = args.state == "on"
-            if on and args.name == A.DEMO_NAME and A.verify_password(A.DEMO_PASSWORD, u.get("password", "")):
-                raise A.AccountError("The demo account cannot be an admin while its password is 'demo'. Change it first: passwd demo")
+            if on and A.has_showcase_password(args.name, u):
+                raise A.AccountError(f"'{args.name}' cannot be an admin while it has its public password. "
+                                     f"Change it first: passwd {args.name}")
             accounts.set_admin(args.name, on)
             print(f"{args.name!r} is {'now an admin' if on else 'no longer an admin'}.")
             if not accounts.admins():

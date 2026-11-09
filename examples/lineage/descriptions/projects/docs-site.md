@@ -1,0 +1,1 @@
+The documentation site on GitHub Pages; field tables, CLI help and the endpoint list are generated from the code.

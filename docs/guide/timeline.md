@@ -21,11 +21,22 @@ The timeline is the main view: one horizontal **lane** per project, grouped by g
 
 - **Scroll** (or pinch) to zoom, **drag** to pan; **Reset zoom** goes back.
 - **Time / Event order** switches the horizontal axis: *Time* places milestones at their dates; *Event order* spaces them evenly in date order, which helps when many happen close together.
+- **Days / Hours** switches the unit: *Days* places milestones by their day; *Hours* by their time of day too (see [below](#days-and-hours)).
+- Milestones close together never overlap: same-day steps that follow each other (in a project, or through a fork or a merge) are drawn one after the other, and crowded stretches are spread out just enough — the date axis follows, so its labels stay where their dates are drawn. Zooming in brings every milestone back to its exact time.
 - **Hover** a milestone or a project to highlight its ancestors and descendants across forks, merges and references.
 
 <figure markdown="span">
-  [![Hovering the *Accounts* milestone keeps its ancestors and descendants bright and dims everything else.](../assets/screenshots/hover.png)](../assets/screenshots/hover.png)
-  <figcaption>Hovering the *Accounts* milestone keeps its ancestors and descendants bright and dims everything else.</figcaption>
+  [![Hovering a commit of *feature/accounts* keeps its ancestors and descendants bright and dims everything else.](../assets/screenshots/hover.png)](../assets/screenshots/hover.png)
+  <figcaption>Hovering a commit of *feature/accounts* keeps its ancestors and descendants bright and dims everything else.</figcaption>
+</figure>
+
+## Days and hours
+
+Every milestone has a date and a time. In **Days**, the timeline uses only the date: milestones of one day are ordered by their history, and "today" is the whole day. In **Hours**, it uses the time too, marks **now**, and zooming in labels the axis in hours and minutes.
+
+<figure markdown="span">
+  [![The afternoon of 9 November in Hours, in the lineage account: every commit, pull request and merge at its time.](../assets/screenshots/timeline-hours.png)](../assets/screenshots/timeline-hours.png)
+  <figcaption>The afternoon of 9 November in Hours, in the lineage account: every commit, pull request and merge at its time.</figcaption>
 </figure>
 
 ## Filters

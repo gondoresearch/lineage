@@ -1,1 +1,0 @@
-One .tar.gz per workspace with a version manifest; restore checks the archive and can be undone.

@@ -2,7 +2,8 @@
 import type { Milestone, Project, Workspace } from '../api/client';
 
 type P = Partial<Project> & { id: string; group: string };
-type M = Partial<Milestone> & { id: string; date: string };
+/** `date` (YYYY-MM-DD) is shorthand for `at` at midnight. */
+type M = Partial<Milestone> & { id: string; date?: string };
 
 export function makeWs(spec: {
   groups?: { id: string; color?: string; domain?: string | null }[];
@@ -19,7 +20,8 @@ export function makeWs(spec: {
 }): Workspace {
   const groups = (spec.groups ?? [{ id: 'g' }]).map((g) => ({ name: g.id, color: '#000000', domain: null, description: '', ...g }));
   const projects = spec.projects.map((p) => ({ title: p.id, from: null, links: [], color: null, description: '', ...p })) as Project[];
-  const milestones = spec.milestones.map((m) => ({
+  const milestones = spec.milestones.map(({ date, ...m }) => ({
+    at: `${date}T00:00`,
     project: m.id.split('.')[0],
     title: m.id,
     kind: 'draft',
@@ -57,7 +59,7 @@ export function makeWs(spec: {
   for (const p of projects) {
     const ms = milestones
       .filter((m) => m.project === p.id)
-      .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : order.get(a.id)! - order.get(b.id)!));
+      .sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : order.get(a.id)! - order.get(b.id)!));
     const real = ms.filter((m) => !m.planned);
     const head = real[real.length - 1] ?? null;
     derivedProjects[p.id] = {

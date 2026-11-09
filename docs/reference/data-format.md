@@ -20,6 +20,7 @@ data/
 - **Hand edits** are picked up within about 5 seconds. If a hand edit leaves the workspace invalid, the page lists the problems until the file is fixed. Comments in `workspace.yaml` are not kept when lineage writes it.
 - **Ids** are made from the name or title when an entity is created (`Spectral filters` → `spectral-filters`, with a numeric suffix if taken) and never change, so renaming is safe. A milestone's id is `<project id>.<slug of its title>`.
 - **Colours** are `#RRGGBB` strings; `null` means the theme's neutral colour.
+- **Times** (`at` of a milestone, `created` of a reference) are local date and time to the minute, without a time zone: `2026-11-09T14:30`. In hand edits, `2026-11-09` alone means midnight. Files from before 0.3 had `date: 2026-11-09` on milestones; they are read as that day at 00:00 and written in the new form at the next change.
 - **Deleting `.secret`** logs everybody out; a new one is created on the next start.
 
 ## `workspace.yaml`
@@ -60,13 +61,13 @@ milestones:
 - id: spectral-filters.first-draft
   project: spectral-filters
   title: First draft
-  date: 2025-03-14
+  at: 2025-03-14T10:30
   kind: draft
   state: drafting
 - id: spectral-filters.submitted
   project: spectral-filters
   title: Submitted to the conference
-  date: 2025-05-02
+  at: 2025-05-02T00:00
   kind: submitted
   state: under-review
 references:
@@ -74,6 +75,7 @@ references:
   type: builds-on
   from: spectral-filters-journal.first-draft
   to: spectral-filters.submitted
+  created: 2025-05-03T09:12
 ```
 
 `examples/papers/workspace.yaml` in the repository is a complete example that uses every feature.

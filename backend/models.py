@@ -3,7 +3,7 @@
 import datetime as dt
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
 
 
 class Model(BaseModel):
@@ -44,6 +44,40 @@ TextOrientation = Literal["horizontal", "along"]
 # Line opacity, from barely visible to fully opaque.
 Opacity = Annotated[float, Field(ge=0.1, le=1.0)]
 WaitingOn = Literal["me", "others", "nobody"]
+
+
+def _to_timestamp(v):
+    """Accept a datetime, a date (midnight) or text: 'YYYY-MM-DDTHH:MM', 'YYYY-MM-DD HH:MM[:SS]'
+    or 'YYYY-MM-DD'. Times are local, without a time zone; seconds are dropped."""
+    if isinstance(v, dt.datetime):
+        pass
+    elif isinstance(v, dt.date):
+        v = dt.datetime.combine(v, dt.time())
+    elif isinstance(v, str):
+        text = v.strip()
+        try:
+            v = dt.datetime.fromisoformat(text) if len(text) > 10 else dt.datetime.combine(dt.date.fromisoformat(text), dt.time())
+        except ValueError:
+            raise ValueError("expected a date and time like 2026-11-09T14:30") from None
+    else:
+        raise ValueError("expected a date and time like 2026-11-09T14:30")
+    if v.tzinfo is not None:
+        raise ValueError("use local time without a time zone, like 2026-11-09T14:30")
+    return v.replace(second=0, microsecond=0)
+
+
+# A point in time with minute precision, local and without a time zone; written as
+# 'YYYY-MM-DDTHH:MM' in workspace.yaml and in the API.
+Timestamp = Annotated[
+    dt.datetime,
+    BeforeValidator(_to_timestamp),
+    PlainSerializer(lambda v: v.strftime("%Y-%m-%dT%H:%M"), return_type=str),
+    Field(json_schema_extra={"format": "date-time", "examples": ["2026-11-09T14:30"]}),
+]
+
+
+def now() -> dt.datetime:
+    return dt.datetime.now().replace(second=0, microsecond=0)
 
 
 class Link(Model):
@@ -87,7 +121,7 @@ class Milestone(Model):
     id: str
     project: str
     title: str
-    date: dt.date
+    at: Timestamp = Field(description="When it happened (or is planned): local date and time, 'YYYY-MM-DDTHH:MM'.")
     kind: str
     state: str | None = None
     planned: bool = False
@@ -118,6 +152,7 @@ class Reference(Model):
     text_position: TextPosition = "above"
     text_size: TextSize = 10
     text_orientation: TextOrientation = "horizontal"
+    created: Timestamp | None = Field(default=None, description="When the reference was recorded (null: unknown, e.g. made before lineage 0.3).")
     description: str = ""
 
 
@@ -206,7 +241,7 @@ class MilestoneInit(Model):
     """Milestone fields without `project` (used for a project's first milestone)."""
 
     title: str
-    date: dt.date
+    at: Timestamp = Field(description="When it happened (or is planned): local date and time, 'YYYY-MM-DDTHH:MM'.")
     kind: str
     state: str | None = None
     planned: bool = False
@@ -250,6 +285,7 @@ class ReferenceCreate(Model):
     text_position: TextPosition = "above"
     text_size: TextSize = 10
     text_orientation: TextOrientation = "horizontal"
+    created: Timestamp | None = Field(default=None, description="When the reference was recorded; defaults to now.")
     description: str = ""
 
 
@@ -330,7 +366,7 @@ class ProjectPatch(Model):
 
 class MilestonePatch(Model):
     title: str | None = None
-    date: dt.date | None = None
+    at: Timestamp | None = None
     kind: str | None = None
     state: str | None = None
     planned: bool | None = None
@@ -360,6 +396,7 @@ class ReferencePatch(Model):
     text_position: TextPosition | None = None
     text_size: TextSize | None = None
     text_orientation: TextOrientation | None = None
+    created: Timestamp | None = None
     description: str | None = None
 
 

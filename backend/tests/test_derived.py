@@ -8,9 +8,9 @@ def test_order_by_date_then_creation(example_ws):
     ws = example_ws
     # Two new milestones on the same date: list (creation) order breaks the tie.
     ws.milestones.append(M.Milestone(id="graph-sampling.b", project="graph-sampling", title="b",
-                                     date=dt.date(2026, 5, 1), kind="draft", state="drafting"))
+                                     at=dt.datetime(2026, 5, 1), kind="draft", state="drafting"))
     ws.milestones.append(M.Milestone(id="graph-sampling.a", project="graph-sampling", title="a",
-                                     date=dt.date(2026, 5, 1), kind="draft", state="drafting"))
+                                     at=dt.datetime(2026, 5, 1), kind="draft", state="drafting"))
     ids = [m.id for m in graph.ordered(ws)["graph-sampling"]]
     assert ids == ["graph-sampling.draft", "graph-sampling.b", "graph-sampling.a", "graph-sampling.submit"]
 
@@ -63,7 +63,7 @@ def test_merged(example_ws):
 
 def test_merge_of_non_head_is_not_merged(example_ws):
     example_ws.milestones.append(M.Milestone(id="bayesian-rainfall.v3", project="bayesian-rainfall", title="v3",
-                                             date=dt.date(2026, 1, 1), kind="draft", state="drafting"))
+                                             at=dt.datetime(2026, 1, 1), kind="draft", state="drafting"))
     assert not graph.derive(example_ws).projects["bayesian-rainfall"].merged
 
 
@@ -76,15 +76,15 @@ def test_derived_milestone_order_listed(example_ws):
 def test_default_state_rules(example_ws):
     ws = example_ws
     # kind default
-    assert graph.default_state(ws, "submitted", "graph-course", dt.date(2027, 1, 1)) == "under-review"
+    assert graph.default_state(ws, "submitted", "graph-course", dt.datetime(2027, 1, 1)) == "under-review"
     # previous milestone's state (preprint has no default)
-    assert graph.default_state(ws, "preprint", "graph-course", dt.date(2026, 6, 1)) == "drafting"
+    assert graph.default_state(ws, "preprint", "graph-course", dt.datetime(2026, 6, 1)) == "drafting"
     # fork origin's state for a first milestone
     ws.projects.append(M.Project(id="f", title="f", group="teaching", **{"from": "graph-course.preprint"}))
-    assert graph.default_state(ws, "preprint", "f", dt.date(2026, 10, 1)) == "with-co-authors"
+    assert graph.default_state(ws, "preprint", "f", dt.datetime(2026, 10, 1)) == "with-co-authors"
     # nothing to inherit
     ws.projects.append(M.Project(id="g", title="g", group="teaching"))
-    assert graph.default_state(ws, "preprint", "g", dt.date(2026, 10, 1)) is None
+    assert graph.default_state(ws, "preprint", "g", dt.datetime(2026, 10, 1)) is None
 
 
 def test_slugify():

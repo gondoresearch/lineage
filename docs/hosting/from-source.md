@@ -8,7 +8,7 @@ make install                       # backend into .venv, frontend into frontend/
 make start                         # backend on :8000 and GUI on :5173, in the background
 ```
 
-Open <http://localhost:5173> and log in as **demo** / **demo**.
+Open <http://localhost:5173> and log in as **demo** / **demo** (papers) or **lineage** / **lineage** (this repository's history).
 
 ## Make targets
 

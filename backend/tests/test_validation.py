@@ -61,7 +61,7 @@ def test_fork_origin_after_first_milestone(example_ws):
 
 def test_fork_origin_same_day_ok(example_ws):
     proj(example_ws, "graph-sampling").from_ = "spectral-filters.published"
-    ms(example_ws, "graph-sampling.draft").date = dt.date(2026, 2, 10)
+    ms(example_ws, "graph-sampling.draft").at = dt.datetime(2026, 2, 10)
     assert graph.validate(example_ws) == []
 
 
@@ -133,7 +133,7 @@ def test_cycle_through_same_day_merges(example_ws):
     ws = example_ws
     a = ms(ws, "graph-course.draft")
     b = ms(ws, "graph-sampling.draft")
-    b.date = a.date  # same day
+    b.at = a.at  # same day
     a.merges = ["graph-sampling.draft"]
     b.merges = ["graph-course.draft"]
     errors_with(ws, "cycle")
@@ -147,7 +147,7 @@ def test_undirected_reference_no_cycle(example_ws):
 
 def test_planned_in_past_allowed(example_ws):
     m = ms(example_ws, "graph-sampling.submit")
-    assert m.planned and m.date < dt.date(2026, 11, 6)
+    assert m.planned and m.at < dt.datetime(2026, 11, 6)
     assert graph.validate(example_ws) == []
 
 
