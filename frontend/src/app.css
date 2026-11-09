@@ -130,8 +130,24 @@ main {
 
 .toolbar .tools {
   display: flex;
+  align-items: center;
   gap: 0.4rem;
   margin-left: auto;
+}
+
+.toolbar .user {
+  margin-left: 0.4rem;
+  padding-left: 0.8rem;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checking {
+  padding: 1rem;
 }
 
 .muted {

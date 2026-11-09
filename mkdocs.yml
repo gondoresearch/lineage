@@ -1,0 +1,78 @@
+site_name: lineage
+site_description: A self-hosted tool that generalises the git workflow (branches, commits, forks, merges) to any line of work.
+site_url: https://gondoresearch.github.io/lineage/
+repo_url: https://github.com/gondoresearch/lineage
+repo_name: gondoresearch/lineage
+edit_uri: edit/main/docs/
+copyright: lineage is licensed under CC BY-SA 4.0
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: blue
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: blue
+      toggle: { icon: material/weather-sunny, name: Light mode }
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - search.suggest
+
+hooks:
+  - docs/hooks/generate.py
+
+exclude_docs: |
+  hooks/
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc: { permalink: true }
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.snippets: { base_path: ["."], check_paths: true }
+  - pymdownx.tabbed: { alternate_style: true }
+
+validation:
+  links:
+    not_found: warn
+    anchors: warn
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Using lineage:
+      - Concepts: guide/concepts.md
+      - The timeline: guide/timeline.md
+      - Editing: guide/editing.md
+      - Vocabulary: guide/vocabulary.md
+      - Status board and dependencies: guide/status-and-deps.md
+      - Backup and restore: guide/backup-restore.md
+  - Hosting:
+      - Docker: hosting/docker.md
+      - From source: hosting/from-source.md
+      - Accounts: hosting/accounts.md
+      - HTTPS and exposing it: hosting/https.md
+      - Upgrading: hosting/upgrading.md
+  - Reference:
+      - Data format: reference/data-format.md
+      - Configuration: reference/configuration.md
+      - Command line: reference/cli.md
+      - HTTP API: reference/api.md
+  - Internals:
+      - Architecture: internals/architecture.md
+      - Security model: internals/security.md
+      - Contributing: internals/contributing.md
+  - Changelog: changelog.md

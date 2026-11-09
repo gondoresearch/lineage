@@ -28,7 +28,7 @@ def test_seed_on_first_run(empty_client, tmp_path):
     }
     assert [k["id"] for k in ws["kinds"] if k["closes"]] == ["closed"]
     assert all(e["color"] is None for t in ("kinds", "states", "reftypes") for e in ws[t])
-    assert (tmp_path / "fresh" / "workspace.yaml").exists()
+    assert (tmp_path / "fresh" / "users" / "alice" / "workspace.yaml").exists()
 
 
 def test_seed_not_rewritten(example_dir):

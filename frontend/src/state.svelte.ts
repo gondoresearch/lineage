@@ -1,5 +1,5 @@
 // Shared UI state (Svelte runes). Survives view switches.
-import { api, ApiError, fetchWorkspace, messagesOf, type EntityType, type Workspace } from './api/client';
+import { api, ApiError, auth, fetchMe, fetchWorkspace, messagesOf, resetEtag, type EntityType, type Workspace } from './api/client';
 import type { Filters } from './layout/filters';
 import type { Mode, ZoomT } from './layout/xscale';
 import { findEntity } from './lib/entities';
@@ -31,6 +31,8 @@ export interface Toast {
 }
 
 export const app = $state({
+  /** logged-in user name; null: not logged in; undefined: not checked yet */
+  user: undefined as string | null | undefined,
   ws: null as Workspace | null,
   /** running lineage version, from the backend */
   version: null as string | null,
@@ -75,7 +77,7 @@ export function applyTheme(t: Theme): void {
 /** Re-fetch every 5 s (If-None-Match, so unchanged data costs a 304) to pick up hand edits. */
 export function startPolling(intervalMs = 5000): () => void {
   const timer = setInterval(() => {
-    if (document.visibilityState === 'visible') load();
+    if (document.visibilityState === 'visible' && app.user) load();
   }, intervalMs);
   return () => clearInterval(timer);
 }
@@ -101,7 +103,52 @@ export async function load(): Promise<void> {
     }
     app.error = null;
   } catch (e) {
+    if (e instanceof ApiError && e.status === 401) {
+      loggedOut();
+      return;
+    }
     app.error = e instanceof ApiError ? e.message : `Cannot reach the server (${e})`;
+  }
+}
+
+// ------------------------------------------------------------------ session
+
+/** Clear everything that belongs to the previous user. */
+function loggedOut(): void {
+  app.user = null;
+  app.ws = null;
+  app.panel = null;
+  app.picking = null;
+  app.toast = null;
+  app.error = null;
+  resetEtag();
+}
+
+/** Find out who is logged in (on start), then load their workspace. */
+export async function checkSession(): Promise<void> {
+  try {
+    app.user = await fetchMe();
+    if (app.user) await load();
+  } catch (e) {
+    app.user = null;
+    app.error = `Cannot reach the server (${e})`;
+  }
+}
+
+/** Throws ApiError on failure (401 wrong credentials, 429 locked out). */
+export async function logIn(username: string, password: string): Promise<void> {
+  const me = await auth.login(username, password);
+  resetEtag();
+  app.user = me.username;
+  app.error = null;
+  await load();
+}
+
+export async function logOut(): Promise<void> {
+  try {
+    await auth.logout();
+  } finally {
+    loggedOut();
   }
 }
 

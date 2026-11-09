@@ -13,3 +13,9 @@ dist/
 
 # Local Docker Compose settings (your user/group ids)
 .env
+
+# make start / stop (pid files and logs)
+.run/
+
+# Built documentation (make docs)
+/site/

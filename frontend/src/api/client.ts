@@ -24,12 +24,20 @@ export class ApiError extends Error {
   }
 }
 
+/** Sent with every request; the backend refuses writes without it (CSRF protection). */
+const CSRF = { 'X-Lineage': '1' };
+
 let etag: string | null = null;
+
+/** Forget the cached workspace version (after logging in or out, the next fetch is a full one). */
+export function resetEtag(): void {
+  etag = null;
+}
 
 /** The workspace, or null if unchanged since the last call (304). */
 export async function fetchWorkspace(): Promise<Workspace | null> {
   const res = await fetch('/api/workspace', {
-    headers: etag ? { 'If-None-Match': etag } : {},
+    headers: etag ? { ...CSRF, 'If-None-Match': etag } : CSRF,
   });
   if (res.status === 304) return null;
   const body = await res.json().catch(() => null);
@@ -72,7 +80,7 @@ export type Blocker = Schemas['Blocker'];
 export async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(path, {
     method,
-    headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+    headers: body === undefined ? CSRF : { ...CSRF, 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (res.status === 204) return undefined as T;
@@ -92,6 +100,26 @@ export const api = {
   dryRun: (type: EntityType, id: string) => request<DryRun>('DELETE', `${path(type, id)}?dry_run=true`),
   undo: () => request<void>('POST', '/api/undo'),
   updateSettings: (body: Schemas['SettingsPatch']) => request<Settings>('PATCH', '/api/settings', body),
+};
+
+// ------------------------------------------------------------------ accounts
+
+/** The logged-in user's name, or null if not logged in. */
+export async function fetchMe(): Promise<string | null> {
+  try {
+    return (await request<Schemas['MeOut']>('GET', '/api/me')).username;
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) return null;
+    throw e;
+  }
+}
+
+export const auth = {
+  login: (username: string, password: string) =>
+    request<Schemas['MeOut']>('POST', '/api/login', { username, password }),
+  logout: () => request<void>('POST', '/api/logout'),
+  changePassword: (current: string, next: string) =>
+    request<Schemas['MeOut']>('POST', '/api/password', { current, new: next }),
 };
 
 /** Human-readable messages from any error thrown by `request`. */
@@ -118,7 +146,7 @@ export type RestoreResult =
 export async function restoreBackup(file: Blob, force = false): Promise<RestoreResult> {
   const res = await fetch(`/api/restore?force=${force}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/gzip' },
+    headers: { ...CSRF, 'Content-Type': 'application/gzip' },
     body: file,
   });
   const body = await res.json().catch(() => null);

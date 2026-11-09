@@ -471,3 +471,17 @@ class VersionMismatchOut(Model):
     errors: list[str]
     backup_version: str
     current_version: str
+
+
+class LoginIn(Model):
+    username: str = Field(max_length=64)
+    password: str = Field(max_length=1024)
+
+
+class MeOut(Model):
+    username: str
+
+
+class PasswordIn(Model):
+    current: str = Field(max_length=1024)
+    new: str = Field(max_length=1024)

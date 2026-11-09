@@ -6,14 +6,20 @@ services:
     user: "${LINEAGE_UID:-1000}:${LINEAGE_GID:-1000}"
     environment:
       DATA_DIR: /data
+      # On the first start a "demo" account (password "demo") is created with the example data.
+      # Set to "0" to skip it; change or delete it before exposing lineage (see the README).
+      LINEAGE_DEMO: "${LINEAGE_DEMO:-1}"
+      # Set to "1" when lineage is served over HTTPS, so the login cookie is only sent over HTTPS.
+      LINEAGE_SECURE_COOKIE: "${LINEAGE_SECURE_COOKIE:-0}"
     volumes:
       - ./data:/data
     ports:
-      # Published on this machine only (http://localhost:8080): the data may describe
-      # unpublished work, and lineage has no authentication.
+      # Published on this machine only (http://localhost:8080). lineage has logins, but it
+      # speaks plain HTTP: passwords and session cookies would cross the network unencrypted.
       #
-      # To reach it from other machines on your network, use "8080:8000" instead, and put it
-      # behind a reverse proxy that does authentication. If that proxy runs on this same
-      # machine, keep the line below and point the proxy at http://127.0.0.1:8080.
+      # To reach it from other machines, put it behind a reverse proxy that does HTTPS (Caddy,
+      # nginx, Traefik…) and set LINEAGE_SECURE_COOKIE=1. If that proxy runs on this same
+      # machine, keep the line below and point the proxy at http://127.0.0.1:8080; otherwise
+      # use "8080:8000".
       - "127.0.0.1:8080:8000"
     restart: unless-stopped

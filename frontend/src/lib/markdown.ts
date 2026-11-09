@@ -2,6 +2,8 @@
 import { katex } from '@mdit/plugin-katex';
 import DOMPurify from 'dompurify';
 import MarkdownIt from 'markdown-it';
+// Loaded with this module (on demand), not with the main bundle.
+import 'katex/dist/katex.min.css';
 
 const md = new MarkdownIt({ html: false, linkify: true });
 md.use(katex, { throwOnError: false });

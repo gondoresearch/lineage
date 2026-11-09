@@ -13,11 +13,14 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DATA_DIR=/data \
-    FRONTEND_DIR=/app/frontend/dist
+    FRONTEND_DIR=/app/frontend/dist \
+    LINEAGE_EXAMPLES=/app/examples/papers
 WORKDIR /app
 COPY backend/ /app/backend/
 RUN pip install --no-cache-dir /app/backend
 COPY --from=frontend /app/frontend/dist /app/frontend/dist
+# The example data: the demo account starts from a copy of it.
+COPY examples/papers /app/examples/papers
 EXPOSE 8000
 # One worker: writes are serialised by a lock inside the process.
 CMD ["uvicorn", "--factory", "backend.app:create_app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

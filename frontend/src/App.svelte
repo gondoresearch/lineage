@@ -1,14 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Filters from './components/Filters.svelte';
+  import Login from './components/Login.svelte';
   import SidePanel from './components/SidePanel.svelte';
   import Toast from './components/Toast.svelte';
   import { fetchVersion } from './api/client';
-  import { app, applyTheme, load, openForm, routeFromHash, savedTheme, startPolling, undoLast, type Theme } from './state.svelte';
-  import Dependencies from './views/Dependencies.svelte';
+  import { app, applyTheme, checkSession, logOut, openForm, routeFromHash, savedTheme, startPolling, undoLast, type Theme } from './state.svelte';
   import Settings from './views/Settings.svelte';
   import StatusBoard from './views/StatusBoard.svelte';
   import Timeline from './views/Timeline.svelte';
+
+  // The dependencies view (and dagre, its layout library) is loaded when first opened.
+  let dependencies: Promise<typeof import('./views/Dependencies.svelte')> | null = null;
+  const loadDependencies = () => (dependencies ??= import('./views/Dependencies.svelte'));
 
   const LABELS = { timeline: 'Timeline', status: 'Status', deps: 'Dependencies', settings: 'Settings' } as const;
   const THEMES: Theme[] = ['auto', 'light', 'dark'];
@@ -24,7 +28,7 @@
   onMount(() => {
     routeFromHash();
     window.addEventListener('hashchange', routeFromHash);
-    load();
+    checkSession();
     fetchVersion().then(
       (v) => {
         app.version = v;
@@ -39,6 +43,11 @@
   });
 </script>
 
+{#if app.user === undefined}
+  <p class="muted checking">Loading…</p>
+{:else if app.user === null}
+  <Login />
+{:else}
 <div class="shell">
   <header class="toolbar">
     <span class="brand"><img src="/logo.svg" alt="" width="22" height="22" />lineage
@@ -54,6 +63,8 @@
       <button onclick={() => openForm('groups')} disabled={!app.ws}>Add group</button>
       <button onclick={undoLast} title="Undo the last change">Undo</button>
       <button onclick={cycleTheme} title="Switch between following the system, light and dark">{THEME_LABEL[theme]}</button>
+      <span class="user" title="Logged in as {app.user}">{app.user}</span>
+      <button onclick={logOut}>Log out</button>
     </div>
   </header>
 
@@ -76,7 +87,13 @@
       {:else if app.view === 'status'}
         <StatusBoard ws={app.ws} />
       {:else if app.view === 'deps'}
-        <Dependencies ws={app.ws} />
+        {#await loadDependencies()}
+          <p class="muted">Loading…</p>
+        {:then { default: Dependencies }}
+          <Dependencies ws={app.ws} />
+        {:catch e}
+          <p class="muted">Could not load the dependencies view ({e}).</p>
+        {/await}
       {:else}
         <Settings ws={app.ws} />
       {/if}
@@ -86,3 +103,4 @@
 </div>
 
 <Toast />
+{/if}
