@@ -42,6 +42,10 @@ class NotAdmin(Exception):
     pass
 
 
+class MustChangePassword(Exception):
+    pass
+
+
 class ManagesAdmin(Exception):
     def __init__(self, name: str):
         super().__init__(name)
@@ -93,10 +97,16 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
             raise NotLoggedIn()
         return name
 
-    def user_store(user: str = Depends(current_user)) -> Store:
+    def active_user(user: str = Depends(current_user)) -> str:
+        """A logged-in user who may use lineage: not one that must change its password first."""
+        if accounts.must_change(user):
+            raise MustChangePassword()
+        return user
+
+    def user_store(user: str = Depends(active_user)) -> Store:
         return registry.get(user)
 
-    def current_admin(user: str = Depends(current_user)) -> str:
+    def current_admin(user: str = Depends(active_user)) -> str:
         if not accounts.is_admin(user):
             raise NotAdmin()
         return user
@@ -110,7 +120,7 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
         return name
 
     def me_out(user: str) -> dict:
-        return {"username": user, "admin": accounts.is_admin(user)}
+        return {"username": user, "admin": accounts.is_admin(user), "must_change": accounts.must_change(user)}
 
     def set_session(response: Response, name: str) -> None:
         response.set_cookie(
@@ -129,6 +139,10 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
     @app.exception_handler(NotLoggedIn)
     def _(request, exc: NotLoggedIn):
         return _errors(401, ["Not logged in."])
+
+    @app.exception_handler(MustChangePassword)
+    def _(request, exc: MustChangePassword):
+        return JSONResponse({"errors": ["Choose a new password first."], "must_change": True}, status_code=403)
 
     @app.exception_handler(NotAdmin)
     def _(request, exc: NotAdmin):

@@ -873,6 +873,12 @@ export interface components {
              * @default false
              */
             admin: boolean;
+            /**
+             * Must Change
+             * @description The user must choose a new password before anything else.
+             * @default false
+             */
+            must_change: boolean;
         };
         /** Milestone */
         Milestone: {
@@ -1669,6 +1675,11 @@ export interface components {
             admin: boolean;
             /** Created */
             created?: string | null;
+            /**
+             * Must Change
+             * @default false
+             */
+            must_change: boolean;
         };
         /** VersionMismatchOut */
         VersionMismatchOut: {

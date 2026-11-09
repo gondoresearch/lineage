@@ -4,6 +4,10 @@ All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while linea
 
 ## Unreleased
 
+### Added
+
+- **Default admin:** whenever there is no admin, lineage creates `admin` / `admin`, which must choose a new password before anything else works.
+
 ### Changed
 
 - Docker: the image is tagged with the version (`lineage:0.3.1`), so each version is its own image and older ones stay available.

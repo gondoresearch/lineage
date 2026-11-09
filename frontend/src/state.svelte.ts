@@ -38,6 +38,8 @@ export const app = $state({
   user: undefined as string | null | undefined,
   /** whether the logged-in user is an admin (can manage the other accounts) */
   admin: false,
+  /** the user must choose a new password before anything else (the default admin) */
+  mustChange: false,
   ws: null as Workspace | null,
   /** running lineage version, from the backend */
   version: null as string | null,
@@ -82,7 +84,7 @@ export function applyTheme(t: Theme): void {
 /** Re-fetch every 5 s (If-None-Match, so unchanged data costs a 304) to pick up hand edits. */
 export function startPolling(intervalMs = 5000): () => void {
   const timer = setInterval(() => {
-    if (document.visibilityState === 'visible' && app.user) load();
+    if (document.visibilityState === 'visible' && app.user && !app.mustChange) load();
   }, intervalMs);
   return () => clearInterval(timer);
 }
@@ -112,6 +114,10 @@ export async function load(): Promise<void> {
       loggedOut();
       return;
     }
+    if (e instanceof ApiError && e.status === 403 && (e.body as { must_change?: boolean } | null)?.must_change) {
+      app.mustChange = true;
+      return;
+    }
     app.error = e instanceof ApiError ? e.message : `Cannot reach the server (${e})`;
   }
 }
@@ -122,6 +128,7 @@ export async function load(): Promise<void> {
 function loggedOut(): void {
   app.user = null;
   app.admin = false;
+  app.mustChange = false;
   app.ws = null;
   app.panel = null;
   app.picking = null;
@@ -136,7 +143,8 @@ export async function checkSession(): Promise<void> {
     const me = await fetchMe();
     app.user = me?.username ?? null;
     app.admin = me?.admin ?? false;
-    if (app.user) await load();
+    app.mustChange = me?.must_change ?? false;
+    if (app.user && !app.mustChange) await load();
   } catch (e) {
     app.user = null;
     app.error = `Cannot reach the server (${e})`;
@@ -149,8 +157,9 @@ export async function logIn(username: string, password: string): Promise<void> {
   resetEtag();
   app.user = me.username;
   app.admin = me.admin ?? false;
+  app.mustChange = me.must_change ?? false;
   app.error = null;
-  await load();
+  if (!app.mustChange) await load();
 }
 
 export async function logOut(): Promise<void> {

@@ -47,7 +47,7 @@ def test_version_is_public(root, example_dir):
 
 
 def test_me(client):
-    assert client.get("/api/me").json() == {"username": "alice", "admin": True}  # first account: admin
+    assert client.get("/api/me").json() == {"username": "alice", "admin": True, "must_change": False}  # first account: admin
 
 
 def test_wrong_password_and_unknown_user(root, example_dir):
@@ -220,14 +220,14 @@ def test_showcase_accounts_on_first_start(tmp_path, monkeypatch):
     lin = login(make_client(root), "lineage", "lineage").get("/api/workspace").json()
     assert "main" in {p["id"] for p in lin["projects"]}
     assert {k["id"] for k in lin["kinds"]} == {"commit", "pull-request", "release", "issue", "closed"}
-    assert Accounts(root).admins() == []  # showcase accounts are never admins automatically
-    assert Accounts(root).add("alice", PASSWORD) is True  # the first real account is
+    assert Accounts(root).admins() == ["admin"]  # the default admin; showcase accounts never are
+    assert Accounts(root).add("alice", PASSWORD) is False
 
 
 def test_demo_disabled(tmp_path):
     root = tmp_path / "data"
     make_client(root)
-    assert Accounts(root).names() == []
+    assert Accounts(root).names() == ["admin"]  # no showcase accounts, but the default admin
     assert not (root / "users" / "demo").exists() and not (root / "users" / "lineage").exists()
 
 

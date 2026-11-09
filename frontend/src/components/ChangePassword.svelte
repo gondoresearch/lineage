@@ -3,6 +3,9 @@
   import { auth, messagesOf } from '../api/client';
   import { showToast } from '../state.svelte';
 
+  /** called after a successful change (instead of the toast) */
+  let { onchanged }: { onchanged?: () => void } = $props();
+
   const MIN = 8;
   let current = $state('');
   let next = $state('');
@@ -20,7 +23,8 @@
     try {
       await auth.changePassword(current, next);
       current = next = repeat = '';
-      showToast('Password changed. Other sessions have been logged out.', false);
+      if (onchanged) onchanged();
+      else showToast('Password changed. Other sessions have been logged out.', false);
     } catch (err) {
       errors = messagesOf(err);
     } finally {

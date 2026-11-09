@@ -518,12 +518,14 @@ class LoginIn(Model):
 class MeOut(Model):
     username: str
     admin: bool = False
+    must_change: bool = Field(default=False, description="The user must choose a new password before anything else.")
 
 
 class UserOut(Model):
     username: str
     admin: bool
     created: str | None = None
+    must_change: bool = False
 
 
 class NewUserIn(Model):

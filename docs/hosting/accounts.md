@@ -63,6 +63,14 @@ Logging in sets a cookie that keeps you logged in for **30 days**, or until you 
 
 After **5 failed logins** for the same user from the same address, further attempts are refused for 30 seconds, then 60, 120 and so on (up to an hour). A successful login resets the count.
 
+## The default admin
+
+Whenever lineage starts and finds **no admin account** — on a fresh install, or after the last admin was removed — it creates the account **admin** with the password **admin**, as an admin, with an empty workspace (if the name `admin` is taken by a plain user, it does not, and the log says how to make an admin).
+
+- Log in as admin/admin: lineage shows only a **Choose a new password** screen, and refuses everything else (also through the API) until a new password of at least 8 characters is set.
+- `manage passwd admin` sets it from the command line instead.
+- While admin still has the password `admin`, the server log warns on every start.
+
 ## The demo account
 
 On the **first start** — when `data/accounts.yaml` does not exist yet — lineage creates two showcase accounts, so you can look around right away:

@@ -70,7 +70,7 @@ def test_list_users_without_hashes(setup):
     alice, _ = setup
     users = alice.get("/api/admin/users").json()
     assert [(u["username"], u["admin"]) for u in users] == [("alice", True), ("bob", False)]
-    assert all(set(u) == {"username", "admin", "created"} for u in users)
+    assert all(set(u) == {"username", "admin", "created", "must_change"} for u in users)
 
 
 def test_create_user(setup, root):

@@ -42,6 +42,9 @@ SHOWCASE = {
 DEMO_NAME = "demo"
 DEMO_PASSWORD = "demo"
 
+# The default admin, created whenever there is no admin; it must change its password first.
+DEFAULT_ADMIN = ("admin", "admin")
+
 
 def has_showcase_password(name: str, user: dict | None) -> bool:
     """Whether this account is a showcase account that still has its public password."""
@@ -167,7 +170,8 @@ class Accounts:
             self.refresh()
             return self.users.get(name)
 
-    def add(self, name: str, password: str, *, enforce_length: bool = True, admin: bool | None = None) -> bool:
+    def add(self, name: str, password: str, *, enforce_length: bool = True, admin: bool | None = None,
+            must_change: bool = False) -> bool:
         """Create an account. admin=None: it becomes an admin if there is no admin
         yet (never the demo account). Returns whether the new account is an admin."""
         check_name(name)
@@ -186,6 +190,8 @@ class Accounts:
             }
             if admin:
                 self.users[name]["admin"] = True
+            if must_change:
+                self.users[name]["must_change"] = True
             self._save()
             return admin
 
@@ -193,6 +199,11 @@ class Accounts:
         with self.lock:
             self.refresh()
             return sorted(n for n, u in self.users.items() if u.get("admin") is True)
+
+    def must_change(self, name: str) -> bool:
+        """Whether the account must choose a new password before doing anything else."""
+        u = self.get(name)
+        return bool(u and u.get("must_change") is True)
 
     def is_admin(self, name: str) -> bool:
         u = self.get(name)
@@ -215,7 +226,8 @@ class Accounts:
         with self.lock:
             self.refresh()
             return [
-                {"username": n, "admin": u.get("admin") is True, "created": u.get("created")}
+                {"username": n, "admin": u.get("admin") is True, "created": u.get("created"),
+                 "must_change": u.get("must_change") is True}
                 for n, u in sorted(self.users.items())
             ]
 
@@ -229,6 +241,7 @@ class Accounts:
                 raise AccountError(f"User {name!r} does not exist.")
             u["password"] = hash_password(password)
             u["epoch"] = int(u.get("epoch", 1)) + 1
+            u.pop("must_change", None)
             self._save()
 
     def remove(self, name: str) -> None:
@@ -432,8 +445,18 @@ def bootstrap(root: Path, accounts: Accounts) -> None:
                 "lineage: python -m backend.manage passwd %s | deluser %s",
                 name, password, name, name,
             )
-    if not accounts.names():
-        log.warning("There are no accounts. Create one with: python -m backend.manage adduser NAME")
-    elif not accounts.admins():
-        log.warning("There is no admin account. Make one with: python -m backend.manage admin NAME on "
-                    "(or create a new account: the first one created while there is no admin becomes admin)")
+    if not accounts.admins():
+        name, password = DEFAULT_ADMIN
+        existing = accounts.get(name)
+        if existing is None:
+            accounts.add(name, password, enforce_length=False, admin=True, must_change=True)
+            log.warning("Created the admin account '%s' (password '%s'). Log in as %s and choose a new password.",
+                        name, password, name)
+        else:
+            log.warning("There is no admin account, and the name '%s' is taken by a plain user. Make an admin "
+                        "with: python -m backend.manage admin NAME on", name)
+    name, password = DEFAULT_ADMIN
+    admin = accounts.get(name)
+    if admin and admin.get("admin") is True and verify_password(password, admin.get("password", "")):
+        log.warning("The admin account '%s' still has the password '%s'. Log in and change it now, or: "
+                    "python -m backend.manage passwd %s", name, password, name)

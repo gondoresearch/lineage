@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Filters from './components/Filters.svelte';
+  import ChooseNewPassword from './components/ChooseNewPassword.svelte';
   import Login from './components/Login.svelte';
   import SidePanel from './components/SidePanel.svelte';
   import Toast from './components/Toast.svelte';
@@ -47,6 +48,8 @@
   <p class="muted checking">Loading…</p>
 {:else if app.user === null}
   <Login />
+{:else if app.mustChange}
+  <ChooseNewPassword />
 {:else}
 <div class="shell">
   <header class="toolbar">
