@@ -12,6 +12,7 @@
 
   let { ws }: { ws: Workspace } = $props();
   const WAIT = { me: 'on me', others: 'on others', nobody: 'inactive' } as const;
+  const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
   async function move(id: string, position: number, type: 'groups' | 'domains' = 'groups') {
     try {
@@ -54,7 +55,7 @@
         <li class:selected={isSelected('domains', dm.id)}>
           <button class="row" onclick={() => select('domains', dm.id)}>
             <span class="sw" style:background={dm.color ?? 'var(--line)'}></span>{dm.name}
-            <span class="muted">{ws.groups.filter((g) => g.domain === dm.id).length} groups</span>
+            <span class="muted">{count(ws.groups.filter((g) => g.domain === dm.id).length, 'group')}</span>
           </button>
           <span class="order">
             <button aria-label="Move {dm.name} up" disabled={i === 0} onclick={() => move(dm.id, i - 1, 'domains')}>↑</button>
@@ -74,7 +75,7 @@
         <li class:selected={isSelected('groups', g.id)}>
           <button class="row" onclick={() => select('groups', g.id)}>
             <span class="sw" style:background={g.color}></span>{g.name}
-            <span class="muted">{g.domain ? `${(ws.domains ?? []).find((d) => d.id === g.domain)?.name} · ` : ''}{ws.projects.filter((p) => p.group === g.id).length} projects</span>
+            <span class="muted">{g.domain ? `${(ws.domains ?? []).find((d) => d.id === g.domain)?.name} · ` : ''}{count(ws.projects.filter((p) => p.group === g.id).length, 'project')}</span>
           </button>
           <span class="order">
             <button aria-label="Move {g.name} up" disabled={i === 0} onclick={() => move(g.id, i - 1)}>↑</button>
@@ -136,7 +137,7 @@
           <button class="row" onclick={() => select('markers', mk.id)}>
             <svg width="16" height="16" aria-hidden="true"><MarkerIcon icon={mk.icon} x={8} y={8} size={13} color={mk.color ?? MARKER_NEUTRAL} /></svg>
             {mk.name}
-            <span class="muted">{ws.milestones.filter((m) => m.markers?.includes(mk.id)).length} milestones</span>
+            <span class="muted">{count(ws.milestones.filter((m) => m.markers?.includes(mk.id)).length, 'milestone')}</span>
           </button>
         </li>
       {:else}
@@ -227,6 +228,7 @@
   }
   .row {
     flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -238,10 +240,14 @@
   }
   .row .muted {
     margin-left: auto;
+    min-width: 0;
     font-size: 12px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .order {
+    flex: none;
     display: flex;
     gap: 0.2rem;
     padding-right: 0.5rem;

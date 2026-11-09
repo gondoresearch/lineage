@@ -12,15 +12,30 @@ The timeline is the main view: one horizontal **lane** per project, grouped by g
 - Lines and references can carry **text**, placed above, on or below the line.
 - The **legend** lists the kinds, states and reference types in use.
 
+<figure markdown="span">
+  [![Groups of projects under a domain heading; symbols are milestones, lines are states, curves are forks, arrows are references; the red line is today.](../assets/screenshots/timeline.png)](../assets/screenshots/timeline.png)
+  <figcaption>Groups of projects under a domain heading; symbols are milestones, lines are states, curves are forks, arrows are references; the red line is today.</figcaption>
+</figure>
+
 ## Moving around
 
 - **Scroll** (or pinch) to zoom, **drag** to pan; **Reset zoom** goes back.
 - **Time / Event order** switches the horizontal axis: *Time* places milestones at their dates; *Event order* spaces them evenly in date order, which helps when many happen close together.
 - **Hover** a milestone or a project to highlight its ancestors and descendants across forks, merges and references.
 
+<figure markdown="span">
+  [![Hovering the *Accounts* milestone keeps its ancestors and descendants bright and dims everything else.](../assets/screenshots/hover.png)](../assets/screenshots/hover.png)
+  <figcaption>Hovering the *Accounts* milestone keeps its ancestors and descendants bright and dims everything else.</figcaption>
+</figure>
+
 ## Filters
 
 The filter bar above the views selects **groups** and **states**, and can **hide inactive** projects (those waiting on nobody, or closed). The same filters apply to the timeline, the status board and the dependencies view; **Clear filters** resets them.
+
+<figure markdown="span">
+  [![The filter bar, here showing only *Graph learning*.](../assets/screenshots/filters.png)](../assets/screenshots/filters.png)
+  <figcaption>The filter bar, here showing only *Graph learning*.</figcaption>
+</figure>
 
 ## Reordering lanes
 
@@ -28,3 +43,12 @@ Drag a **lane label** up or down to reorder projects. Dropping it into another g
 
 !!! note
     A project cannot be dragged into a group that has no projects yet; use the project's **Edit** form to choose that group.
+
+## Dark mode
+
+The theme follows your system; the toolbar's **Theme** button switches between *auto*, *light* and *dark*, and the choice is remembered in the browser.
+
+<figure markdown="span">
+  [![The same timeline in the dark theme.](../assets/screenshots/timeline-dark.png)](../assets/screenshots/timeline-dark.png)
+  <figcaption>The same timeline in the dark theme.</figcaption>
+</figure>

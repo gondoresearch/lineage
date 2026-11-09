@@ -10,8 +10,18 @@ The **Status** view answers "what is waiting on whom, and since when?". Projects
 
 Within a column, projects are sorted by **time in state**: how long since their head milestone. Click a card to open the project in the side panel.
 
+<figure markdown="span">
+  [![The status board.](../assets/screenshots/status.png)](../assets/screenshots/status.png)
+  <figcaption>The status board.</figcaption>
+</figure>
+
 ## Dependencies view
 
 The **Dependencies** view draws projects as a graph: an edge for every fork, merge and reference between two projects, with earlier work at the bottom and the work that builds on it above. It is useful to see what a project rests on, and what would be affected by it.
+
+<figure markdown="span">
+  [![The dependencies view: the papers on the left, lineage's features merging into its main line on the right.](../assets/screenshots/dependencies.png)](../assets/screenshots/dependencies.png)
+  <figcaption>The dependencies view: the papers on the left, lineage's features merging into its main line on the right.</figcaption>
+</figure>
 
 Both views follow the [filters](timeline.md#filters) and the hover highlighting of the timeline.

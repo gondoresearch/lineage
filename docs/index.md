@@ -6,6 +6,11 @@ It started as a manager for papers and theses: "commits" are versions of a paper
 
 All data lives in **plain files** (one YAML file plus Markdown descriptions per user) that you can read, edit by hand, back up and keep in git.
 
+<figure markdown="span">
+  [![lineage's own development, drawn with lineage: releases on the main line, features forked from it and merged back.](assets/screenshots/timeline-lineage.png)](assets/screenshots/timeline-lineage.png)
+  <figcaption>lineage's own development, drawn with lineage: releases on the main line, features forked from it and merged back.</figcaption>
+</figure>
+
 !!! warning "Preliminary, and heavily AI-assisted"
     lineage is a work in progress; features and the data format may still change between minor versions (see the [changelog](changelog.md)). Most of its code, tests and documentation were written by an AI coding assistant (Claude, by Anthropic), directed and reviewed by a human. Read the code before relying on it, and keep backups of your data.
 

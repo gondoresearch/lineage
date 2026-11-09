@@ -84,18 +84,18 @@
       {#each users as u (u.username)}
         <tr>
           <td>
-            <b>{u.username}</b>
-            {#if u.admin}<span class="badge">admin</span>{/if}
-            {#if u.username === app.user}<span class="muted small">(you)</span>{/if}
+            <span class="who"><b>{u.username}</b>
+              {#if u.admin}<span class="badge">admin</span>{/if}
+              {#if u.username === app.user}<span class="muted small">(you)</span>{/if}</span>
           </td>
           <td class="muted small">{date(u.created)}</td>
-          <td class="row-actions">
+          <td><div class="row-actions">
             {#if !u.admin}
               <button class:on={open?.name === u.username && open.action === 'password'} onclick={() => toggle(u.username, 'password')}>Set password</button>
               <button class:on={open?.name === u.username && open.action === 'backup'} onclick={() => toggle(u.username, 'backup')}>Backup…</button>
               <button class="danger" class:on={open?.name === u.username && open.action === 'delete'} onclick={() => toggle(u.username, 'delete')}>Delete</button>
             {/if}
-          </td>
+          </div></td>
         </tr>
         {#if open?.name === u.username}
           <tr class="panel">
@@ -191,8 +191,13 @@
     justify-content: flex-end;
     flex-wrap: wrap;
   }
+  .who {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
   .badge {
-    margin-left: 0.35rem;
     padding: 0 0.4rem;
     border-radius: 999px;
     font-size: 11px;

@@ -30,7 +30,12 @@ This walks you through running lineage and exploring the example data. It takes 
 
 ## 2. Log in as the demo user
 
-On its first start, lineage creates an account **demo** with password **demo**, whose workspace is a copy of the example data: a few fictional research papers and a teaching project. Log in with it.
+On its first start, lineage creates an account **demo** with password **demo**, whose workspace is a copy of the example data: a few fictional research papers, a teaching project, and lineage's own development history (the *lineage development* domain). Log in with it.
+
+<figure markdown="span">
+  [![The login page.](assets/screenshots/login.png){ width="320" }](assets/screenshots/login.png)
+  <figcaption>The login page.</figcaption>
+</figure>
 
 !!! note
     The demo account exists so you can look around. Before making lineage reachable from other machines, delete it or change its password — see [Accounts](hosting/accounts.md#the-demo-account).
@@ -44,6 +49,11 @@ The **Timeline** shows one lane per project, in coloured groups. Along each lane
 - a lane that starts from a milestone of another lane is a **fork**; a curve joining a lane into another is a **merge**;
 - thin lines between milestones of different projects are **references** ("builds on", "companion").
 
+<figure markdown="span">
+  [![The timeline of the example research projects.](assets/screenshots/timeline.png)](assets/screenshots/timeline.png)
+  <figcaption>The timeline of the example research projects.</figcaption>
+</figure>
+
 Scroll to zoom, drag to pan, and switch the axis between **Time** and **Event order** (evenly spaced milestones, handy when many happen close together). Hover any milestone to highlight everything it descends from and everything that descends from it.
 
 ## 4. Change something
@@ -53,12 +63,22 @@ Scroll to zoom, drag to pan, and switch the axis between **Time** and **Event or
 3. Click a milestone of another project and use **Fork from here** to start a project from it, or **Merge into…** to merge a project into another. When lineage asks you to pick a milestone, click it on the timeline.
 4. Add a reference from a milestone with **Add reference**, and pick its target on the timeline.
 
+<figure markdown="span">
+  [![A selected milestone: the side panel shows it, with what it merges, forks and refers to, and the actions.](assets/screenshots/panel-milestone.png)](assets/screenshots/panel-milestone.png)
+  <figcaption>A selected milestone: the side panel shows it, with what it merges, forks and refers to, and the actions.</figcaption>
+</figure>
+
 Every change is checked against the whole workspace before it is saved; if something would become inconsistent, you get a message and nothing changes.
 
 ## 5. Look at the other views
 
 - **Status** sorts projects into *On me*, *On others* and *Inactive*, by how long they have been in their current state.
 - **Dependencies** draws projects as a graph, earlier work at the bottom.
+
+<figure markdown="span">
+  [![The status board: who each project is waiting on, and for how long.](assets/screenshots/status.png)](assets/screenshots/status.png)
+  <figcaption>The status board: who each project is waiting on, and for how long.</figcaption>
+</figure>
 - **Settings** holds your vocabulary (kinds, states, reference types, markers, domains, groups), backup and restore, and your account.
 
 ## Next

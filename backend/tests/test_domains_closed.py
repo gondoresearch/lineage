@@ -40,7 +40,7 @@ def test_domain_order(client):
     for n in ("A", "B", "C"):
         client.post("/api/domains", json={"name": n})
     client.patch("/api/domains/c", json={"position": 0})
-    assert [d["id"] for d in client.get("/api/workspace").json()["domains"]] == ["c", "research", "a", "b"]
+    assert [d["id"] for d in client.get("/api/workspace").json()["domains"]] == ["c", "research", "lineage-development", "a", "b"]
 
 
 # ------------------------------------------------------------------ closing kinds

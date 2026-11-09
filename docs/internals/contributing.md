@@ -38,6 +38,16 @@ make docs-serve       # http://127.0.0.1:8001, reloads as you edit
 make docs             # build into site/, failing on broken links
 ```
 
+### Screenshots
+
+The screenshots in `docs/assets/screenshots/` are taken by `docs/screenshots.py`: it runs lineage on a copy of the example data, drives it with Playwright and writes one PNG per screenshot, with the clock fixed so they only change when the app does. Retake them all after a visible change:
+
+```sh
+.venv/bin/pip install playwright      # once; uses /usr/bin/chromium if present,
+                                      # else: .venv/bin/python -m playwright install chromium
+make screenshots
+```
+
 Parts of the reference are generated from the code by `docs/hooks/generate.py`: a line `<!-- gen:fields Project -->` becomes the field table of that model, `<!-- gen:cli -->` the command-line help, and `<!-- gen:api -->` the endpoint list. Pushing to `main` publishes the site to GitHub Pages (`.github/workflows/docs.yml`).
 
 ## Releasing

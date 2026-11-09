@@ -7,6 +7,9 @@ domains:
 - id: research
   name: Research
   color: '#2f3e5c'
+- id: lineage-development
+  name: lineage development
+  color: '#6b4c9a'
 groups:
 - id: graph-learning
   name: Graph learning
@@ -20,6 +23,18 @@ groups:
   name: Teaching
   domain: null
   color: '#c44e52'
+- id: releases
+  name: Releases
+  domain: lineage-development
+  color: '#6b4c9a'
+- id: features
+  name: Features
+  domain: lineage-development
+  color: '#4c9a8f'
+- id: documentation
+  name: Documentation
+  domain: lineage-development
+  color: '#9a7b4c'
 projects:
 - id: spectral-filters
   title: Spectral filters for graph networks
@@ -83,6 +98,68 @@ projects:
   from: null
   links: []
   color: null
+- id: lineage
+  title: lineage
+  group: releases
+  from: null
+  links:
+  - label: repository
+    url: https://github.com/gondoresearch/lineage
+  color: null
+- id: domains-and-line-styling
+  title: Domains and line styling
+  group: features
+  from: lineage.milestones-1-to-4
+  links: []
+  color: null
+- id: docker-packaging
+  title: Docker packaging
+  group: features
+  from: lineage.milestones-1-to-4
+  links: []
+  color: null
+- id: backup-and-restore
+  title: Backup and restore
+  group: features
+  from: lineage.v0-1
+  links: []
+  color: null
+- id: accounts
+  title: Accounts
+  group: features
+  from: lineage.v0-1-1
+  links: []
+  color: null
+- id: lighter-frontend
+  title: Lighter frontend
+  group: features
+  from: lineage.v0-1-1
+  links: []
+  color: null
+- id: admin-accounts
+  title: Admin accounts
+  group: features
+  from: lineage.v0-2-0
+  links: []
+  color: null
+- id: encrypted-backups
+  title: Encrypted backups
+  group: features
+  from: lineage.v0-2-1
+  links: []
+  color: null
+- id: readme
+  title: README
+  group: documentation
+  from: null
+  links: []
+  color: null
+- id: documentation-site
+  title: Documentation site
+  group: documentation
+  from: null
+  links: []
+  color: null
 milestones:
 - id: spectral-filters.draft
   project: spectral-filters
@@ -94,10 +171,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters.preprint
@@ -110,10 +191,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links:
   - label: PDF
     url: https://example.org/sf-v1.pdf
@@ -128,10 +213,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters.rejected
@@ -146,10 +235,14 @@ milestones:
   merges: []
   markers:
   - open-question
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters.resubmitted
@@ -162,10 +255,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters.accepted
@@ -178,10 +275,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: '#2ca02c'
 - id: spectral-filters.published
@@ -195,10 +296,14 @@ milestones:
   - camera-ready
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters-journal.draft
@@ -211,10 +316,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters-journal.submitted
@@ -227,10 +336,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters-journal.revision
@@ -243,10 +356,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters-journal.accepted
@@ -259,10 +376,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters-tutorial.draft
@@ -275,10 +396,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: spectral-filters-tutorial.on-hold
@@ -291,10 +416,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: graph-sampling.draft
@@ -307,10 +436,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: graph-sampling.submit
@@ -324,10 +457,14 @@ milestones:
   merges: []
   markers:
   - deadline
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: station-graphs.draft
@@ -340,10 +477,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: station-graphs.preprint
@@ -356,10 +497,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: station-graphs.submitted
@@ -374,10 +519,14 @@ milestones:
   markers:
   - check-numbers
   - open-question
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: bayesian-rainfall.draft
@@ -390,10 +539,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: bayesian-rainfall.v2
@@ -406,10 +559,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: extreme-rainfall.draft
@@ -422,10 +579,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: extreme-rainfall.preprint
@@ -438,10 +599,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: extreme-rainfall.submitted
@@ -456,10 +621,14 @@ milestones:
   - bayesian-rainfall.v2
   markers:
   - linked-code
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: extreme-rainfall.accepted
@@ -472,10 +641,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: extreme-rainfall.published
@@ -488,10 +661,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: drought-indices.draft
@@ -504,10 +681,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: drought-indices.preprint
@@ -520,10 +701,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: statistics-notes.draft
@@ -536,10 +721,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: statistics-notes.published
@@ -552,10 +741,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: graph-course.draft
@@ -568,10 +761,14 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
   links: []
   color: null
 - id: graph-course.preprint
@@ -584,10 +781,493 @@ milestones:
   labels: []
   merges: []
   markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
   line_text: ''
   line_text_align: center
   line_text_position: above
-  line_text_size: 10
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: lineage.milestones-1-to-4
+  project: lineage
+  title: Milestones 1 to 4
+  date: 2026-11-06
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit eac30ab
+    url: https://github.com/gondoresearch/lineage/commit/eac30ab
+  color: null
+- id: domains-and-line-styling.domains-closing-kinds-per-line-editing
+  project: domains-and-line-styling
+  title: Domains, closing kinds, per-line editing
+  date: 2026-11-06
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8f2ccdd
+    url: https://github.com/gondoresearch/lineage/commit/8f2ccdd
+  color: null
+- id: docker-packaging.dockerfile-and-compose
+  project: docker-packaging
+  title: Dockerfile and compose
+  date: 2026-11-06
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 129970a
+    url: https://github.com/gondoresearch/lineage/commit/129970a
+  color: null
+- id: lineage.v0-1
+  project: lineage
+  title: v0.1
+  date: 2026-11-06
+  kind: release
+  state: developing
+  planned: false
+  labels: []
+  merges:
+  - domains-and-line-styling.domains-closing-kinds-per-line-editing
+  - docker-packaging.dockerfile-and-compose
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.1
+  color: null
+- id: backup-and-restore.version-display-backup-and-restore
+  project: backup-and-restore
+  title: Version display, backup and restore
+  date: 2026-11-06
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 2b7dee7
+    url: https://github.com/gondoresearch/lineage/commit/2b7dee7
+  color: null
+- id: lineage.v0-1-1
+  project: lineage
+  title: v0.1.1
+  date: 2026-11-06
+  kind: release
+  state: developing
+  planned: false
+  labels: []
+  merges:
+  - backup-and-restore.version-display-backup-and-restore
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.1.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.1.1
+  color: null
+- id: accounts.design-one-workspace-per-user
+  project: accounts
+  title: 'Design: one workspace per user'
+  date: 2026-11-09
+  kind: design
+  state: designing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: accounts.accounts-demo-user-manage-cli
+  project: accounts
+  title: Accounts, demo user, manage CLI
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: lighter-frontend.load-katex-and-dagre-on-demand
+  project: lighter-frontend
+  title: Load KaTeX and dagre on demand
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: lineage.v0-2-0
+  project: lineage
+  title: v0.2.0
+  date: 2026-11-09
+  kind: release
+  state: developing
+  planned: false
+  labels: []
+  merges:
+  - accounts.accounts-demo-user-manage-cli
+  - lighter-frontend.load-katex-and-dagre-on-demand
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.2.0
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.2.0
+  color: null
+- id: admin-accounts.settings-users
+  project: admin-accounts
+  title: Settings → Users
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 55a7e3b
+    url: https://github.com/gondoresearch/lineage/commit/55a7e3b
+  color: null
+- id: lineage.v0-2-1
+  project: lineage
+  title: v0.2.1
+  date: 2026-11-09
+  kind: release
+  state: developing
+  planned: false
+  labels: []
+  merges:
+  - admin-accounts.settings-users
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.2.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.2.1
+  color: null
+- id: encrypted-backups.options-sealed-backups-or-encryption-at-rest
+  project: encrypted-backups
+  title: 'Options: sealed backups or encryption at rest'
+  date: 2026-11-09
+  kind: design
+  state: designing
+  planned: false
+  labels: []
+  merges: []
+  markers:
+  - open-question
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: encrypted-backups.sealed-admin-backups
+  project: encrypted-backups
+  title: Sealed admin backups
+  date: 2026-11-23
+  kind: change
+  state: developing
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: lineage.v0-3-0
+  project: lineage
+  title: v0.3.0
+  date: 2026-11-30
+  kind: release
+  state: developing
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: readme.redo-readme
+  project: readme
+  title: Redo README
+  date: 2026-11-06
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit e06faa6
+    url: https://github.com/gondoresearch/lineage/commit/e06faa6
+  color: null
+- id: readme.slim-readme-pointing-at-the-site
+  project: readme
+  title: Slim README pointing at the site
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: documentation-site.mkdocs-site-with-generated-reference
+  project: documentation-site
+  title: MkDocs site with generated reference
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0bc301d
+    url: https://github.com/gondoresearch/lineage/commit/0bc301d
+  color: null
+- id: documentation-site.admin-accounts-documented
+  project: documentation-site
+  title: Admin accounts documented
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 55a7e3b
+    url: https://github.com/gondoresearch/lineage/commit/55a7e3b
+  color: null
+- id: documentation-site.compose-examples
+  project: documentation-site
+  title: Compose examples
+  date: 2026-11-09
+  kind: change
+  state: developing
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 0ae58a6
+    url: https://github.com/gondoresearch/lineage/commit/0ae58a6
+  color: null
+- id: documentation-site.screenshots
+  project: documentation-site
+  title: Screenshots
+  date: 2026-11-10
+  kind: change
+  state: developing
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: documentation-site.published-on-github-pages
+  project: documentation-site
+  title: Published on GitHub Pages
+  date: 2026-11-12
+  kind: release
+  state: developing
+  planned: true
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
   links: []
   color: null
 references:
@@ -599,7 +1279,7 @@ references:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   text_orientation: horizontal
 - id: builds-on-2
   type: builds-on
@@ -609,7 +1289,7 @@ references:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   text_orientation: horizontal
 - id: companion
   type: companion
@@ -619,7 +1299,37 @@ references:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
+  text_orientation: horizontal
+- id: builds-on-3
+  type: builds-on
+  from: admin-accounts.settings-users
+  to: accounts.accounts-demo-user-manage-cli
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  text_orientation: horizontal
+- id: builds-on-4
+  type: builds-on
+  from: encrypted-backups.options-sealed-backups-or-encryption-at-rest
+  to: admin-accounts.settings-users
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  text_orientation: horizontal
+- id: companion-2
+  type: companion
+  from: documentation-site.mkdocs-site-with-generated-reference
+  to: lineage.v0-2-0
+  color: null
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
   text_orientation: horizontal
 kinds:
 - id: draft
@@ -678,6 +1388,27 @@ kinds:
   default_state: null
   closes: true
   color: null
+- id: change
+  name: change
+  shape: square
+  size: 1.0
+  default_state: developing
+  closes: false
+  color: null
+- id: release
+  name: release
+  shape: filled-diamond
+  size: 1.3
+  default_state: developing
+  closes: false
+  color: null
+- id: design
+  name: design
+  shape: arrows
+  size: 1.0
+  default_state: designing
+  closes: false
+  color: null
 states:
 - id: drafting
   name: drafting
@@ -687,7 +1418,7 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: me
   color: null
 - id: revising
@@ -698,7 +1429,7 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: me
   color: null
 - id: with-co-authors
@@ -709,7 +1440,7 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: others
   color: null
 - id: under-review
@@ -720,7 +1451,7 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: others
   color: '#dd8452'
 - id: paused
@@ -731,7 +1462,7 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: nobody
   color: '#999999'
 - id: accepted
@@ -742,7 +1473,7 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: nobody
   color: null
 - id: published
@@ -753,8 +1484,30 @@ states:
   text: ''
   text_align: center
   text_position: above
-  text_size: 10
+  text_size: 10.0
   waiting_on: nobody
+  color: null
+- id: developing
+  name: developing
+  line: solid
+  opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  waiting_on: me
+  color: null
+- id: designing
+  name: designing
+  line: dash-dot
+  opacity: 1.0
+  line_width: 2.5
+  text: ''
+  text_align: center
+  text_position: above
+  text_size: 10.0
+  waiting_on: me
   color: null
 reftypes:
 - id: builds-on

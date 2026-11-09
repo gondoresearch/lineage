@@ -13,6 +13,11 @@ An admin is an ordinary account with a private workspace of its own, plus a **Us
 - **delete** a user, keeping their workspace folder on the server or deleting it too;
 - **download a backup** of a user's workspace, or **restore** one into it. The user can undo such a restore with **Undo**, like one of their own.
 
+<figure markdown="span">
+  [![Settings → Users, as seen by an admin: plain accounts can be managed; admin accounts are only listed.](../assets/screenshots/users.png){ width="420" }](../assets/screenshots/users.png)
+  <figcaption>Settings → Users, as seen by an admin: plain accounts can be managed; admin accounts are only listed.</figcaption>
+</figure>
+
 An admin **cannot open** another user's workspace in the app, and can only manage **non-admin** accounts from the web page. Admin accounts — including making someone an admin or taking it away — are managed with the command line, so that one admin cannot lock out or take over another.
 
 **Who is admin:**
@@ -46,6 +51,11 @@ python -m backend.manage deluser NAME --purge       # … and delete its workspa
 ## Changing your own password
 
 Any user can change their password in **Settings → Account**. Their other sessions (other browsers, other devices) are logged out; the current one stays logged in.
+
+<figure markdown="span">
+  [![Settings → Account.](../assets/screenshots/account.png){ width="420" }](../assets/screenshots/account.png)
+  <figcaption>Settings → Account.</figcaption>
+</figure>
 
 ## Sessions
 

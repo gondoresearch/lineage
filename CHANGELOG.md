@@ -2,6 +2,18 @@
 
 All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while lineage is below 1.0, a minor version may change the data layout (the upgrade steps are then in [Upgrading](https://gondoresearch.github.io/lineage/hosting/upgrading/)).
 
+## Unreleased
+
+### Added
+
+- The example data (and so the demo account) includes a **lineage development** domain: lineage's own releases, features and documentation, with forks, merges, references and planned work, linked to the commits.
+- Screenshots throughout the documentation, taken by `make screenshots` (`docs/screenshots.py`, Playwright).
+
+### Fixed
+
+- Settings: long domain names no longer push the group reorder buttons out of the list; counts say "1 project" rather than "1 projects".
+- Settings → Users: the table's action buttons no longer break its layout.
+
 ## 0.2.1 (2026-11-09)
 
 ### Added

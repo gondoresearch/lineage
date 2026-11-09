@@ -21,6 +21,7 @@ Open <http://localhost:5173> and log in as **demo** / **demo**.
 | `make status` | whether each one is running |
 | `make build` | builds the GUI for production into `frontend/dist`; the backend then serves it itself at <http://127.0.0.1:8000> |
 | `make docs`, `make docs-serve` | build this documentation, or serve it with live reload (see [Contributing](../internals/contributing.md)) |
+| `make screenshots` | retake the documentation screenshots (see [Contributing](../internals/contributing.md#screenshots)) |
 
 Logs and pid files are in `.run/`. Override the settings on the command line:
 

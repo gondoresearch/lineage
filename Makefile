@@ -9,6 +9,7 @@
 #   make status    show whether each one is running
 #   make docs      build the documentation into site/ (make docs-install once first)
 #   make docs-serve  serve the documentation at http://127.0.0.1:$(DOCS_PORT), reloading on edits
+#   make screenshots retake the documentation screenshots (needs Playwright and Chromium)
 #
 # Override any of these on the command line, e.g. `make start DATA_DIR=/tmp/lineage-test`.
 DATA_DIR     ?= ./data
@@ -26,7 +27,7 @@ SHELL := /bin/bash
 # Is the process in pid file $(1) running?
 running = [ -f $(1) ] && kill -0 $$(cat $(1)) 2>/dev/null
 
-.PHONY: install build docs-install docs docs-serve start stop restart status start-backend start-gui stop-backend stop-gui
+.PHONY: install build docs-install docs docs-serve screenshots start stop restart status start-backend start-gui stop-backend stop-gui
 
 install:
 	[ -d $(VENV) ] || python3 -m venv $(VENV)
@@ -47,6 +48,10 @@ docs:
 docs-serve:
 	@[ -x $(VENV)/bin/mkdocs ] || { echo "No $(VENV)/bin/mkdocs: run 'make docs-install' first."; exit 1; }
 	$(VENV)/bin/mkdocs serve --dev-addr 127.0.0.1:$(DOCS_PORT)
+
+screenshots: build
+	@$(VENV)/bin/python -c "import playwright" 2>/dev/null || { echo "Playwright is missing: $(VENV)/bin/pip install playwright"; exit 1; }
+	$(VENV)/bin/python docs/screenshots.py
 
 start: start-backend start-gui
 	@echo "GUI:     http://localhost:$(GUI_PORT)"

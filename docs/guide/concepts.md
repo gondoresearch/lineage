@@ -20,6 +20,11 @@ lineage borrows git's model of history and adds what git does not record: what h
 | **Kind** | the type of a milestone (draft, submitted, published…), shown as its symbol | closest: a Conventional Commits type (`feat:`, `fix:`) |
 | **Marker** | a flag on milestones (warning, open question…) | closest: a tag |
 
+<figure markdown="span">
+  [![The *lineage development* domain of the demo workspace. **Releases** is one project, whose milestones (diamonds) are versions. Each project under **Features** forks from a release (grey curves) and is merged back into the next one (brown curves). Dashed arrows are *builds on* references; faded symbols are planned milestones; the dash-dot line is the *designing* state.](../assets/screenshots/timeline-lineage.png)](../assets/screenshots/timeline-lineage.png)
+  <figcaption>The *lineage development* domain of the demo workspace. **Releases** is one project, whose milestones (diamonds) are versions. Each project under **Features** forks from a release (grey curves) and is merged back into the next one (brown curves). Dashed arrows are *builds on* references; faded symbols are planned milestones; the dash-dot line is the *designing* state.</figcaption>
+</figure>
+
 ## What is derived, never stored
 
 lineage stores as little as possible and computes the rest, so the files stay simple and cannot contradict themselves:

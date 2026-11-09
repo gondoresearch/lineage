@@ -45,7 +45,8 @@ def test_project_delete_cascades(client, example_dir):
     ws = workspace(client)
     assert "graph-course" not in ids(ws, "projects")
     assert not any(m["project"] == "graph-course" for m in ws["milestones"])
-    assert ids(ws, "references") == {"builds-on"}
+    # the other references of the example data (incl. the lineage-development domain) are untouched
+    assert ids(ws, "references") == {"builds-on", "builds-on-3", "builds-on-4", "companion-2"}
 
 
 def test_project_delete_removes_description_files(client, example_dir):
@@ -141,7 +142,7 @@ def test_state_blocked_by_milestones_and_kinds(client):
 def test_reftype_blocked_while_in_use(client):
     r = client.delete("/api/reftypes/companion")
     assert r.status_code == 409
-    assert refs(r.json()["blockers"]) == {("references", "companion")}
+    assert refs(r.json()["blockers"]) == {("references", "companion"), ("references", "companion-2")}
 
 
 def test_unused_vocabulary_deleted(client):

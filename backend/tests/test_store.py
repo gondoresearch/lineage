@@ -99,11 +99,12 @@ def test_merge_is_milestone_with_merges(client):
 def test_group_reorder(client):
     def order():
         return [g["id"] for g in client.get("/api/workspace").json()["groups"]]
-    assert order() == ["graph-learning", "climate-statistics", "teaching"]
+    lineage = ["releases", "features", "documentation"]
+    assert order() == ["graph-learning", "climate-statistics", "teaching", *lineage]
     client.patch("/api/groups/teaching", json={"position": 0})
-    assert order() == ["teaching", "graph-learning", "climate-statistics"]
+    assert order() == ["teaching", "graph-learning", "climate-statistics", *lineage]
     client.patch("/api/groups/teaching", json={"position": 99})
-    assert order() == ["graph-learning", "climate-statistics", "teaching"]
+    assert order() == ["graph-learning", "climate-statistics", *lineage, "teaching"]
 
 
 def test_settings_patch(client):

@@ -2,6 +2,11 @@
 
 **Settings** holds the words lineage draws with. All of it is yours to change; nothing in lineage depends on particular names.
 
+<figure markdown="span">
+  [![Settings: domains, groups, kinds, states, reference types and markers.](../assets/screenshots/settings.png)](../assets/screenshots/settings.png)
+  <figcaption>Settings: domains, groups, kinds, states, reference types and markers.</figcaption>
+</figure>
+
 | Entity | What it controls |
 |---|---|
 | **Domains** | optional top-level areas; groups belong to one or none, and are drawn under it |

@@ -11,6 +11,11 @@
 
 The undo history (`.history/`) is not included.
 
+<figure markdown="span">
+  [![Settings → Backup and restore.](../assets/screenshots/backup.png){ width="420" }](../assets/screenshots/backup.png)
+  <figcaption>Settings → Backup and restore.</figcaption>
+</figure>
+
 ## Restore
 
 **Restore from a backup…** replaces your whole workspace with the backup's contents, after you confirm.
