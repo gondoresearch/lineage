@@ -1,0 +1,45 @@
+# lineage on a server reachable from other machines, with HTTPS by Caddy.
+#
+# 1. Point a DNS name (e.g. lineage.example.org) at this machine; open ports 80 and 443.
+# 2. Put this file in your lineage checkout, next to the Dockerfile, and create the data folder:
+#        mkdir data
+#        printf 'LINEAGE_DOMAIN=lineage.example.org\nLINEAGE_UID=%s\nLINEAGE_GID=%s\n' $(id -u) $(id -g) > .env
+# 3. Start it, then create the first account (it becomes the admin):
+#        docker compose -f docker-compose.https.yml up -d
+#        docker compose -f docker-compose.https.yml exec -it lineage python -m backend.manage adduser NAME
+# 4. Open https://lineage.example.org. Caddy gets and renews the certificate by itself.
+
+services:
+  lineage:
+    build: .
+    image: lineage
+    user: "${LINEAGE_UID:-1000}:${LINEAGE_GID:-1000}"
+    environment:
+      DATA_DIR: /data
+      # No demo account on a reachable server (its password is public).
+      LINEAGE_DEMO: "0"
+      # Served over HTTPS: browsers send the login cookie over HTTPS only.
+      LINEAGE_SECURE_COOKIE: "1"
+    volumes:
+      - ./data:/data
+    # No "ports:": lineage is reachable only through Caddy, on the internal network.
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    # Terminates HTTPS for LINEAGE_DOMAIN and forwards everything to lineage.
+    command: caddy reverse-proxy --from "${LINEAGE_DOMAIN:?set LINEAGE_DOMAIN in .env}" --to lineage:8000
+    ports:
+      - "80:80"        # certificate challenges, and redirects to HTTPS
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - caddy-data:/data      # certificates: keep them, or Let's Encrypt rate limits may bite
+      - caddy-config:/config
+    depends_on:
+      - lineage
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:

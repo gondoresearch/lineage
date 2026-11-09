@@ -9,9 +9,23 @@ lineage speaks plain HTTP. On your own machine that is fine: the Docker setup pu
 3. Set `LINEAGE_SECURE_COOKIE=1`, so browsers send the login cookie over HTTPS only.
 4. Keep the published port on `127.0.0.1` if the proxy runs on the same machine; otherwise publish `8080:8000` and make sure only the proxy can reach it.
 
-## Caddy
+## Complete example with Docker Compose
 
-Caddy gets and renews certificates by itself:
+This compose file runs lineage together with [Caddy](https://caddyserver.com/), which gets and renews an HTTPS certificate by itself. It already follows the checklist: no demo account, secure cookie, and lineage reachable only through Caddy.
+
+You need a DNS name pointing at the server, and ports 80 and 443 open. Put the file in your lineage checkout, next to the `Dockerfile`, and follow the steps at its top.
+
+[Download docker-compose.https.yml](../examples/docker-compose.https.yml){ .md-button }
+
+```yaml title="docker-compose.https.yml"
+--8<-- "docs/examples/docker-compose.https.yml"
+```
+
+To update it later: `git pull`, then `docker compose -f docker-compose.https.yml up -d --build`.
+
+## Caddy on the host
+
+If Caddy runs on the host rather than in Compose, keep the repository's `docker-compose.yml` (lineage on `127.0.0.1:8080`, with `LINEAGE_SECURE_COOKIE=1` in `.env`) and use this `Caddyfile`:
 
 ```caddy
 lineage.example.org {
@@ -19,7 +33,9 @@ lineage.example.org {
 }
 ```
 
-## nginx
+## nginx on the host
+
+The same, with nginx and certificates you manage yourself (for example with certbot):
 
 ```nginx
 server {

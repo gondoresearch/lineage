@@ -28,6 +28,16 @@ The container runs as user and group id 1000, so that the files in `data/` stay 
 printf 'LINEAGE_UID=%s\nLINEAGE_GID=%s\n' $(id -u) $(id -g) > .env
 ```
 
+## The compose file
+
+This is the `docker-compose.yml` in the repository, the one `docker compose up` uses:
+
+```yaml title="docker-compose.yml"
+--8<-- "docker-compose.yml"
+```
+
+It is made for using lineage on your own machine. For a server that other machines reach, use the [HTTPS example](https.md#complete-example-with-docker-compose) instead.
+
 ## Day to day
 
 | Task | Command |
@@ -41,7 +51,7 @@ The container restarts on its own after a reboot (`restart: unless-stopped`).
 
 ## Reaching it from other machines
 
-The port is published on `127.0.0.1` only, because lineage speaks plain HTTP and passwords would cross the network unencrypted. To use it from other machines, put it behind a reverse proxy that does HTTPS: see [HTTPS and exposing it](https.md).
+The port is published on `127.0.0.1` only, because lineage speaks plain HTTP and passwords would cross the network unencrypted. To use it from other machines, put it behind a reverse proxy that does HTTPS: see [HTTPS and exposing it](https.md), which has a [complete compose file](https.md#complete-example-with-docker-compose) with Caddy.
 
 ## Options
 
