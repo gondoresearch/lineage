@@ -8,7 +8,7 @@ mkdir data
 docker compose up -d              # builds the image the first time
 ```
 
-Open <http://localhost:8080> and log in as **demo** / **demo** or **lineage** / **lineage** (see [the showcase accounts](accounts.md#the-demo-account)). Then create your own account:
+Open <http://localhost:8080> and log in as **demo** / **demo** or **lineage** / **lineage** (see [the showcase accounts](accounts.md#the-demo-account)). Log in as **admin** / **admin** to manage accounts in **Settings → Users** — lineage first asks you to choose a new password (see [the default admin](accounts.md#the-default-admin)). Or create an account from the command line:
 
 ```sh
 docker compose exec -it lineage python -m backend.manage adduser alice

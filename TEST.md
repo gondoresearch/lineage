@@ -197,7 +197,7 @@ For each type below: create one, edit it, check the change on screen and in `wor
 
 ## 16. Backup and restore
 
-- [ ] Toolbar shows **lineage v0.3.1** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
+- [ ] Toolbar shows **lineage v0.3.2** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
 - [ ] Settings → **Download a backup** → the browser downloads `lineage-backup-<version>-<date>-<time>.tar.gz`.
 - [ ] `tar -tzf <file>` → `lineage-backup.json`, `workspace.yaml`, `descriptions/…`; no `.history`.
 - [ ] `tar -xzOf <file> lineage-backup.json` → app "lineage", format 1, the version and the creation time.
@@ -243,11 +243,12 @@ Start from a clean `/tmp/lineage-test` (demo is created). Add two users: `printf
 - [ ] `… manage list` → alice, demo.
 - [ ] A download of the backup as alice contains only alice's data.
 - [ ] Old layout: `rm -rf /tmp/lineage-old && cp -r examples/papers /tmp/lineage-old`, start the backend with `DATA_DIR=/tmp/lineage-old` → a warning in the log about a workspace from before accounts; demo is created anyway. Stop it, then `printf 'oldpass1\n' | DATA_DIR=/tmp/lineage-old .venv/bin/python -m backend.manage adduser old --adopt --password-stdin` → `workspace.yaml` and `descriptions/` moved to `/tmp/lineage-old/users/old/`; log in as old → the example projects.
-- [ ] `LINEAGE_DEMO=0` on a fresh folder → no demo account; the log says there are no accounts.
+- [ ] `LINEAGE_DEMO=0` on a fresh folder → no showcase accounts; only **admin**, created with a warning to change its password.
 
 ### Admin
 
-alice was the first account created above, so she is an admin (`… manage list` → `alice  (admin)`); demo and bob are not.
+- [ ] A fresh start created **admin** (`… manage list` → `admin  (admin)`). Log in as admin / admin → only a **Choose a new password** screen; `curl -b <cookie> localhost:8000/api/workspace` → 403 "Choose a new password first."; set one (8+ characters) → the app appears with **Users**.
+- [ ] `… manage admin alice on` → alice is an admin too (`… manage list` → `alice  (admin)`); demo and bob are not.
 
 - [ ] Log in as bob → Settings has no **Users** section; `curl -b <bob's cookie> localhost:8000/api/admin/users` → 403.
 - [ ] Log in as alice → Settings → Account says "(admin)"; **Users** lists alice (admin, "you"), bob and demo, with **Set password**, **Backup…** and **Delete** on bob and demo only.

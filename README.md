@@ -28,7 +28,7 @@ make install
 make start                           # then open http://localhost:5173; `make stop` to stop
 ```
 
-Log in as **demo** / **demo** (research papers) or **lineage** / **lineage** (lineage's own history, in GitHub words) to explore, then create your own account (the first one you create becomes the admin, who can then manage the other accounts in **Settings → Users**):
+Log in as **demo** / **demo** (research papers) or **lineage** / **lineage** (lineage's own history, in GitHub words) to explore. The **admin** account (password **admin**, which you must change at the first login) manages the other accounts in **Settings → Users**. Or create accounts from the command line:
 
 ```sh
 docker compose exec -it lineage python -m backend.manage adduser NAME      # Docker

@@ -22,7 +22,8 @@ An admin **cannot open** another user's workspace in the app, and can only manag
 
 **Who is admin:**
 
-- The **first account created** while there is no admin becomes one automatically, whether made with `manage adduser` or otherwise. The showcase accounts (demo, lineage) never do.
+- Whenever lineage starts without any admin, it creates the [default admin](#the-default-admin), **admin** / **admin**, which must choose a new password first.
+- If the admin accounts are removed while the server runs, the first account created after that becomes admin (with `manage adduser` or otherwise). The showcase accounts (demo, lineage) never do.
 - More admins: `manage adduser NAME --admin`, or `manage admin NAME on` for an existing account; `manage admin NAME off` makes it a plain user again. Changes apply immediately, also to sessions already open.
 - `manage list` marks admins with `(admin)`. If no admin is left, the server log says so on start.
 

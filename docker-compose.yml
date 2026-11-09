@@ -2,7 +2,7 @@ services:
   lineage:
     build: .
     # One image per lineage version (built from this checkout); older ones stay available to go back to.
-    image: lineage:0.3.1
+    image: lineage:0.3.2
     # Run as your own user so files in ./data stay yours (set LINEAGE_UID/LINEAGE_GID if `id -u`/`id -g` are not 1000).
     user: "${LINEAGE_UID:-1000}:${LINEAGE_GID:-1000}"
     environment:
