@@ -166,18 +166,36 @@ export interface TimelineGeometry {
   todayX: number;
 }
 
-/** Rank of each milestone among same-day milestones of its project. */
+/**
+ * Rank of each milestone among the milestones of its day, across all projects: its depth
+ * along history links (previous milestone in the project, fork origin, merge sources)
+ * that stay within the same day. A same-day fork therefore sits right of its origin, and
+ * a same-day merge right of what it merges; unrelated same-day milestones share a rank.
+ */
 export function ranks(idx: Index): Map<string, number> {
-  const out = new Map<string, number>();
+  const parents = new Map<string, string[]>();
   for (const p of idx.ws.projects) {
-    let prev: string | null = null;
-    let r = 0;
-    for (const m of projectMilestones(idx, p.id)) {
-      r = m.date === prev ? r + 1 : 0;
-      prev = m.date;
-      out.set(m.id, r);
-    }
+    const ms = projectMilestones(idx, p.id);
+    ms.forEach((m, i) => {
+      const prev = i > 0 ? [ms[i - 1].id] : p.from ? [p.from] : [];
+      parents.set(m.id, [...prev, ...(m.merges ?? [])]);
+    });
   }
+  const date = new Map(idx.ws.milestones.map((m) => [m.id, m.date]));
+  const out = new Map<string, number>();
+  const visiting = new Set<string>();
+  const rank = (id: string): number => {
+    const known = out.get(id);
+    if (known !== undefined) return known;
+    if (visiting.has(id)) return 0; // the backend rejects cycles; just never loop
+    visiting.add(id);
+    let r = 0;
+    for (const p of parents.get(id) ?? []) if (date.get(p) === date.get(id)) r = Math.max(r, rank(p) + 1);
+    visiting.delete(id);
+    out.set(id, r);
+    return r;
+  };
+  for (const m of idx.ws.milestones) rank(m.id);
   return out;
 }
 

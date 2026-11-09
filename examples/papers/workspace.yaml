@@ -817,8 +817,8 @@ milestones:
   project: domains-and-line-styling
   title: Domains, closing kinds, per-line editing
   date: 2026-11-06
-  kind: change
-  state: developing
+  kind: accepted
+  state: accepted
   planned: false
   labels: []
   merges: []
@@ -839,8 +839,8 @@ milestones:
   project: docker-packaging
   title: Dockerfile and compose
   date: 2026-11-06
-  kind: change
-  state: developing
+  kind: accepted
+  state: accepted
   planned: false
   labels: []
   merges: []
@@ -885,8 +885,8 @@ milestones:
   project: backup-and-restore
   title: Version display, backup and restore
   date: 2026-11-06
-  kind: change
-  state: developing
+  kind: accepted
+  state: accepted
   planned: false
   labels: []
   merges: []
@@ -930,8 +930,8 @@ milestones:
   project: accounts
   title: 'Design: one workspace per user'
   date: 2026-11-09
-  kind: design
-  state: designing
+  kind: draft
+  state: drafting
   planned: false
   labels: []
   merges: []
@@ -950,8 +950,8 @@ milestones:
   project: accounts
   title: Accounts, demo user, manage CLI
   date: 2026-11-09
-  kind: change
-  state: developing
+  kind: accepted
+  state: accepted
   planned: false
   labels: []
   merges: []
@@ -972,8 +972,8 @@ milestones:
   project: lighter-frontend
   title: Load KaTeX and dagre on demand
   date: 2026-11-09
-  kind: change
-  state: developing
+  kind: accepted
+  state: accepted
   planned: false
   labels: []
   merges: []
@@ -1018,8 +1018,8 @@ milestones:
   project: admin-accounts
   title: Settings → Users
   date: 2026-11-09
-  kind: change
-  state: developing
+  kind: accepted
+  state: accepted
   planned: false
   labels: []
   merges: []
@@ -1063,8 +1063,8 @@ milestones:
   project: encrypted-backups
   title: 'Options: sealed backups or encryption at rest'
   date: 2026-11-09
-  kind: design
-  state: designing
+  kind: draft
+  state: drafting
   planned: false
   labels: []
   merges: []
@@ -1402,13 +1402,6 @@ kinds:
   default_state: developing
   closes: false
   color: null
-- id: design
-  name: design
-  shape: arrows
-  size: 1.0
-  default_state: designing
-  closes: false
-  color: null
 states:
 - id: drafting
   name: drafting
@@ -1490,17 +1483,6 @@ states:
 - id: developing
   name: developing
   line: solid
-  opacity: 1.0
-  line_width: 2.5
-  text: ''
-  text_align: center
-  text_position: above
-  text_size: 10.0
-  waiting_on: me
-  color: null
-- id: designing
-  name: designing
-  line: dash-dot
   opacity: 1.0
   line_width: 2.5
   text: ''

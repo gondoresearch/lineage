@@ -4,7 +4,10 @@ import { makeWs } from './fixture';
 import { layoutLanes } from './lanes';
 import { indexWorkspace } from './model';
 import { computeTimeline, placeText, R, ranks, segmentText } from './timeline';
-import { eventScale, IDENTITY, timeScale } from './xscale';
+import { eventScale, IDENTITY, NUDGE, timeScale } from './xscale';
+
+/** Slots for dates that each have one milestone (rank 0). */
+const day0 = (ds: string[]) => ds.map((date) => ({ date, rank: 0 }));
 
 const TODAY = '2026-01-01';
 
@@ -39,7 +42,7 @@ const lanes = layoutLanes(idx);
 const dates = ws.milestones.map((m) => m.date);
 
 for (const [name, xs] of [
-  ['time', timeScale(dates, TODAY, 1000)],
+  ['time', timeScale(ws.milestones.map((m) => ({ date: m.date, rank: ranks(idx).get(m.id)! })), TODAY, 1000)],
   ['event', eventScale(ws.milestones.map((m) => ({ date: m.date, rank: ranks(idx).get(m.id)! })), TODAY, 1000)],
 ] as const) {
   describe(`computeTimeline (${name} scale)`, () => {
@@ -145,7 +148,7 @@ describe('line opacity', () => {
     const ws2 = structuredClone(ws);
     ws2.states.find((s) => s.id === 'review')!.opacity = 0.4;
     const idx2 = indexWorkspace(ws2);
-    const g = computeTimeline(idx2, layoutLanes(idx2), timeScale(dates, TODAY, 1000), IDENTITY, TODAY);
+    const g = computeTimeline(idx2, layoutLanes(idx2), timeScale(day0(dates), TODAY, 1000), IDENTITY, TODAY);
     expect(g.segments.find((s) => s.from === 'a.2')!.opacity).toBe(0.4); // a.2 is in review
     expect(g.segments.find((s) => s.from === 'a.1')!.opacity).toBe(1);
   });
@@ -154,7 +157,7 @@ describe('line opacity', () => {
 describe('filtered lanes', () => {
   it('drops edges to hidden projects', () => {
     const L = layoutLanes(idx, (p) => p !== 'b');
-    const g = computeTimeline(idx, L, timeScale(dates, TODAY, 1000), IDENTITY, TODAY);
+    const g = computeTimeline(idx, L, timeScale(day0(dates), TODAY, 1000), IDENTITY, TODAY);
     expect(g.edges.filter((e) => e.kind !== 'reference')).toEqual([]);
     expect(g.nodes.some((n) => n.project === 'b')).toBe(false);
   });
@@ -178,7 +181,7 @@ describe('kind size and markers', () => {
     markers: [{ id: 'flag', name: 'deadline', icon: 'flag', color: null, description: '' }],
   });
   const idx3 = indexWorkspace(ws3);
-  const g = computeTimeline(idx3, layoutLanes(idx3), timeScale(ws3.milestones.map((m) => m.date), TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx3, layoutLanes(idx3), timeScale(day0(ws3.milestones.map((m) => m.date)), TODAY, 1000), IDENTITY, TODAY);
   const node = (id: string) => g.nodes.find((n) => n.id === id)!;
 
   it('scales the node radius by the kind size', () => {
@@ -224,7 +227,7 @@ describe('line thickness and text', () => {
     settings: { fork_color: null, merge_color: null, fork_width: 3, merge_width: 1.8 },
   });
   const idx4 = indexWorkspace(ws4);
-  const g = computeTimeline(idx4, layoutLanes(idx4), timeScale(ws4.milestones.map((m) => m.date), TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx4, layoutLanes(idx4), timeScale(day0(ws4.milestones.map((m) => m.date)), TODAY, 1000), IDENTITY, TODAY);
 
   it('takes widths from the state, the reference type and the fork/merge settings', () => {
     expect(g.segments.find((s) => s.from === 'a.1')!.width).toBe(4);
@@ -285,7 +288,7 @@ describe('reference text orientation', () => {
       references: [{ id: 'r', type: 'builds-on', from: 'b.1', to: 'a.1', color: null, description: '', text: 'uses', text_orientation: 'along' }],
     });
     const idx5 = indexWorkspace(ws5);
-    const g = computeTimeline(idx5, layoutLanes(idx5), timeScale(['2025-01-01', '2025-06-01'], TODAY, 1000), IDENTITY, TODAY);
+    const g = computeTimeline(idx5, layoutLanes(idx5), timeScale(day0(['2025-01-01', '2025-06-01']), TODAY, 1000), IDENTITY, TODAY);
     const e = g.edges.find((x) => x.id === 'r')!;
     const expected = (Math.atan2(e.y2 - e.y1, e.x2 - e.x1) * 180) / Math.PI;
     const upright = expected > 90 ? expected - 180 : expected < -90 ? expected + 180 : expected;
@@ -306,7 +309,7 @@ describe('per-line text and text size', () => {
     ],
   });
   const idx6 = indexWorkspace(ws6);
-  const g = computeTimeline(idx6, layoutLanes(idx6), timeScale(['2025-01-01', '2025-12-01'], TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx6, layoutLanes(idx6), timeScale(day0(['2025-01-01', '2025-12-01']), TODAY, 1000), IDENTITY, TODAY);
   const label = (from: string) => g.segments.find((s) => s.from === from && s.to !== null)!.label!;
 
   it("a milestone's line text replaces the state's default on that line only", () => {
@@ -340,7 +343,7 @@ describe('closing kinds', () => {
     ],
   });
   const idx7 = indexWorkspace(ws7);
-  const g = computeTimeline(idx7, layoutLanes(idx7), timeScale(['2025-01-01', '2025-09-01'], TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx7, layoutLanes(idx7), timeScale(day0(['2025-01-01', '2025-09-01']), TODAY, 1000), IDENTITY, TODAY);
 
   it('draws the line up to a closing milestone, and nothing after it', () => {
     expect(g.segments.filter((s) => s.project === 'a').map((s) => [s.from, s.to])).toEqual([['a.1', 'a.2']]);
@@ -364,11 +367,67 @@ describe("a single line's own look", () => {
     ],
   });
   const idx8 = indexWorkspace(ws8);
-  const g = computeTimeline(idx8, layoutLanes(idx8), timeScale(['2025-01-01', '2025-12-01'], TODAY, 1000), IDENTITY, TODAY);
+  const g = computeTimeline(idx8, layoutLanes(idx8), timeScale(day0(['2025-01-01', '2025-12-01']), TODAY, 1000), IDENTITY, TODAY);
   const seg = (from: string) => g.segments.find((s) => s.from === from && s.to !== null)!;
 
   it('overrides pattern, colour, thickness and opacity of that line only', () => {
     expect([seg('a.1').line, seg('a.1').color, seg('a.1').width, seg('a.1').opacity]).toEqual(['dash-dot', '#123456', 6, 0.5]);
     expect([seg('a.2').line, seg('a.2').width, seg('a.2').opacity]).toEqual(['solid', 2.5, 1]); // the state's look
+  });
+});
+
+describe('same-day milestones across projects', () => {
+  // One day: main.1 → fork f (first milestone f.1) → f.2 → merged by main.2; plus an unrelated u.1.
+  const wsd = makeWs({
+    groups: [{ id: 'g' }],
+    projects: [
+      { id: 'main', group: 'g' },
+      { id: 'f', group: 'g', from: 'main.1' },
+      { id: 'u', group: 'g' },
+    ],
+    milestones: [
+      { id: 'main.0', date: '2025-01-10', state: 'drafting' },
+      { id: 'main.1', date: '2025-02-01', state: 'drafting' },
+      { id: 'f.1', date: '2025-02-01', state: 'drafting' },
+      { id: 'f.2', date: '2025-02-01', state: 'drafting' },
+      { id: 'main.2', date: '2025-02-01', state: 'drafting', merges: ['f.2'] },
+      { id: 'u.1', date: '2025-02-01', state: 'drafting' },
+      { id: 'main.3', date: '2025-02-02', state: 'drafting' }, // the next day
+    ],
+  });
+  const idxd = indexWorkspace(wsd);
+  const rk = ranks(idxd);
+  const slots = wsd.milestones.map((m) => ({ date: m.date, rank: rk.get(m.id)! }));
+
+  it('ranks follow history within the day, across projects', () => {
+    expect(['main.1', 'f.1', 'f.2', 'main.2', 'u.1', 'main.3'].map((id) => rk.get(id))).toEqual([0, 1, 2, 3, 0, 0]);
+  });
+
+  for (const [name, xs] of [
+    ['time', timeScale(slots, TODAY, 1000)],
+    ['event', eventScale(slots, TODAY, 1000)],
+  ] as const) {
+    it(`${name}: forks start right of their origin, merges land right of their source`, () => {
+      const g = computeTimeline(idxd, layoutLanes(idxd), xs, IDENTITY, TODAY);
+      const x = (id: string) => g.nodes.find((n) => n.id === id)!.x;
+      expect(x('f.1')).toBeGreaterThan(x('main.1'));
+      expect(x('f.2')).toBeGreaterThan(x('f.1'));
+      expect(x('main.2')).toBeGreaterThan(x('f.2'));
+      expect(x('main.3')).toBeGreaterThan(x('main.2')); // the next day stays after the crowded one
+      expect(x('u.1')).toBe(x('main.1')); // unrelated: same slot
+    });
+  }
+
+  it('time: steps of a day are a full NUDGE apart, and the next day does not overlap them', () => {
+    const xs = timeScale(slots, TODAY, 1000);
+    expect(xs.x('2025-02-01', 1, IDENTITY) - xs.x('2025-02-01', 0, IDENTITY)).toBe(NUDGE);
+    expect(xs.x('2025-02-02', 0, IDENTITY) - xs.x('2025-02-01', 3, IDENTITY)).toBeGreaterThanOrEqual(NUDGE);
+  });
+
+  it('time: zoomed in far enough, every day is at its exact date again', () => {
+    const near = timeScale(slots, TODAY, 1000);
+    const far = { k: 400, x: -150_000 };
+    const gap = near.x('2025-02-02', 0, far) - near.x('2025-02-01', 0, far);
+    expect(gap).toBeGreaterThan(3 * NUDGE); // a day is wide: no pushing
   });
 });

@@ -6,8 +6,12 @@ All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while linea
 
 ### Added
 
-- The example data (and so the demo account) includes a **lineage development** domain: lineage's own releases, features and documentation, with forks, merges, references and planned work, linked to the commits.
+- The example data (and so the demo account) includes a **lineage development** domain: lineage's own releases, features and documentation, with forks, merges, references and planned work, linked to the commits. It reuses the paper kinds where they fit (draft, accepted) and adds *change* and *release*.
 - Screenshots throughout the documentation, taken by `make screenshots` (`docs/screenshots.py`, Playwright).
+
+### Changed
+
+- Same-day milestones: their order within a day now follows history across projects, so a fork drawn on the day of its origin starts to the right of it, and a merge lands to the right of what it merges (before, all of them shared one spot). In *Time* mode, steps of one day are a symbol's width apart; crowded days are moved apart just enough, and the date axis moves with them.
 
 ### Fixed
 

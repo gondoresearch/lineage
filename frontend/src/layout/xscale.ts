@@ -1,6 +1,6 @@
 // Horizontal scales. Both map (date, rank) to a base x in [0, width]; the
 // zoom transform {k, x} is applied on top: screenX = k * baseX + x.
-// `rank` separates same-day milestones of one project (0, 1, 2…).
+// `rank` orders the milestones of one day (0, 1, 2…; see ranks() in timeline.ts).
 import { scaleUtc } from 'd3-scale';
 import { dayMs } from './model';
 
@@ -12,8 +12,15 @@ export interface ZoomT {
 }
 
 export const IDENTITY: ZoomT = { k: 1, x: 0 };
-/** Screen-pixel nudge between same-day milestones in time mode. */
-export const NUDGE = 14;
+/** Screen pixels between consecutive same-day milestones in time mode (wider than a symbol),
+ * when the axis has room for it. */
+export const NUDGE = 22;
+
+/** A milestone's place on the axis: its date and its rank within that day. */
+export interface Slot {
+  date: string;
+  rank: number;
+}
 
 export interface Tick {
   x: number;
@@ -32,8 +39,13 @@ export interface XScale {
 const apply = (t: ZoomT, v: number) => t.k * v + t.x;
 const DAY = 86_400_000;
 
-export function timeScale(dates: string[], today: string, width: number): XScale {
-  const ms = [...dates, today].map(dayMs);
+/**
+ * Real time, except that nothing overlaps: the milestones of one day are NUDGE apart in
+ * rank order, and a day (or today) that would land closer than NUDGE after the previous
+ * day's last milestone is pushed right just enough. Zooming in restores exact dates.
+ */
+export function timeScale(slots: Slot[], today: string, width: number): XScale {
+  const ms = [...slots.map((s) => s.date), today].map(dayMs);
   let lo = Math.min(...ms);
   let hi = Math.max(...ms);
   if (hi - lo < 30 * DAY) {
@@ -42,13 +54,71 @@ export function timeScale(dates: string[], today: string, width: number): XScale
   }
   const pad = (hi - lo) * 0.04;
   const scale = scaleUtc().domain([lo - pad, hi + pad]).range([0, width]);
+  const lastRank = new Map<string, number>();
+  for (const s of slots) lastRank.set(s.date, Math.max(lastRank.get(s.date) ?? 0, s.rank));
+  const days = [...new Set([...lastRank.keys(), today])].sort();
+
+  // For one zoom transform (recomputed when it changes): each day's exact screen x (`n`)
+  // and the screen x of its first slot (`s`) once crowded days are moved apart.
+  let cachedFor: ZoomT | null = null;
+  let layout = { start: new Map<string, number>(), n: [] as number[], s: [] as number[], gap: NUDGE };
+  const placed = (t: ZoomT) => {
+    if (cachedFor?.k === t.k && cachedFor.x === t.x) return layout;
+    const begin = apply(t, 0) + NUDGE / 2;
+    const end = apply(t, width) - NUDGE / 2;
+    // The spacing: NUDGE, unless the whole axis cannot hold every day and slot that far apart
+    // (a narrow window, or zoomed out); then as much as fits, so nothing leaves the axis.
+    const slots = days.reduce((sum, d) => sum + (lastRank.get(d) ?? 0), 0) + days.length - 1;
+    const gap = Math.min(NUDGE, (end - begin) / Math.max(1, slots));
+    const span = (d: string) => (lastRank.get(d) ?? 0) * gap;
+    const n = days.map((d) => apply(t, scale(dayMs(d))));
+    // Forward: each day starts at its date (not before the start of the axis), or a gap
+    // after the previous day's last slot.
+    const s = [...n];
+    if (s.length) s[0] = Math.max(s[0], begin);
+    for (let i = 1; i < days.length; i++) s[i] = Math.max(s[i], s[i - 1] + span(days[i - 1]) + gap);
+    // Backward: what was pushed past the end of the axis packs back to the left instead.
+    let limit = end;
+    for (let i = days.length - 1; i >= 0; i--) {
+      s[i] = Math.min(s[i], limit - span(days[i]));
+      limit = s[i] - gap;
+    }
+    layout = { start: new Map(days.map((d, i) => [d, s[i]])), n, s, gap };
+    cachedFor = { ...t };
+    return layout;
+  };
+  /** Where an exact screen x ends up: between two days, proportionally between where they ended up. */
+  const warp = (t: ZoomT, x: number) => {
+    const { n, s } = placed(t);
+    if (!n.length) return x;
+    if (x <= n[0]) return x + s[0] - n[0];
+    for (let i = 0; i < n.length - 1; i++) {
+      if (x <= n[i + 1]) return s[i] + ((x - n[i]) / (n[i + 1] - n[i] || 1)) * (s[i + 1] - s[i]);
+    }
+    return x + s[n.length - 1] - n[n.length - 1];
+  };
+
   return {
     mode: 'time',
-    x: (date, rank, t) => apply(t, scale(dayMs(date))) + rank * NUDGE,
-    today: (t) => apply(t, scale(dayMs(today))),
+    x: (date, rank, t) => {
+      const l = placed(t);
+      return (l.start.get(date) ?? warp(t, apply(t, scale(dayMs(date))))) + rank * l.gap;
+    },
+    today: (t) => placed(t).start.get(today)!,
     ticks(t, w) {
+      // Ticks follow the same moves as the milestones, so a label sits where its dates are drawn;
+      // labels squeezed together by crowded days are dropped.
       const r = scale.copy().domain([0, width].map((v) => scale.invert((v - t.x) / t.k)));
-      return r.ticks(Math.max(2, Math.floor(w / 90))).map((d) => ({ x: r(d), label: r.tickFormat()(d) }));
+      const out: Tick[] = [];
+      let prev = -Infinity;
+      for (const d of r.ticks(Math.max(2, Math.floor(w / 90)))) {
+        const x = warp(t, r(d));
+        if (x - prev >= 60) {
+          out.push({ x, label: r.tickFormat()(d) });
+          prev = x;
+        }
+      }
+      return out;
     },
   };
 }

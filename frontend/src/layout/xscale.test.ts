@@ -47,7 +47,7 @@ describe('eventScale', () => {
 });
 
 describe('timeScale', () => {
-  const xs = timeScale(['2025-01-01', '2025-12-31'], '2025-07-02', 1000);
+  const xs = timeScale([{ date: '2025-01-01', rank: 0 }, { date: '2025-01-01', rank: 1 }, { date: '2025-12-31', rank: 0 }], '2025-07-02', 1000);
 
   it('is linear in time and keeps order', () => {
     const a = xs.x('2025-01-01', 0, IDENTITY);
@@ -60,6 +60,41 @@ describe('timeScale', () => {
   it('nudges same-day milestones apart in screen pixels', () => {
     const z = { k: 3, x: 5 };
     expect(xs.x('2025-01-01', 1, z) - xs.x('2025-01-01', 0, z)).toBe(NUDGE);
+  });
+
+  it('pushes a day right when it would overlap the previous one, and today with it', () => {
+    const t = timeScale([{ date: '2025-01-01', rank: 0 }, { date: '2025-01-01', rank: 4 }, { date: '2025-01-02', rank: 0 }], '2025-01-02', 300);
+    const lastOfFirst = t.x('2025-01-01', 4, IDENTITY);
+    expect(t.x('2025-01-02', 0, IDENTITY)).toBe(lastOfFirst + NUDGE);
+    expect(t.today(IDENTITY)).toBe(t.x('2025-01-02', 0, IDENTITY));
+  });
+
+  it('packs crowded days at the end of the axis back inside it', () => {
+    const many = Array.from({ length: 12 }, (_, r) => ({ date: '2025-12-30', rank: r }));
+    const t = timeScale([{ date: '2025-01-01', rank: 0 }, ...many, { date: '2025-12-31', rank: 0 }], '2025-06-01', 400);
+    expect(t.x('2025-12-31', 0, IDENTITY)).toBeLessThanOrEqual(400);
+    expect(t.x('2025-12-31', 0, IDENTITY) - t.x('2025-12-30', 11, IDENTITY)).toBeGreaterThanOrEqual(NUDGE);
+    expect(t.x('2025-01-01', 0, IDENTITY)).toBeLessThan(t.x('2025-12-30', 0, IDENTITY));
+  });
+
+  it('in a narrow axis, shrinks the spacing so that every day stays on it', () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ date: `2025-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + i).padStart(2, '0')}`, rank: 0 }));
+    const busy = Array.from({ length: 10 }, (_, r) => ({ date: '2025-12-30', rank: r }));
+    const t = timeScale([...many, ...busy], '2025-06-01', 300);
+    const xs = [...many, ...busy].map((m) => t.x(m.date, m.rank, IDENTITY));
+    expect(Math.min(...xs)).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...xs)).toBeLessThanOrEqual(300);
+    expect(t.x('2025-12-30', 1, IDENTITY)).toBeGreaterThan(t.x('2025-12-30', 0, IDENTITY));
+  });
+
+  it('moves the axis labels with the milestones', () => {
+    const many = Array.from({ length: 12 }, (_, r) => ({ date: '2025-12-30', rank: r }));
+    const t = timeScale([{ date: '2025-01-01', rank: 0 }, ...many], '2025-06-01', 400);
+    const ticks = t.ticks(IDENTITY, 400);
+    // every label left of the crowded day stays left of it, and labels keep their order and spacing
+    const crowded = t.x('2025-12-30', 0, IDENTITY);
+    for (const tick of ticks.filter((k) => k.label !== '2026')) expect(tick.x).toBeLessThanOrEqual(crowded + 1);
+    for (let i = 1; i < ticks.length; i++) expect(ticks[i].x - ticks[i - 1].x).toBeGreaterThanOrEqual(60);
   });
 
   it('ticks follow the zoom', () => {

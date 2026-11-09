@@ -43,9 +43,9 @@
   const plotW = $derived(Math.max(100, width - LABEL_W));
   const plotH = $derived(lanes.height);
   const xs = $derived.by(() => {
-    if (app.timeline.mode === 'time') return timeScale(ws.milestones.map((m) => m.date), today, plotW);
     const rk = ranks(idx);
-    return eventScale(ws.milestones.map((m) => ({ date: m.date, rank: rk.get(m.id) ?? 0 })), today, plotW);
+    const slots = ws.milestones.map((m) => ({ date: m.date, rank: rk.get(m.id) ?? 0 }));
+    return app.timeline.mode === 'time' ? timeScale(slots, today, plotW) : eventScale(slots, today, plotW);
   });
   const geo = $derived(computeTimeline(idx, lanes, xs, app.timeline.zoom, today));
   const ticks = $derived(xs.ticks(app.timeline.zoom, plotW));
