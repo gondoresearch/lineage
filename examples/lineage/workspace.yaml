@@ -93,6 +93,30 @@ projects:
   from: main.merge-fix-same-day-layout
   links: []
   color: null
+- id: feature-collapse-days
+  title: feature/collapse-days
+  group: feature-branches
+  from: main.v0-3-0
+  links: []
+  color: null
+- id: fix-zoom-limits
+  title: fix/zoom-limits
+  group: feature-branches
+  from: main.v0-3-0
+  links: []
+  color: null
+- id: feature-versioned-image
+  title: feature/versioned-image
+  group: feature-branches
+  from: main.v0-3-1
+  links: []
+  color: null
+- id: feature-default-admin
+  title: feature/default-admin
+  group: feature-branches
+  from: main.v0-3-1
+  links: []
+  color: null
 - id: 1-encrypted-backups
   title: '#1 Encrypted backups'
   group: issues
@@ -973,7 +997,7 @@ milestones:
 - id: feature-timestamps.milestone-timestamps
   project: feature-timestamps
   title: Milestone timestamps
-  at: 2026-11-09T14:20
+  at: 2026-11-09T14:02
   kind: commit
   state: in-progress
   planned: false
@@ -989,12 +1013,14 @@ milestones:
   line_text_align: center
   line_text_position: above
   line_text_size: 10.0
-  links: []
+  links:
+  - label: commit afa839b
+    url: https://github.com/gondoresearch/lineage/commit/afa839b
   color: null
 - id: feature-timestamps.days-hours-view
   project: feature-timestamps
   title: Days / Hours view
-  at: 2026-11-09T14:40
+  at: 2026-11-09T14:12
   kind: commit
   state: in-progress
   planned: false
@@ -1009,15 +1035,39 @@ milestones:
   line_text_align: center
   line_text_position: above
   line_text_size: 10.0
-  links: []
+  links:
+  - label: commit afa839b
+    url: https://github.com/gondoresearch/lineage/commit/afa839b
+  color: null
+- id: feature-timestamps.the-lineage-showcase-account
+  project: feature-timestamps
+  title: The lineage showcase account
+  at: 2026-11-09T14:18
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit afa839b
+    url: https://github.com/gondoresearch/lineage/commit/afa839b
   color: null
 - id: feature-timestamps.pull-request-feature-timestamps
   project: feature-timestamps
   title: 'Pull request: feature/timestamps'
-  at: 2026-11-10T10:00
+  at: 2026-11-09T14:22
   kind: pull-request
   state: in-review
-  planned: true
+  planned: false
   labels: []
   merges: []
   markers: []
@@ -1031,9 +1081,403 @@ milestones:
   line_text_size: 10.0
   links: []
   color: null
+- id: main.merge-feature-timestamps
+  project: main
+  title: Merge feature/timestamps
+  at: 2026-11-09T14:24
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-timestamps.pull-request-feature-timestamps
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit afa839b
+    url: https://github.com/gondoresearch/lineage/commit/afa839b
+  color: null
 - id: main.v0-3-0
   project: main
   title: v0.3.0
+  at: 2026-11-09T14:24
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers:
+  - breaking-change
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: timestamps
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.3.0
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.3.0
+  color: null
+- id: feature-collapse-days.collapse-a-branch-s-day-into-one-mark-n
+  project: feature-collapse-days
+  title: Collapse a branch's day into one mark (×n)
+  at: 2026-11-09T14:33
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8973c13
+    url: https://github.com/gondoresearch/lineage/commit/8973c13
+  color: null
+- id: feature-collapse-days.list-the-day-s-milestones-in-the-side-panel
+  project: feature-collapse-days
+  title: List the day's milestones in the side panel
+  at: 2026-11-09T14:38
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8973c13
+    url: https://github.com/gondoresearch/lineage/commit/8973c13
+  color: null
+- id: feature-collapse-days.pull-request-feature-collapse-days
+  project: feature-collapse-days
+  title: 'Pull request: feature/collapse-days'
+  at: 2026-11-09T14:41
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: fix-zoom-limits.days-stop-at-days-hours-at-minutes
+  project: fix-zoom-limits
+  title: Days stop at days, Hours at minutes
+  at: 2026-11-09T14:39
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8973c13
+    url: https://github.com/gondoresearch/lineage/commit/8973c13
+  color: null
+- id: fix-zoom-limits.pull-request-fix-zoom-limits
+  project: fix-zoom-limits
+  title: 'Pull request: fix/zoom-limits'
+  at: 2026-11-09T14:42
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.drop-the-merge-kind-from-this-example
+  project: main
+  title: Drop the merge kind from this example
+  at: 2026-11-09T14:44
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8973c13
+    url: https://github.com/gondoresearch/lineage/commit/8973c13
+  color: null
+- id: main.merge-feature-collapse-days
+  project: main
+  title: Merge feature/collapse-days
+  at: 2026-11-09T14:45
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-collapse-days.pull-request-feature-collapse-days
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8973c13
+    url: https://github.com/gondoresearch/lineage/commit/8973c13
+  color: null
+- id: main.merge-fix-zoom-limits
+  project: main
+  title: Merge fix/zoom-limits
+  at: 2026-11-09T14:45
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - fix-zoom-limits.pull-request-fix-zoom-limits
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 8973c13
+    url: https://github.com/gondoresearch/lineage/commit/8973c13
+  color: null
+- id: main.v0-3-1
+  project: main
+  title: v0.3.1
+  at: 2026-11-09T14:45
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.3.1
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.3.1
+  color: null
+- id: feature-versioned-image.tag-the-docker-image-with-the-version
+  project: feature-versioned-image
+  title: Tag the Docker image with the version
+  at: 2026-11-09T14:54
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 7b2eced
+    url: https://github.com/gondoresearch/lineage/commit/7b2eced
+  color: null
+- id: feature-versioned-image.pull-request-feature-versioned-image
+  project: feature-versioned-image
+  title: 'Pull request: feature/versioned-image'
+  at: 2026-11-09T14:56
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-versioned-image
+  project: main
+  title: Merge feature/versioned-image
+  at: 2026-11-09T14:58
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-versioned-image.pull-request-feature-versioned-image
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 7b2eced
+    url: https://github.com/gondoresearch/lineage/commit/7b2eced
+  color: null
+- id: feature-default-admin.admin-admin-must-change-its-password
+  project: feature-default-admin
+  title: admin / admin, must change its password
+  at: 2026-11-09T15:05
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 1d9fcc8
+    url: https://github.com/gondoresearch/lineage/commit/1d9fcc8
+  color: null
+- id: feature-default-admin.pull-request-feature-default-admin
+  project: feature-default-admin
+  title: 'Pull request: feature/default-admin'
+  at: 2026-11-09T15:11
+  kind: pull-request
+  state: in-review
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links: []
+  color: null
+- id: main.merge-feature-default-admin
+  project: main
+  title: Merge feature/default-admin
+  at: 2026-11-09T15:13
+  kind: commit
+  state: in-progress
+  planned: false
+  labels: []
+  merges:
+  - feature-default-admin.pull-request-feature-default-admin
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: commit 1d9fcc8
+    url: https://github.com/gondoresearch/lineage/commit/1d9fcc8
+  color: null
+- id: main.v0-3-2
+  project: main
+  title: v0.3.2
+  at: 2026-11-09T15:16
+  kind: release
+  state: in-progress
+  planned: false
+  labels: []
+  merges: []
+  markers: []
+  line_pattern: null
+  line_color: null
+  line_width: null
+  line_opacity: null
+  line_text: ''
+  line_text_align: center
+  line_text_position: above
+  line_text_size: 10.0
+  links:
+  - label: v0.3.2
+    url: https://github.com/gondoresearch/lineage/releases/tag/v0.3.2
+  color: null
+- id: main.v0-4-0
+  project: main
+  title: v0.4.0
   at: 2026-11-30T12:00
   kind: release
   state: in-progress

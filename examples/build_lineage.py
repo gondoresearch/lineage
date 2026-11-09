@@ -168,14 +168,43 @@ def build(c: TestClient) -> None:
                           "Same-day forks and merges were drawn on top of each other.")
     m_fix = merge("fix/same-day-layout", "2026-11-09T13:57", pr_fix, "0b6136f")
 
-    # ------------------------------------------------------------ in progress and planned
+    # ------------------------------------------------------------ 0.3.0: timestamps
     ts = branch("feature/timestamps", g_feat,
-                {"title": "Milestone timestamps", "at": "2026-11-09T14:20", "kind": k_commit, "markers": [mk_break]},
+                {"title": "Milestone timestamps", "at": "2026-11-09T14:02", "kind": k_commit, "markers": [mk_break],
+                 "links": commit("afa839b")},
                 "Milestones get a date and a time; references record when they were made; the timeline gets a Days / Hours switch.",
                 **{"from": m_fix})
-    ms(ts, "Days / Hours view", "2026-11-09T14:40", k_commit)
-    ms(ts, "Pull request: feature/timestamps", "2026-11-10T10:00", k_pr, planned=True)
-    ms(main, "v0.3.0", "2026-11-30T12:00", k_release, planned=True)
+    ms(ts, "Days / Hours view", "2026-11-09T14:12", k_commit, links=commit("afa839b"))
+    ms(ts, "The lineage showcase account", "2026-11-09T14:18", k_commit, links=commit("afa839b"))
+    pr_ts = ms(ts, "Pull request: feature/timestamps", "2026-11-09T14:22", k_pr)
+    merge("feature/timestamps", "2026-11-09T14:24", pr_ts, "afa839b")
+    v030 = ms(main, "v0.3.0", "2026-11-09T14:24", k_release, links=tag("v0.3.0"), markers=[mk_break],
+              line_text="timestamps")
+
+    # ------------------------------------------------------------ 0.3.1: collapsing days, zoom limits
+    _, pr_col = feature("feature/collapse-days", g_feat, v030,
+                        [("Collapse a branch's day into one mark (×n)", "2026-11-09T14:33", "8973c13"),
+                         ("List the day's milestones in the side panel", "2026-11-09T14:38", "8973c13")], "2026-11-09T14:41",
+                        "Collapse days: each branch's milestones of one day as one mark with a ×n badge.")
+    _, pr_zoom = feature("fix/zoom-limits", g_feat, v030,
+                         [("Days stop at days, Hours at minutes", "2026-11-09T14:39", "8973c13")], "2026-11-09T14:42")
+    ms(main, "Drop the merge kind from this example", "2026-11-09T14:44", k_commit, links=commit("8973c13"))
+    merge("feature/collapse-days", "2026-11-09T14:45", pr_col, "8973c13")
+    merge("fix/zoom-limits", "2026-11-09T14:45", pr_zoom, "8973c13")
+    v031 = ms(main, "v0.3.1", "2026-11-09T14:45", k_release, links=tag("v0.3.1"))
+
+    # ------------------------------------------------------------ 0.3.2: versioned image, default admin
+    _, pr_img = feature("feature/versioned-image", g_feat, v031,
+                        [("Tag the Docker image with the version", "2026-11-09T14:54", "7b2eced")], "2026-11-09T14:56")
+    merge("feature/versioned-image", "2026-11-09T14:58", pr_img, "7b2eced")
+    _, pr_adm2 = feature("feature/default-admin", g_feat, v031,
+                         [("admin / admin, must change its password", "2026-11-09T15:05", "1d9fcc8")], "2026-11-09T15:11",
+                         "Whenever there is no admin, lineage creates admin / admin, which must choose a new password first.")
+    merge("feature/default-admin", "2026-11-09T15:13", pr_adm2, "1d9fcc8")
+    ms(main, "v0.3.2", "2026-11-09T15:16", k_release, links=tag("v0.3.2"))
+
+    # ------------------------------------------------------------ planned
+    ms(main, "v0.4.0", "2026-11-30T12:00", k_release, planned=True)
 
     iss = branch("#1 Encrypted backups", g_iss,
                  {"title": "Admins should not read user backups", "at": "2026-11-09T13:45", "kind": k_issue,

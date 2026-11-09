@@ -1,0 +1,1 @@
+Collapse days: each branch's milestones of one day as one mark with a ×n badge.

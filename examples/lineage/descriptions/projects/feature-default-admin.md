@@ -1,0 +1,1 @@
+Whenever there is no admin, lineage creates admin / admin, which must choose a new password first.

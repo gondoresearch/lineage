@@ -11,6 +11,7 @@ All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while linea
 ### Changed
 
 - Docker: the image is tagged with the version (`lineage:0.3.2`), so each version is its own image and older ones stay available.
+- The lineage showcase account's history now runs through 0.3.2 (timestamps, collapse days, zoom limits, versioned image, default admin), at the commits' real times.
 
 ## 0.3.1 (2026-11-09)
 
