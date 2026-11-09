@@ -104,10 +104,13 @@ export const api = {
 
 // ------------------------------------------------------------------ accounts
 
-/** The logged-in user's name, or null if not logged in. */
-export async function fetchMe(): Promise<string | null> {
+export type Me = Schemas['MeOut'];
+export type User = Schemas['UserOut'];
+
+/** The logged-in user, or null if not logged in. */
+export async function fetchMe(): Promise<Me | null> {
   try {
-    return (await request<Schemas['MeOut']>('GET', '/api/me')).username;
+    return await request<Me>('GET', '/api/me');
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) return null;
     throw e;
@@ -116,10 +119,22 @@ export async function fetchMe(): Promise<string | null> {
 
 export const auth = {
   login: (username: string, password: string) =>
-    request<Schemas['MeOut']>('POST', '/api/login', { username, password }),
+    request<Me>('POST', '/api/login', { username, password }),
   logout: () => request<void>('POST', '/api/logout'),
   changePassword: (current: string, next: string) =>
-    request<Schemas['MeOut']>('POST', '/api/password', { current, new: next }),
+    request<Me>('POST', '/api/password', { current, new: next }),
+};
+
+const userPath = (name: string) => `/api/admin/users/${encodeURIComponent(name)}`;
+
+/** Managing the other (non-admin) accounts; admins only. */
+export const admin = {
+  users: () => request<User[]>('GET', '/api/admin/users'),
+  create: (username: string, password: string) => request<User>('POST', '/api/admin/users', { username, password }),
+  setPassword: (name: string, password: string) => request<void>('POST', `${userPath(name)}/password`, { password }),
+  remove: (name: string, purge: boolean) => request<void>('DELETE', `${userPath(name)}?purge=${purge}`),
+  backupUrl: (name: string) => `${userPath(name)}/backup`,
+  restoreUrl: (name: string) => `${userPath(name)}/restore`,
 };
 
 /** Human-readable messages from any error thrown by `request`. */
@@ -143,8 +158,8 @@ export type RestoreResult =
 
 /** Upload a backup and replace the whole workspace with it. A version mismatch is
  * returned (not thrown) so the caller can ask the user and retry with force. */
-export async function restoreBackup(file: Blob, force = false): Promise<RestoreResult> {
-  const res = await fetch(`/api/restore?force=${force}`, {
+export async function restoreBackup(file: Blob, force = false, url = '/api/restore'): Promise<RestoreResult> {
+  const res = await fetch(`${url}?force=${force}`, {
     method: 'POST',
     headers: { ...CSRF, 'Content-Type': 'application/gzip' },
     body: file,

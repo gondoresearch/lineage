@@ -1,7 +1,8 @@
 """Manage lineage accounts.
 
     python -m backend.manage list
-    python -m backend.manage adduser NAME [--adopt | --from DIR] [--password-stdin]
+    python -m backend.manage adduser NAME [--admin] [--adopt | --from DIR] [--password-stdin]
+    python -m backend.manage admin NAME on|off
     python -m backend.manage passwd NAME [--password-stdin]
     python -m backend.manage deluser NAME [--purge]
 
@@ -36,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--data-dir", default=os.environ.get("DATA_DIR", "/data"), help="the data folder (default: $DATA_DIR or /data)")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("list", help="list the accounts")
+    sub.add_parser("list", help="list the accounts (admins are marked)")
 
     p = sub.add_parser("adduser", help="create an account")
     p.add_argument("name")
@@ -44,7 +45,13 @@ def main(argv: list[str] | None = None) -> int:
     src.add_argument("--adopt", action="store_true",
                      help="move the single-user workspace in the data folder (from before accounts) to this user")
     src.add_argument("--from", dest="from_dir", metavar="DIR", help="start from a copy of this workspace folder (e.g. examples/papers)")
+    p.add_argument("--admin", action="store_true",
+                   help="make it an admin (the first account created while there is no admin becomes one anyway)")
     p.add_argument("--password-stdin", action="store_true", help="read the password from the first line of stdin")
+
+    p = sub.add_parser("admin", help="make an account an admin, or a plain user again")
+    p.add_argument("name")
+    p.add_argument("state", choices=["on", "off"])
 
     p = sub.add_parser("passwd", help="set a password (ends that user's sessions)")
     p.add_argument("name")
@@ -60,8 +67,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.cmd == "list":
-            for name in accounts.names():
-                print(name)
+            for u in accounts.details():
+                print(u["username"] + ("  (admin)" if u["admin"] else ""))
             return 0
 
         A.check_name(args.name)
@@ -80,9 +87,22 @@ def main(argv: list[str] | None = None) -> int:
                 A.adopt_legacy(root, args.name)
             elif args.from_dir:
                 A.copy_workspace(Path(args.from_dir), dest)
-            accounts.add(args.name, password)
+            if args.admin and args.name == A.DEMO_NAME and password == A.DEMO_PASSWORD:
+                raise A.AccountError("The demo account cannot be an admin while its password is 'demo'.")
+            is_admin = accounts.add(args.name, password, admin=True if args.admin else None)
             where = "with the adopted workspace" if args.adopt else f"from {args.from_dir}" if args.from_dir else "with an empty workspace"
-            print(f"Created user {args.name!r} {where} ({dest}).")
+            print(f"Created {'admin' if is_admin else 'user'} {args.name!r} {where} ({dest}).")
+        elif args.cmd == "admin":
+            u = accounts.get(args.name)
+            if u is None:
+                raise A.AccountError(f"User {args.name!r} does not exist.")
+            on = args.state == "on"
+            if on and args.name == A.DEMO_NAME and A.verify_password(A.DEMO_PASSWORD, u.get("password", "")):
+                raise A.AccountError("The demo account cannot be an admin while its password is 'demo'. Change it first: passwd demo")
+            accounts.set_admin(args.name, on)
+            print(f"{args.name!r} is {'now an admin' if on else 'no longer an admin'}.")
+            if not accounts.admins():
+                print("warning: there is no admin account left.", file=sys.stderr)
         elif args.cmd == "passwd":
             if not accounts.get(args.name):
                 raise A.AccountError(f"User {args.name!r} does not exist.")
@@ -90,6 +110,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Password of {args.name!r} changed; their open sessions have ended.")
         elif args.cmd == "deluser":
             accounts.remove(args.name)
+            if not accounts.admins() and accounts.names():
+                print("warning: there is no admin account left.", file=sys.stderr)
             dest = A.user_dir(root, args.name)
             if args.purge and dest.exists():
                 shutil.rmtree(dest)

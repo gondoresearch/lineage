@@ -155,7 +155,9 @@ class Accounts:
             self.refresh()
             return self.users.get(name)
 
-    def add(self, name: str, password: str, *, enforce_length: bool = True) -> None:
+    def add(self, name: str, password: str, *, enforce_length: bool = True, admin: bool | None = None) -> bool:
+        """Create an account. admin=None: it becomes an admin if there is no admin
+        yet (never the demo account). Returns whether the new account is an admin."""
         check_name(name)
         if enforce_length:
             check_password(password)
@@ -163,12 +165,47 @@ class Accounts:
             self.refresh()
             if name in self.users:
                 raise AccountError(f"User {name!r} already exists.")
+            if admin is None:
+                admin = name != DEMO_NAME and not self.admins()
             self.users[name] = {
                 "password": hash_password(password),
                 "epoch": 1,
                 "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             }
+            if admin:
+                self.users[name]["admin"] = True
             self._save()
+            return admin
+
+    def admins(self) -> list[str]:
+        with self.lock:
+            self.refresh()
+            return sorted(n for n, u in self.users.items() if u.get("admin") is True)
+
+    def is_admin(self, name: str) -> bool:
+        u = self.get(name)
+        return bool(u and u.get("admin") is True)
+
+    def set_admin(self, name: str, admin: bool) -> None:
+        with self.lock:
+            self.refresh()
+            u = self.users.get(name)
+            if u is None:
+                raise AccountError(f"User {name!r} does not exist.")
+            if admin:
+                u["admin"] = True
+            else:
+                u.pop("admin", None)
+            self._save()
+
+    def details(self) -> list[dict]:
+        """Every account, without password hashes."""
+        with self.lock:
+            self.refresh()
+            return [
+                {"username": n, "admin": u.get("admin") is True, "created": u.get("created")}
+                for n, u in sorted(self.users.items())
+            ]
 
     def set_password(self, name: str, password: str) -> None:
         """Change a password. Bumps the epoch, so every existing session of the user ends."""
@@ -302,6 +339,17 @@ class Registry:
                 s = self.stores[name] = Store(d)
             return s
 
+    def purge(self, name: str) -> None:
+        """Delete a user's workspace folder (the account must already be gone)."""
+        d = user_dir(self.root, name)
+        with self.lock:
+            s = self.stores.pop(name, None)
+            if s is not None:
+                with s.lock:
+                    shutil.rmtree(d, ignore_errors=True)
+            else:
+                shutil.rmtree(d, ignore_errors=True)
+
 
 # ------------------------------------------------------------------ setup helpers
 
@@ -371,3 +419,6 @@ def bootstrap(root: Path, accounts: Accounts) -> None:
         )
     if not accounts.names():
         log.warning("There are no accounts. Create one with: python -m backend.manage adduser NAME")
+    elif not accounts.admins():
+        log.warning("There is no admin account. Make one with: python -m backend.manage admin NAME on "
+                    "(or create a new account: the first one created while there is no admin becomes admin)")

@@ -38,6 +38,35 @@ class NotLoggedIn(Exception):
     pass
 
 
+class NotAdmin(Exception):
+    pass
+
+
+class ManagesAdmin(Exception):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.name = name
+
+
+GZIP_BODY = {"requestBody": {"required": True, "content": {"application/gzip": {"schema": {"type": "string", "format": "binary"}}}}}
+GZIP_OUT = {200: {"content": {"application/gzip": {"schema": {"type": "string", "format": "binary"}}},
+                  "description": "A .tar.gz of the workspace, with a manifest recording the version."}}
+MISMATCH = {409: {"model": M.VersionMismatchOut, "description": "Made by another version; resend with force=true"}}
+
+
+def backup_response(store: Store, who: str | None = None) -> Response:
+    data, manifest = store.backup()
+    stamp = manifest["created"].replace("-", "").replace(":", "").replace("T", "-")[:15]
+    name = f"lineage-backup-{who + '-' if who else ''}{manifest['version']}-{stamp}.tar.gz"
+    return Response(data, media_type="application/gzip", headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
+async def restore_from(store: Store, request: Request, force: bool) -> dict:
+    data = await request.body()
+    manifest = await run_in_threadpool(store.restore, data, force)
+    return {"restored_version": manifest["version"], "created": manifest.get("created"), "current_version": app_version()}
+
+
 def _errors(status: int, errors: list[str], headers: dict | None = None) -> JSONResponse:
     return JSONResponse({"errors": errors}, status_code=status, headers=headers)
 
@@ -67,6 +96,22 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
     def user_store(user: str = Depends(current_user)) -> Store:
         return registry.get(user)
 
+    def current_admin(user: str = Depends(current_user)) -> str:
+        if not accounts.is_admin(user):
+            raise NotAdmin()
+        return user
+
+    def managed_user(name: str, admin: str = Depends(current_admin)) -> str:
+        """A user an admin may manage from the web: an existing account that is not an admin."""
+        if not A.NAME_RE.match(name) or accounts.get(name) is None:
+            raise graph.NotFound(f"User '{name}' does not exist.")
+        if accounts.is_admin(name):
+            raise ManagesAdmin(name)
+        return name
+
+    def me_out(user: str) -> dict:
+        return {"username": user, "admin": accounts.is_admin(user)}
+
     def set_session(response: Response, name: str) -> None:
         response.set_cookie(
             A.COOKIE, accounts.make_session(name), max_age=A.SESSION_SECONDS, path="/",
@@ -84,6 +129,18 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
     @app.exception_handler(NotLoggedIn)
     def _(request, exc: NotLoggedIn):
         return _errors(401, ["Not logged in."])
+
+    @app.exception_handler(NotAdmin)
+    def _(request, exc: NotAdmin):
+        return _errors(403, ["Only an admin can do this."])
+
+    @app.exception_handler(ManagesAdmin)
+    def _(request, exc: ManagesAdmin):
+        return _errors(409, [f"'{exc.name}' is an admin. Admin accounts are managed with the command line."])
+
+    @app.exception_handler(A.AccountError)
+    def _(request, exc: A.AccountError):
+        return _errors(422, [str(exc)])
 
     @app.exception_handler(RequestValidationError)
     def _(request, exc: RequestValidationError):
@@ -222,7 +279,7 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
             return _errors(401, ["Wrong user name or password."])
         throttle.succeeded(key)
         set_session(response, body.username)
-        return {"username": body.username}
+        return me_out(body.username)
 
     @app.post("/api/logout", status_code=204, response_model=None, operation_id="logout", tags=["accounts"])
     def logout():
@@ -232,50 +289,76 @@ def create_app(data_dir: str | Path | None = None, frontend_dir: str | Path | No
 
     @app.get("/api/me", response_model=M.MeOut, operation_id="get_me", responses={401: ERR}, tags=["accounts"])
     def me(user: str = Depends(current_user)):
-        return {"username": user}
+        return me_out(user)
 
     @app.post("/api/password", response_model=M.MeOut, operation_id="change_password",
               responses={401: ERR, 422: ERR}, tags=["accounts"])
     def change_password(body: M.PasswordIn, response: Response, user: str = Depends(current_user)):
         if not accounts.check(user, body.current):
             return _errors(422, ["The current password is wrong."])
-        try:
-            accounts.set_password(user, body.new)
-        except A.AccountError as e:
-            return _errors(422, [str(e)])
+        accounts.set_password(user, body.new)
         set_session(response, user)  # the epoch changed: other sessions end, this one continues
-        return {"username": user}
+        return me_out(user)
 
     @app.get("/api/version", response_model=M.VersionOut, operation_id="get_version")
     def version():
         return {"version": app_version()}
 
-    @app.get(
-        "/api/backup",
-        operation_id="backup",
-        response_class=Response,
-        responses={200: {"content": {"application/gzip": {"schema": {"type": "string", "format": "binary"}}},
-                         "description": "A .tar.gz of the whole data folder, with a manifest recording the version."}},
-    )
+    @app.get("/api/backup", operation_id="backup", response_class=Response, responses=GZIP_OUT)
     def backup(store: Store = Depends(user_store)):
-        data, manifest = store.backup()
-        stamp = manifest["created"].replace("-", "").replace(":", "").replace("T", "-")[:15]
-        name = f"lineage-backup-{manifest['version']}-{stamp}.tar.gz"
-        return Response(data, media_type="application/gzip", headers={"Content-Disposition": f'attachment; filename="{name}"'})
+        return backup_response(store)
 
-    @app.post(
-        "/api/restore",
-        response_model=M.RestoreOut,
-        operation_id="restore",
-        responses={409: {"model": M.VersionMismatchOut, "description": "Made by another version; resend with force=true"}, 422: ERR},
-        openapi_extra={"requestBody": {"required": True, "content": {"application/gzip": {"schema": {"type": "string", "format": "binary"}}}}},
-    )
+    @app.post("/api/restore", response_model=M.RestoreOut, operation_id="restore",
+              responses={**MISMATCH, 422: ERR}, openapi_extra=GZIP_BODY)
     async def restore(request: Request, force: bool = False, store: Store = Depends(user_store)):
         """Replace the whole workspace with a backup (.tar.gz from /api/backup, sent as the request body).
         The current data is snapshotted first, so /api/undo reverts the restore."""
-        data = await request.body()
-        manifest = await run_in_threadpool(store.restore, data, force)
-        return {"restored_version": manifest["version"], "created": manifest.get("created"), "current_version": app_version()}
+        return await restore_from(store, request, force)
+
+    # ------------------------------------------------------------ admin
+    # An admin manages the other (non-admin) accounts: create, set password, delete,
+    # and back up or restore their workspace. Admin accounts are managed with the CLI.
+
+    ADMIN = {401: ERR, 403: ERR}
+    TARGET = {**ADMIN, 404: ERR, 409: ERR, 422: ERR}
+
+    @app.get("/api/admin/users", response_model=list[M.UserOut], operation_id="admin_list_users",
+             responses=ADMIN, tags=["admin"])
+    def admin_list_users(admin: str = Depends(current_admin)):
+        return accounts.details()
+
+    @app.post("/api/admin/users", response_model=M.UserOut, status_code=201, operation_id="admin_create_user",
+              responses={**ADMIN, 409: ERR, 422: ERR}, tags=["admin"])
+    def admin_create_user(body: M.NewUserIn, admin: str = Depends(current_admin)):
+        if accounts.get(body.username) is not None:
+            return _errors(409, [f"User '{body.username}' already exists."])
+        accounts.add(body.username, body.password, admin=False)
+        return next(u for u in accounts.details() if u["username"] == body.username)
+
+    @app.post("/api/admin/users/{name}/password", status_code=204, response_model=None,
+              operation_id="admin_set_password", responses={**TARGET, 422: ERR}, tags=["admin"])
+    def admin_set_password(body: M.SetPasswordIn, name: str = Depends(managed_user)):
+        accounts.set_password(name, body.password)
+        return Response(status_code=204)
+
+    @app.delete("/api/admin/users/{name}", status_code=204, response_model=None,
+                operation_id="admin_delete_user", responses={**TARGET, 422: ERR}, tags=["admin"])
+    def admin_delete_user(purge: bool = False, name: str = Depends(managed_user)):
+        accounts.remove(name)
+        if purge:
+            registry.purge(name)
+        return Response(status_code=204)
+
+    @app.get("/api/admin/users/{name}/backup", operation_id="admin_backup_user", response_class=Response,
+             responses={**GZIP_OUT, **TARGET}, tags=["admin"])
+    def admin_backup_user(name: str = Depends(managed_user)):
+        return backup_response(registry.get(name), name)
+
+    @app.post("/api/admin/users/{name}/restore", response_model=M.RestoreOut, operation_id="admin_restore_user",
+              responses={**MISMATCH, **TARGET, 422: ERR}, openapi_extra=GZIP_BODY, tags=["admin"])
+    async def admin_restore_user(request: Request, force: bool = False, name: str = Depends(managed_user)):
+        """Replace that user's workspace with a backup; they can undo it like their own restore."""
+        return await restore_from(registry.get(name), request, force)
 
     @app.post("/api/undo", status_code=204, operation_id="undo", responses={409: ERR})
     def undo(store: Store = Depends(user_store)):

@@ -2,6 +2,7 @@
   import { api, messagesOf, type EntityType, type Workspace } from '../api/client';
   import BackupRestore from '../components/BackupRestore.svelte';
   import ChangePassword from '../components/ChangePassword.svelte';
+  import UsersAdmin from '../components/UsersAdmin.svelte';
   import ColorInput from '../components/ColorInput.svelte';
   import LineSample from '../components/LineSample.svelte';
   import MarkerIcon from '../components/MarkerIcon.svelte';
@@ -151,9 +152,16 @@
 
   <section>
     <div class="head"><h2>Account</h2></div>
-    <p class="muted small">Logged in as <b>{app.user}</b>. Your workspace is private to your account.</p>
+    <p class="muted small">Logged in as <b>{app.user}</b>{app.admin ? ' (admin)' : ''}. Your workspace is private to your account.</p>
     <ChangePassword />
   </section>
+
+  {#if app.admin}
+    <section>
+      <div class="head"><h2>Users</h2></div>
+      <UsersAdmin />
+    </section>
+  {/if}
 
   <section>
     <div class="head"><h2>Fork and merge lines</h2></div>

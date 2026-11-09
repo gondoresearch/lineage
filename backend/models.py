@@ -480,6 +480,22 @@ class LoginIn(Model):
 
 class MeOut(Model):
     username: str
+    admin: bool = False
+
+
+class UserOut(Model):
+    username: str
+    admin: bool
+    created: str | None = None
+
+
+class NewUserIn(Model):
+    username: str = Field(max_length=64)
+    password: str = Field(max_length=1024)
+
+
+class SetPasswordIn(Model):
+    password: str = Field(max_length=1024)
 
 
 class PasswordIn(Model):

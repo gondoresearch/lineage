@@ -140,6 +140,7 @@ users:
     password: scrypt$16384$8$1$<salt>$<hash>
     epoch: 2
     created: '2026-11-09T12:00:00+00:00'
+    admin: true                  # only on admin accounts
 ```
 
 `epoch` increases with every password change; sessions issued under an older epoch are no longer valid. Use the [command line](cli.md) rather than editing this file; if you do edit it and make it invalid, nobody can log in until it is fixed (the log says why).

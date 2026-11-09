@@ -10,6 +10,8 @@ The frontend talks to the backend over a small JSON API, which you can use too. 
 
 Failed logins answer **401**; after 5 failures in a row the answer is **429** with a `Retry-After` header.
 
+`GET /api/me` says who is logged in and whether they are an admin: `{"username": "alice", "admin": true}`. The `/api/admin/…` routes answer **403** to anyone else, and **409** when their target is an admin account (those are managed with the command line).
+
 ```sh
 curl -c cookies -X POST localhost:8000/api/login \
      -H 'X-Lineage: 1' -H 'Content-Type: application/json' \

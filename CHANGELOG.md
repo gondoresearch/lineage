@@ -2,7 +2,15 @@
 
 All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while lineage is below 1.0, a minor version may change the data layout (the upgrade steps are then in [Upgrading](https://gondoresearch.github.io/lineage/hosting/upgrading/)).
 
-## 0.2.0 (unreleased)
+## 0.2.1 (2026-11-09)
+
+### Added
+
+- **Admin accounts.** An admin gets a **Settings → Users** section to add users, set their passwords, delete them (optionally with their workspace), and download or restore a backup of their workspace. Admins cannot open other users' workspaces, and manage only non-admin accounts from the web.
+- The first account created while there is no admin becomes an admin (never the demo account). `manage adduser --admin` and `manage admin NAME on|off` manage admins; `manage list` marks them.
+- `GET /api/me` and `POST /api/login` report `admin`; new `/api/admin/users…` routes.
+
+## 0.2.0 (2026-11-09)
 
 **Changes the data layout.** Existing installations need one command after upgrading; see Upgrading.
 

@@ -33,6 +33,8 @@ export interface Toast {
 export const app = $state({
   /** logged-in user name; null: not logged in; undefined: not checked yet */
   user: undefined as string | null | undefined,
+  /** whether the logged-in user is an admin (can manage the other accounts) */
+  admin: false,
   ws: null as Workspace | null,
   /** running lineage version, from the backend */
   version: null as string | null,
@@ -116,6 +118,7 @@ export async function load(): Promise<void> {
 /** Clear everything that belongs to the previous user. */
 function loggedOut(): void {
   app.user = null;
+  app.admin = false;
   app.ws = null;
   app.panel = null;
   app.picking = null;
@@ -127,7 +130,9 @@ function loggedOut(): void {
 /** Find out who is logged in (on start), then load their workspace. */
 export async function checkSession(): Promise<void> {
   try {
-    app.user = await fetchMe();
+    const me = await fetchMe();
+    app.user = me?.username ?? null;
+    app.admin = me?.admin ?? false;
     if (app.user) await load();
   } catch (e) {
     app.user = null;
@@ -140,6 +145,7 @@ export async function logIn(username: string, password: string): Promise<void> {
   const me = await auth.login(username, password);
   resetEtag();
   app.user = me.username;
+  app.admin = me.admin ?? false;
   app.error = null;
   await load();
 }

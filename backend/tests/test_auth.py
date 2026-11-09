@@ -47,7 +47,7 @@ def test_version_is_public(root, example_dir):
 
 
 def test_me(client):
-    assert client.get("/api/me").json() == {"username": "alice"}
+    assert client.get("/api/me").json() == {"username": "alice", "admin": True}  # first account: admin
 
 
 def test_wrong_password_and_unknown_user(root, example_dir):
@@ -247,7 +247,7 @@ def test_cli_adduser_list_deluser(root, monkeypatch, capsys):
     assert run(root, "adduser", "carol", "--password-stdin", stdin=PASSWORD, monkeypatch=monkeypatch) == 1
     assert run(root, "adduser", "dave", "--password-stdin", stdin="short", monkeypatch=monkeypatch) == 1
     capsys.readouterr()
-    assert run(root, "list") == 0 and capsys.readouterr().out.split() == ["carol"]
+    assert run(root, "list") == 0 and capsys.readouterr().out.splitlines() == ["carol  (admin)"]  # first account
     login(make_client(root), "carol").get("/api/workspace")  # creates her workspace
     assert (root / "users" / "carol" / "workspace.yaml").exists()
     assert run(root, "deluser", "carol") == 0 and (root / "users" / "carol").exists()

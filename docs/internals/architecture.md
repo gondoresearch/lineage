@@ -17,7 +17,7 @@ browser ── Svelte 5 SPA ──(JSON over HTTP, cookie session)──▶ Fast
 | `graph.py` | pure functions over a workspace: derived data, validation, create/patch/delete rules, migrations of older formats |
 | `store.py` | one workspace folder: loading, atomic writes, snapshots and undo, reloading after hand edits, backup and restore |
 | `accounts.py` | `accounts.yaml`, password hashing, signed session cookies, login throttling, the per-user `Store` registry, the demo account |
-| `app.py` | the HTTP routes, error mapping, the CSRF check |
+| `app.py` | the HTTP routes (including the `/api/admin/…` routes), error mapping, the CSRF check |
 | `manage.py` | the account command line |
 | `seed.py` | the starter vocabulary of a new workspace |
 

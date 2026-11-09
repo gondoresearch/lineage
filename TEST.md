@@ -185,7 +185,7 @@ For each type below: create one, edit it, check the change on screen and in `wor
 
 ## 16. Backup and restore
 
-- [ ] Toolbar shows **lineage v0.2.0** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
+- [ ] Toolbar shows **lineage v0.2.1** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
 - [ ] Settings → **Download a backup** → the browser downloads `lineage-backup-<version>-<date>-<time>.tar.gz`.
 - [ ] `tar -tzf <file>` → `lineage-backup.json`, `workspace.yaml`, `descriptions/…`; no `.history`.
 - [ ] `tar -xzOf <file> lineage-backup.json` → app "lineage", format 1, the version and the creation time.
@@ -232,6 +232,19 @@ Start from a clean `/tmp/lineage-test` (demo is created). Add two users: `printf
 - [ ] A download of the backup as alice contains only alice's data.
 - [ ] Old layout: `rm -rf /tmp/lineage-old && cp -r examples/papers /tmp/lineage-old`, start the backend with `DATA_DIR=/tmp/lineage-old` → a warning in the log about a workspace from before accounts; demo is created anyway. Stop it, then `printf 'oldpass1\n' | DATA_DIR=/tmp/lineage-old .venv/bin/python -m backend.manage adduser old --adopt --password-stdin` → `workspace.yaml` and `descriptions/` moved to `/tmp/lineage-old/users/old/`; log in as old → the example projects.
 - [ ] `LINEAGE_DEMO=0` on a fresh folder → no demo account; the log says there are no accounts.
+
+### Admin
+
+alice was the first account created above, so she is an admin (`… manage list` → `alice  (admin)`); demo and bob are not.
+
+- [ ] Log in as bob → Settings has no **Users** section; `curl -b <bob's cookie> localhost:8000/api/admin/users` → 403.
+- [ ] Log in as alice → Settings → Account says "(admin)"; **Users** lists alice (admin, "you"), bob and demo, with **Set password**, **Backup…** and **Delete** on bob and demo only.
+- [ ] **Add a user** carol / carolpass → listed; log in as carol in a private window → an empty workspace. A name like `Carol` or a 5-character password → the button stays disabled or an error explains why.
+- [ ] **Set password** for carol → toast; carol's window shows the login page within about 5 seconds; the new password works.
+- [ ] Log in as bob, make a change. As alice, bob → **Backup…** → **Download a backup** → `lineage-backup-bob-….tar.gz` with only bob's data. Have bob change something else, then as alice restore that file into bob → bob's page shows the backed-up state within about 5 seconds; bob's **Undo** brings his change back; alice's own workspace is unchanged.
+- [ ] **Delete** carol without "Also delete their workspace" → gone from the list, logged out; `/tmp/lineage-test/users/carol/` is still there. Add carol again → her old workspace is back. Delete her with the box ticked → the folder is gone.
+- [ ] `… manage admin bob on` → after a reload bob sees **Users**; alice's list now shows bob as admin with no buttons. `… manage admin bob off` → bob's **Users** section is gone after a reload, and his admin calls get 403 at once.
+- [ ] `… manage admin demo on` → refused while demo's password is `demo`.
 
 ## 19. API checks (optional)
 

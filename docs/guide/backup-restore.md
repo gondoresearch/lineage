@@ -1,6 +1,6 @@
 # Backup and restore
 
-**Settings → Backup and restore** works on your own workspace only; other accounts are untouched.
+**Settings → Backup and restore** works on your own workspace only; other accounts are untouched. An [admin](../hosting/accounts.md#admin-accounts) can also back up and restore other users' workspaces, from **Settings → Users → Backup…**; those backups are named `lineage-backup-<user>-…`.
 
 ## Download a backup
 

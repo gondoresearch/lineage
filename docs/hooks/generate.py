@@ -105,6 +105,12 @@ SUMMARIES = {
     "logout": "Log out: clears the session cookie.",
     "get_me": "The logged-in user.",
     "change_password": "Change your password: `{current, new}`; ends your other sessions.",
+    "admin_list_users": "Admin: every account (name, admin, created).",
+    "admin_create_user": "Admin: create a (non-admin) account: `{username, password}`.",
+    "admin_set_password": "Admin: set a user's password: `{password}`; ends their sessions.",
+    "admin_delete_user": "Admin: delete a user (`?purge=true` also deletes their workspace).",
+    "admin_backup_user": "Admin: download a backup of a user's workspace.",
+    "admin_restore_user": "Admin: restore a backup into a user's workspace (`?force=true` across versions).",
 }
 
 
