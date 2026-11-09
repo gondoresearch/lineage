@@ -21,8 +21,8 @@ lineage borrows git's model of history and adds what git does not record: what h
 | **Marker** | a flag on milestones (warning, open question…) | closest: a tag |
 
 <figure markdown="span">
-  [![The **lineage** showcase account: this repository's history. Each feature branch forks from *main*, gets commits (dots) and a pull request (triangle), and is merged back by a merge commit on *main* (arrows); releases are diamonds. Dashed arrows are *depends on* references; faded symbols are planned.](../assets/screenshots/timeline-lineage.png)](../assets/screenshots/timeline-lineage.png)
-  <figcaption>The **lineage** showcase account: this repository's history. Each feature branch forks from *main*, gets commits (dots) and a pull request (triangle), and is merged back by a merge commit on *main* (arrows); releases are diamonds. Dashed arrows are *depends on* references; faded symbols are planned.</figcaption>
+  [![The **lineage** showcase account: this repository's history. Each feature branch forks from *main*, gets commits (dots) and a pull request (triangle), and is merged back into *main* by a merge commit (a commit that merges it: the brown curve); releases are diamonds. Dashed arrows are *depends on* references; faded symbols are planned.](../assets/screenshots/timeline-lineage.png)](../assets/screenshots/timeline-lineage.png)
+  <figcaption>The **lineage** showcase account: this repository's history. Each feature branch forks from *main*, gets commits (dots) and a pull request (triangle), and is merged back into *main* by a merge commit (a commit that merges it: the brown curve); releases are diamonds. Dashed arrows are *depends on* references; faded symbols are planned.</figcaption>
 </figure>
 
 ## What is derived, never stored

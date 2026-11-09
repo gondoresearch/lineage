@@ -473,3 +473,52 @@ describe('hours', () => {
     expect(gd.nodes.find((n) => n.id === 'b.2')!.overdue).toBe(false); // still today
   });
 });
+
+describe('collapsed days', () => {
+  // main: two steps on day 1, then a fork f with three steps on day 1 that main merges on day 2.
+  const wsc = makeWs({
+    groups: [{ id: 'g' }],
+    projects: [{ id: 'main', group: 'g' }, { id: 'f', group: 'g', from: 'main.2' }],
+    milestones: [
+      { id: 'main.1', at: '2025-02-01T09:00' },
+      { id: 'main.2', at: '2025-02-01T10:00', markers: ['m1'] },
+      { id: 'f.1', at: '2025-02-01T11:00' },
+      { id: 'f.2', at: '2025-02-01T12:00', markers: ['m1'] },
+      { id: 'f.3', at: '2025-02-01T13:00' },
+      { id: 'main.3', at: '2025-02-02T09:00', merges: ['f.3'] },
+    ],
+    markers: [{ id: 'm1', name: 'flag', icon: 'flag', color: null, description: '' }],
+  });
+  const idxc = indexWorkspace(wsc);
+  const rk = ranks(idxc, 'day', true);
+  const slots = wsc.milestones.map((m) => ({ date: m.at.slice(0, 10), rank: rk.get(m.id)! }));
+  const g = computeTimeline(idxc, layoutLanes(idxc), timeScale(slots, TODAY, 1000), IDENTITY, TODAY, 'day', true);
+  const nodeOf = (id: string) => g.nodes.find((n) => n.id === id || n.members?.includes(id))!;
+
+  it('a project\'s milestones of one day become one node, drawn as the last one', () => {
+    expect(g.nodes.length).toBe(3);
+    expect(nodeOf('main.1').members).toEqual(['main.1', 'main.2']);
+    expect(nodeOf('main.1').id).toBe('main.2');
+    expect(nodeOf('f.1').members).toEqual(['f.1', 'f.2', 'f.3']);
+    expect(nodeOf('main.3').members).toBeUndefined(); // alone on its day
+  });
+
+  it('collapsed days are ordered by forks: a branch comes out right of its origin\'s day', () => {
+    expect([rk.get('main.1'), rk.get('main.2'), rk.get('f.1'), rk.get('f.3')]).toEqual([0, 0, 1, 1]);
+    expect(nodeOf('f.1').x).toBeGreaterThan(nodeOf('main.1').x);
+    expect(nodeOf('f.2').markers.map((m) => m.id)).toEqual(['m1']);
+  });
+
+  it('forks and merges attach to the collapsed nodes', () => {
+    const fork = g.edges.find((e) => e.kind === 'fork')!;
+    const merge = g.edges.find((e) => e.kind === 'merge')!;
+    expect([fork.from, fork.to]).toEqual(['main.2', 'f.3']);
+    expect([merge.from, merge.to]).toEqual(['f.3', 'main.3']);
+  });
+
+  it('without collapsing, nothing changes', () => {
+    const plain = computeTimeline(idxc, layoutLanes(idxc), timeScale(slots, TODAY, 1000), IDENTITY, TODAY, 'day', false);
+    expect(plain.nodes.length).toBe(6);
+    expect(plain.nodes.every((n) => !n.members)).toBe(true);
+  });
+});

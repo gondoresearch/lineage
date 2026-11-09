@@ -2,7 +2,18 @@
 
 All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while lineage is below 1.0, a minor version may change the data layout (the upgrade steps are then in [Upgrading](https://gondoresearch.github.io/lineage/hosting/upgrading/)).
 
-## 0.3.0 (unreleased)
+## 0.3.1 (2026-11-09)
+
+### Added
+
+- **Collapse days** (timeline, Days): each project's milestones of one day are drawn as one mark with a **×n** badge; clicking it lists them (symbol, kind, state, time) in the side panel.
+
+### Changed
+
+- In Days, zooming in stops at days (and the axis never shows times of day); in Hours, at minutes.
+- The lineage showcase account no longer has a *merge* kind: merge commits are commits that merge a pull request (the history already says they are merges).
+
+## 0.3.0 (2026-11-09)
 
 **Changes the data format** (read automatically; see Upgrading).
 

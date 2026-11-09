@@ -23,6 +23,8 @@ export interface Node {
   overdue: boolean;
   /** user markers shown as badges */
   markers: { id: string; icon: string; color: string; name: string }[];
+  /** a collapsed day: the ids of all its milestones (the node is drawn as the last one) */
+  members?: string[];
 }
 
 /** Optional text drawn with a line (only when its state / reference sets one). */
@@ -172,30 +174,50 @@ export interface TimelineGeometry {
  * fork origin, merge sources) that stay within the same day. A same-day fork therefore sits right of its origin, and
  * a same-day merge right of what it merges; unrelated same-day milestones share a rank.
  */
-export function ranks(idx: Index, unit: Unit = 'day'): Map<string, number> {
-  const parents = new Map<string, string[]>();
+export function ranks(idx: Index, unit: Unit = 'day', collapse = false): Map<string, number> {
+  // With `collapse`, a project's milestones of one day count as one (they share a rank).
+  const group = (m: Milestone) => (collapse ? `${m.project}|${keyAt(m.at, unit)}` : m.id);
+  const groupOf = new Map(idx.ws.milestones.map((m) => [m.id, group(m)]));
+  const parents = new Map<string, Set<string>>();
   for (const p of idx.ws.projects) {
     const ms = projectMilestones(idx, p.id);
     ms.forEach((m, i) => {
-      const prev = i > 0 ? [ms[i - 1].id] : p.from ? [p.from] : [];
-      parents.set(m.id, [...prev, ...(m.merges ?? [])]);
+      const g = group(m);
+      const ps = parents.get(g) ?? new Set<string>();
+      // Collapsed, a branch forked and merged back on one day would make a loop between the two
+      // days; order by forks only then, so branches come out to the right of their origin's day.
+      for (const id of [...(i > 0 ? [ms[i - 1].id] : p.from ? [p.from] : []), ...(collapse ? [] : (m.merges ?? []))]) {
+        const pg = groupOf.get(id);
+        if (pg !== undefined && pg !== g) ps.add(pg);
+      }
+      parents.set(g, ps);
     });
   }
-  const date = new Map(idx.ws.milestones.map((m) => [m.id, keyAt(m.at, unit)]));
+  const dayOfGroup = new Map(idx.ws.milestones.map((m) => [group(m), keyAt(m.at, unit)]));
   const out = new Map<string, number>();
   const visiting = new Set<string>();
-  const rank = (id: string): number => {
-    const known = out.get(id);
+  const rank = (g: string): number => {
+    const known = out.get(g);
     if (known !== undefined) return known;
-    if (visiting.has(id)) return 0; // the backend rejects cycles; just never loop
-    visiting.add(id);
+    if (visiting.has(g)) return 0; // the backend rejects cycles; just never loop
+    visiting.add(g);
     let r = 0;
-    for (const p of parents.get(id) ?? []) if (date.get(p) === date.get(id)) r = Math.max(r, rank(p) + 1);
-    visiting.delete(id);
-    out.set(id, r);
+    for (const p of parents.get(g) ?? []) if (dayOfGroup.get(p) === dayOfGroup.get(g)) r = Math.max(r, rank(p) + 1);
+    visiting.delete(g);
+    out.set(g, r);
     return r;
   };
-  for (const m of idx.ws.milestones) rank(m.id);
+  return new Map(idx.ws.milestones.map((m) => [m.id, rank(group(m))]));
+}
+
+/** A project's milestones in order, as runs of the same day (or single milestones). */
+function dayRuns(ms: Milestone[], unit: Unit, collapse: boolean): Milestone[][] {
+  const out: Milestone[][] = [];
+  for (const m of ms) {
+    const last = out[out.length - 1];
+    if (collapse && last && keyAt(last[0].at, unit) === keyAt(m.at, unit)) last.push(m);
+    else out.push([m]);
+  }
   return out;
 }
 
@@ -223,9 +245,11 @@ export function computeTimeline(
   t: ZoomT,
   today: string,
   unit: Unit = 'day',
+  /** draw each project's milestones of one day as a single mark ("×n") */
+  collapse = false,
 ): TimelineGeometry {
   const c = colors(idx);
-  const rank = ranks(idx, unit);
+  const rank = ranks(idx, unit, collapse);
   /** a milestone's place at the unit; `today` is given at the same unit */
   const at = (m: Milestone) => keyAt(m.at, unit);
   const todayX = xs.today(t);
@@ -238,8 +262,12 @@ export function computeTimeline(
   const lineOf = (m: Milestone): LineStyle => m.line_pattern ?? stateOf(m)?.line ?? 'solid';
 
   for (const lane of lanes.lanes) {
-    const ms = projectMilestones(idx, lane.project);
-    const laneNodes = ms.map((m) => {
+    const runs = dayRuns(projectMilestones(idx, lane.project), unit, collapse);
+    // One node per run, drawn as its last milestone (whose state the line after it shows).
+    const ms = runs.map((run) => run[run.length - 1]);
+    const laneNodes = runs.map((run) => {
+      const m = run[run.length - 1];
+      const markerIds = [...new Set(run.flatMap((x) => x.markers ?? []))];
       const n: Node = {
         id: m.id,
         project: m.project,
@@ -248,15 +276,16 @@ export function computeTimeline(
         r: R * (idx.kinds.get(m.kind)?.size ?? 1),
         shape: idx.kinds.get(m.kind)?.shape ?? 'open-circle',
         color: c.milestone(m),
-        planned: !!m.planned,
-        overdue: !!m.planned && at(m) < today,
-        markers: (m.markers ?? []).flatMap((id) => {
+        planned: run.every((x) => !!x.planned),
+        overdue: run.some((x) => !!x.planned && at(x) < today),
+        markers: markerIds.flatMap((id) => {
           const mk = idx.markers.get(id);
           return mk ? [{ id, icon: mk.icon, color: c.marker(mk), name: mk.name }] : [];
         }),
+        ...(run.length > 1 ? { members: run.map((x) => x.id) } : {}),
       };
       nodes.push(n);
-      nodeById.set(m.id, n);
+      for (const x of run) nodeById.set(x.id, n);
       return n;
     });
 
@@ -291,7 +320,7 @@ export function computeTimeline(
     };
 
     const d = idx.ws.derived.projects[lane.project];
-    const headIdx = d?.head ? ms.findIndex((m) => m.id === d.head) : -1;
+    const headIdx = d?.head ? runs.findIndex((run) => run.some((m) => m.id === d.head)) : -1;
     const head = headIdx >= 0 ? ms[headIdx] : undefined;
     // Head → today, in the head's state style, if someone is expected to act.
     const toToday = !!head && !d.merged && !d.closed && at(head) < today && stateOf(head)?.waiting_on !== 'nobody';
@@ -348,7 +377,7 @@ export function computeTimeline(
     const a = nodeById.get(r.from);
     const b = nodeById.get(r.to);
     const rt = idx.reftypes.get(r.type);
-    if (!a || !b || !rt) continue;
+    if (!a || !b || !rt || a === b) continue; // both ends inside one collapsed day
     let x1: number, y1: number, x2: number, y2: number, path: string;
     // Where along the line the text goes: near `from`, the middle, or near `to`.
     const t = r.text_align === 'left' ? 0.15 : r.text_align === 'right' ? 0.85 : 0.5;

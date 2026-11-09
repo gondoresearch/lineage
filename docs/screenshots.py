@@ -111,8 +111,9 @@ def fit_timeline(page: Page, after: str | None = None, before: str | None = None
     sbox = svg.bounding_box()
     nodes = page.locator("g.node").all()
     if after or before:  # only milestones in this time window (their tooltip says "title · YYYY-MM-DD HH:MM")
-        def at(n):
-            return (n.locator("title").text_content() or "").split(" · ")[1][:16].replace(" ", "T")
+        def at(n):  # the first date (and time) in the tooltip; collapsed marks say "n milestones on DATE: …"
+            m = re.search(r"\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?", n.locator("title").text_content() or "")
+            return m.group(0).replace(" ", "T") if m else ""
         nodes = [n for n in nodes if (not after or at(n) >= after) and (not before or at(n) <= before)]
     xs = [b["x"] + b["width"] / 2 for b in (n.bounding_box() for n in nodes) if b]
     labels = [b["x"] + b["width"] for b in (t.bounding_box() for t in page.locator("text.label").all()) if b]
@@ -270,6 +271,17 @@ def take(page: Page, base: str) -> None:
     zoom_to_hours(page, "main.v0-2-0")
     shot(page, "timeline-hours")
     page.get_by_role("button", name="Days", exact=True).click()
+
+    # collapsed days: each branch's milestones of one day as one mark, and the list behind one
+    page.get_by_role("button", name="Reset zoom").click()
+    page.get_by_role("button", name="Collapse days").click()
+    settle(page)
+    fit_timeline(page, before="2026-11-09T23:59")
+    shot(page, "timeline-collapsed")
+    page.locator('g.node[data-id="main.v0-1-1"]').click()
+    content_shot(page, "day-list", "aside.panel")
+    close_panel(page)
+    page.get_by_role("button", name="Collapse days").click()
 
     # side panel of a release, then its edit form
     page.get_by_role("button", name="Reset zoom").click()

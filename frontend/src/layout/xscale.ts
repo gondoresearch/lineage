@@ -34,6 +34,9 @@ export interface XScale {
   /** screen x of today */
   today(t: ZoomT): number;
   ticks(t: ZoomT, width: number): Tick[];
+  /** how far zooming in still shows something new: until one day (in Days) or one hour (in
+   * Hours) is half the width */
+  maxZoom: number;
 }
 
 const apply = (t: ZoomT, v: number) => t.k * v + t.x;
@@ -44,7 +47,7 @@ const DAY = 86_400_000;
  * rank order, and a day (or today) that would land closer than NUDGE after the previous
  * day's last milestone is pushed right just enough. Zooming in restores exact dates.
  */
-export function timeScale(slots: Slot[], today: string, width: number): XScale {
+export function timeScale(slots: Slot[], today: string, width: number, unit: 'day' | 'hour' = 'day'): XScale {
   const ms = [...slots.map((s) => s.date), today].map(dayMs);
   let lo = Math.min(...ms);
   let hi = Math.max(...ms);
@@ -102,8 +105,10 @@ export function timeScale(slots: Slot[], today: string, width: number): XScale {
     return x === n[last] ? s[last] : x + e[last] - n[last];
   };
 
+  const dayWidth = scale(dayMs('2000-01-02')) - scale(dayMs('2000-01-01')); // px per day at zoom 1
   return {
     mode: 'time',
+    maxZoom: Math.max(1, width / 2 / Math.max(unit === 'day' ? dayWidth : dayWidth / 24, 1e-9)),
     x: (date, rank, t) => {
       const l = placed(t);
       return (l.start.get(date) ?? warp(t, apply(t, scale(dayMs(date))))) + rank * l.gap;
@@ -119,6 +124,8 @@ export function timeScale(slots: Slot[], today: string, width: number): XScale {
       const out: Tick[] = [];
       for (const mult of [1, 4, 16, 64, 256]) {
         for (const d of r.ticks(base * mult)) {
+          if (unit === 'day' && (d.getUTCHours() || d.getUTCMinutes())) continue; // days: no times of day
+          if (d.getUTCSeconds() || d.getUTCMilliseconds()) continue; // times are to the minute
           const x = warp(t, r(d));
           if (x < -60 || x > w + 60 || out.some((o) => Math.abs(o.x - x) < 60)) continue;
           out.push({ x, label: format(d) });
@@ -166,6 +173,7 @@ export function eventScale(items: { date: string; rank: number }[], today: strin
 
   return {
     mode: 'event',
+    maxZoom: Math.max(1, width / 2 / step),
     x: (date, rank, t) => apply(t, slot.get(`${date}#${rank}`) ?? 0),
     today: (t) => apply(t, todayBase),
     ticks(t) {

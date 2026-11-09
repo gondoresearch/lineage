@@ -14,7 +14,7 @@
   import { indexWorkspace, keyAt, localNow, localToday, when } from '../layout/model';
   import { computeTimeline, ranks } from '../layout/timeline';
   import { eventScale, timeScale, type Mode } from '../layout/xscale';
-  import { app, change, isSelected, isSelectedLine, select, selectLine, showToast, stopPicking } from '../state.svelte';
+  import { app, change, isSelected, isSelectedLine, select, selectLine, showToast, stopPicking, selectDay } from '../state.svelte';
 
   let { ws }: { ws: Workspace } = $props();
 
@@ -40,16 +40,20 @@
   // Hover: highlight related milestones, dim everything else.
   const hl = $derived(app.hover?.type === 'milestones' ? relatedMilestones(ws, app.hover.id) : null);
   const lit = (id: string | null) => !hl || id === null || hl.has(id);
+  /** a node is lit if any of its milestones is (a collapsed day has several) */
+  const litNode = (n: { id: string; members?: string[] }) => (n.members ? n.members.some(lit) : lit(n.id));
+  /** collapse same-day milestones of a project into one mark (Days only) */
+  const collapse = $derived(app.timeline.collapse && app.timeline.unit === 'day');
   const litProject = (pid: string) => !hl || (ws.derived.projects[pid]?.milestones ?? []).some((m) => hl.has(m));
   const plotW = $derived(Math.max(100, width - LABEL_W));
   const plotH = $derived(lanes.height);
   const xs = $derived.by(() => {
     const unit = app.timeline.unit;
-    const rk = ranks(idx, unit);
+    const rk = ranks(idx, unit, collapse);
     const slots = ws.milestones.map((m) => ({ date: keyAt(m.at, unit), rank: rk.get(m.id) ?? 0 }));
-    return app.timeline.mode === 'time' ? timeScale(slots, today, plotW) : eventScale(slots, today, plotW);
+    return app.timeline.mode === 'time' ? timeScale(slots, today, plotW, unit) : eventScale(slots, today, plotW);
   });
-  const geo = $derived(computeTimeline(idx, lanes, xs, app.timeline.zoom, today, app.timeline.unit));
+  const geo = $derived(computeTimeline(idx, lanes, xs, app.timeline.zoom, today, app.timeline.unit, collapse));
   const ticks = $derived(xs.ticks(app.timeline.zoom, plotW));
   const arrowColors = $derived([...new Set(geo.edges.filter((e) => e.arrow).map((e) => e.color))]);
   const titles = $derived(new Map(ws.milestones.map((m) => [m.id, m])));
@@ -59,7 +63,7 @@
     if (!plotEl) return;
     const sel = d3select(plotEl);
     zoomer = zoom<SVGGElement, unknown>()
-      .scaleExtent([0.25, 20_000]) // deep enough to read minutes in the Hours view
+      .scaleExtent([0.25, untrack(() => xs.maxZoom)])
       .on('zoom', (e) => {
         app.timeline.zoom = { k: e.transform.k, x: e.transform.x };
       });
@@ -71,6 +75,14 @@
     return () => {
       sel.on('.zoom', null);
     };
+  });
+
+  // The zoom limit follows the scale (days stop at days); zoom out if beyond it now.
+  $effect(() => {
+    const max = xs.maxZoom;
+    if (!plotEl || !zoomer) return;
+    zoomer.scaleExtent([0.25, max]);
+    if (app.timeline.zoom.k > max) d3select(plotEl).call(zoomer.scaleTo, max);
   });
 
   function setUnit(u: 'day' | 'hour') {
@@ -194,6 +206,9 @@
     <button class:on={app.timeline.unit === 'day'} onclick={() => setUnit('day')} title="Place milestones by their day">Days</button>
     <button class:on={app.timeline.unit === 'hour'} onclick={() => setUnit('hour')} title="Place milestones at their time of day">Hours</button>
   </div>
+  <button class:on={app.timeline.collapse} disabled={app.timeline.unit === 'hour'} aria-pressed={app.timeline.collapse}
+    onclick={() => (app.timeline.collapse = !app.timeline.collapse)}
+    title={app.timeline.unit === 'hour' ? 'Only in Days' : "Show each project's milestones of one day as one mark (×n)"}>Collapse days</button>
   <button onclick={resetZoom}>Reset zoom</button>
   <span class="muted hint">Drag to pan, scroll to zoom.</span>
 </div>
@@ -287,28 +302,35 @@
               <circle cx={n.x} cy={n.y} r={n.r + 4.5} fill="none" stroke="var(--accent)" stroke-width="2" class="ring" />
             {/if}
             {@const m = titles.get(n.id)}
-            <g class="node" class:dim={!lit(n.id)} opacity={n.planned ? FADED_OPACITY : 1}
+            <g class="node" class:dim={!litNode(n)} opacity={n.planned ? FADED_OPACITY : 1}
               onmouseenter={() => {
                 app.hover = { type: 'milestones', id: n.id };
               }}
               onmouseleave={() => {
                 app.hover = null;
-              }} {...pick(() => select('milestones', n.id))} onclickcapture={(e: MouseEvent) => {
+              }} {...pick(() => (n.members ? selectDay(n.members) : select('milestones', n.id)))} onclickcapture={(e: MouseEvent) => {
                 if (app.picking) {
                   e.stopPropagation();
                   pickMilestone(n.id);
                 }
-              }} aria-label={m?.title} data-id={n.id}>
-              <title>{m?.title} · {when(m?.at)}{n.planned ? (n.overdue ? ' · planned, overdue' : ' · planned') : ''}</title>
+              }} aria-label={n.members ? `${n.members.length} milestones` : m?.title} data-id={n.id}>
+              {#if n.members}
+                <title>{n.members.length} milestones on {m?.at.slice(0, 10)}: {n.members.map((id) => titles.get(id)?.title).join(', ')}</title>
+              {:else}
+                <title>{m?.title} · {when(m?.at)}{n.planned ? (n.overdue ? ' · planned, overdue' : ' · planned') : ''}</title>
+              {/if}
               <NodeShape shape={n.shape} x={n.x} y={n.y} r={n.r} color={n.color} />
               <circle cx={n.x} cy={n.y} r={n.r + 3} fill="transparent" />
             </g>
+            {#if n.members}
+              <text x={n.x + n.r + 1} y={n.y + n.r + 8} class="count" class:dim={!litNode(n)}>×{n.members.length}</text>
+            {/if}
             {#if n.overdue || n.markers.length}
               <!-- badges in a row at the upper right: overdue dot, then user markers (not faded with planned nodes) -->
               {@const bx = n.x + n.r * 0.7 + 2}
               <!-- capped so badges of large symbols stay inside the lane -->
               {@const by = n.y - Math.min(n.r * 0.7 + 4, 11)}
-              <g class="badges" class:dim={!lit(n.id)} {...pick(() => select('milestones', n.id))}>
+              <g class="badges" class:dim={!litNode(n)} {...pick(() => (n.members ? selectDay(n.members) : select('milestones', n.id)))}>
                 {#if n.overdue}
                   <circle cx={bx + 3} cy={by} r="3" fill="var(--danger)"><title>overdue</title></circle>
                 {/if}
@@ -414,6 +436,15 @@
   .tick {
     font-size: 11px;
     fill: var(--muted);
+  }
+  .count {
+    font-size: 10px;
+    font-weight: 600;
+    fill: var(--fg);
+    pointer-events: none;
+  }
+  .count.dim {
+    opacity: 0.2;
   }
   .today {
     font-size: 11px;

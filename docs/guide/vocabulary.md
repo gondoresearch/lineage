@@ -41,6 +41,6 @@ The exact ranges (sizes, thicknesses, text sizes) are listed in the [data format
 The **lineage** showcase account describes a code repository instead. Its vocabulary shows how far the same model goes:
 
 - **Projects** are branches (`main`, `feature/accounts`, `docs/site`…), in groups *main*, *feature branches*, *docs branches* and *issues*, under a domain named after the repository.
-- **Kinds:** *commit*, *pull request*, *merge* (a merge commit on the target branch, which merges the pull request), *release* (a tag), *issue*, and *closed* (closed without merging).
+- **Kinds:** *commit*, *pull request*, *release* (a tag), *issue*, and *closed* (closed without merging). There is no *merge* kind: a merge commit on *main* is a commit that **merges** the pull request, and the merge curve already shows it — in lineage, being a merge is part of the history, not a kind.
 - **States:** *in progress* (on me), *in review* (on others), *under discussion* (an open issue), *merged* (inactive).
 - **Reference types:** *depends on* (directed) and *related*. **Markers:** *open question*, *bug*, *blocked*, *breaking change*.

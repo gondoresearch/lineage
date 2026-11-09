@@ -39,6 +39,22 @@ Every milestone has a date and a time. In **Days**, the timeline uses only the d
   <figcaption>The afternoon of 9 November in Hours, in the lineage account: every commit, pull request and merge at its time.</figcaption>
 </figure>
 
+## Collapsing days
+
+When a project has many milestones on one day, **Collapse days** (next to Days / Hours) draws each project's milestones of a day as **one mark**: the day's last milestone, with a **×n** badge for how many it stands for. The line after it shows that last milestone's state; forks, merges and references attach to the mark; markers of any of the day's milestones are shown on it. Each project keeps its own row, and a branch forked that day comes out to the right of its origin's mark.
+
+Click a collapsed mark to list the day's milestones in the side panel — symbol, kind, state and time — and open any of them. Collapsing applies in **Days** only; in **Hours** every milestone is at its own time.
+
+<figure markdown="span">
+  [![The lineage account with Collapse days: two working days, each branch's day as one mark.](../assets/screenshots/timeline-collapsed.png)](../assets/screenshots/timeline-collapsed.png)
+  <figcaption>The lineage account with Collapse days: two working days, each branch's day as one mark.</figcaption>
+</figure>
+
+<figure markdown="span">
+  [![Clicking main's mark of 6 November lists its seven milestones.](../assets/screenshots/day-list.png)](../assets/screenshots/day-list.png)
+  <figcaption>Clicking main's mark of 6 November lists its seven milestones.</figcaption>
+</figure>
+
 ## Filters
 
 The filter bar above the views selects **groups** and **states**, and can **hide inactive** projects (those waiting on nobody, or closed). The same filters apply to the timeline, the status board and the dependencies view; **Clear filters** resets them.

@@ -219,7 +219,7 @@ def test_showcase_accounts_on_first_start(tmp_path, monkeypatch):
     assert "spectral-filters" in {p["id"] for p in ws["projects"]}
     lin = login(make_client(root), "lineage", "lineage").get("/api/workspace").json()
     assert "main" in {p["id"] for p in lin["projects"]}
-    assert {k["id"] for k in lin["kinds"]} >= {"commit", "pull-request", "merge", "release"}
+    assert {k["id"] for k in lin["kinds"]} == {"commit", "pull-request", "release", "issue", "closed"}
     assert Accounts(root).admins() == []  # showcase accounts are never admins automatically
     assert Accounts(root).add("alice", PASSWORD) is True  # the first real account is
 

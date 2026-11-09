@@ -168,7 +168,7 @@ milestones:
   project: main
   title: Merge docs/readme
   at: 2026-11-06T16:07
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -255,7 +255,7 @@ milestones:
   project: main
   title: Merge feature/domains
   at: 2026-11-06T17:08
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -320,7 +320,7 @@ milestones:
   project: main
   title: Merge feature/docker
   at: 2026-11-06T17:31
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -407,7 +407,7 @@ milestones:
   project: main
   title: Merge feature/backup-restore
   at: 2026-11-06T17:42
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -600,7 +600,7 @@ milestones:
   project: main
   title: Merge feature/lazy-loading
   at: 2026-11-09T13:12
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -623,7 +623,7 @@ milestones:
   project: main
   title: Merge feature/accounts
   at: 2026-11-09T13:14
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -646,7 +646,7 @@ milestones:
   project: main
   title: Merge docs/site
   at: 2026-11-09T13:15
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -734,7 +734,7 @@ milestones:
   project: main
   title: Merge feature/admin
   at: 2026-11-09T13:22
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -821,7 +821,7 @@ milestones:
   project: main
   title: Merge docs/site (compose examples)
   at: 2026-11-09T13:29
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -886,7 +886,7 @@ milestones:
   project: main
   title: Merge docs/site (screenshots)
   at: 2026-11-09T13:39
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -951,7 +951,7 @@ milestones:
   project: main
   title: Merge fix/same-day-layout
   at: 2026-11-09T13:57
-  kind: merge
+  kind: commit
   state: in-progress
   planned: false
   labels: []
@@ -1152,13 +1152,6 @@ kinds:
   default_state: in-review
   closes: false
   color: null
-- id: merge
-  name: merge
-  shape: filled-arrows
-  size: 1.0
-  default_state: in-progress
-  closes: false
-  color: null
 - id: release
   name: release
   shape: filled-diamond
@@ -1173,7 +1166,7 @@ kinds:
   default_state: under-discussion
   closes: false
   color: null
-- id: closed-2
+- id: closed
   name: closed
   shape: filled-square
   size: 1.0

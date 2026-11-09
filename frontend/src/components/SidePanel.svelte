@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { EntityType } from '../api/client';
   import { app, closePanel } from '../state.svelte';
+  import DayList from './DayList.svelte';
   import DeleteConfirm from './DeleteConfirm.svelte';
   import EntityView from './EntityView.svelte';
   import LineEditor from './LineEditor.svelte';
@@ -47,6 +48,8 @@
         <DescriptionForm type={p.type} id={p.id} />
       {:else if p.kind === 'delete'}
         <DeleteConfirm type={p.type} id={p.id} />
+      {:else if p.kind === 'day'}
+        <DayList ids={p.ids} />
       {/if}
     {/key}
   </aside>

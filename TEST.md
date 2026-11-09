@@ -64,6 +64,8 @@ Work on a **scratch data folder**, never on your real `data/` folder. Most secti
 - [ ] **Add milestone** → date and time start at the current time.
 - [ ] **Add reference** → a "Recorded" field with the current time; the reference's panel shows it; references from before 0.3 say "unknown".
 - [ ] Open a milestone (side panel open) → the whole timeline stays in view.
+- [ ] As lineage, **Collapse days** → each branch shows one mark per day with ×n (e.g. main ×7 on 6 November, drawn as v0.1.1); forks come out to its right, merges curve back into it; the button is disabled in Hours.
+- [ ] Click main's ×7 → the side panel lists the seven milestones with symbol, kind, state and time; click one → it opens. Turn the toggle off → all milestones are drawn again.
 
 ## 4. Selecting and the side panel
 
@@ -195,7 +197,7 @@ For each type below: create one, edit it, check the change on screen and in `wor
 
 ## 16. Backup and restore
 
-- [ ] Toolbar shows **lineage v0.3.0** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
+- [ ] Toolbar shows **lineage v0.3.1** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
 - [ ] Settings → **Download a backup** → the browser downloads `lineage-backup-<version>-<date>-<time>.tar.gz`.
 - [ ] `tar -tzf <file>` → `lineage-backup.json`, `workspace.yaml`, `descriptions/…`; no `.history`.
 - [ ] `tar -xzOf <file> lineage-backup.json` → app "lineage", format 1, the version and the creation time.

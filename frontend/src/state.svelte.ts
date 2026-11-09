@@ -15,7 +15,9 @@ export type Panel =
   | { kind: 'line'; type: 'milestones'; id: string }
   | { kind: 'form'; type: EntityType; id?: string; preset?: Record<string, unknown>; title?: string }
   | { kind: 'description'; type: EntityType; id: string }
-  | { kind: 'delete'; type: EntityType; id: string };
+  | { kind: 'delete'; type: EntityType; id: string }
+  /** a collapsed day of one project: its milestones, in order (`id` is the last one) */
+  | { kind: 'day'; type: 'milestones'; id: string; ids: string[] };
 
 /** A form waiting for the user to click a milestone on the timeline. */
 export interface Picking {
@@ -41,7 +43,7 @@ export const app = $state({
   version: null as string | null,
   error: null as string | null,
   view: 'timeline' as View,
-  timeline: { mode: 'time' as Mode, unit: 'day' as Unit, zoom: { k: 1, x: 0 } as ZoomT },
+  timeline: { mode: 'time' as Mode, unit: 'day' as Unit, collapse: false, zoom: { k: 1, x: 0 } as ZoomT },
   panel: null as Panel | null,
   toast: null as Toast | null,
   picking: null as Picking | null,
@@ -165,6 +167,11 @@ export function routeFromHash(): void {
 }
 
 // ------------------------------------------------------------------ panel
+
+/** Show the milestones of a collapsed day. */
+export function selectDay(ids: string[]): void {
+  app.panel = { kind: 'day', type: 'milestones', id: ids[ids.length - 1], ids };
+}
 
 export function select(type: EntityType, id: string): void {
   app.panel = { kind: 'view', type, id };

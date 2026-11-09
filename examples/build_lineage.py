@@ -44,7 +44,13 @@ def build(c: TestClient) -> None:
         assert r.status_code == 204, (t, i, r.text)
 
     # ------------------------------------------------------------ vocabulary (GitHub words)
+    # the starter vocabulary (for papers) is not used here; remove it first, so ids stay plain
     ws = c.get("/api/workspace").json()
+    for k in ws["kinds"]:
+        delete("kinds", k["id"])
+    for t in ("states", "reftypes"):
+        for e in ws[t]:
+            delete(t, e["id"])
     s_prog = post("states", {"name": "in progress", "line": "solid", "waiting_on": "me",
                              "description": "Commits are being made on the branch."})
     s_rev = post("states", {"name": "in review", "line": "dashed", "waiting_on": "others",
@@ -56,8 +62,6 @@ def build(c: TestClient) -> None:
     k_commit = post("kinds", {"name": "commit", "shape": "filled-circle", "size": 0.8, "default_state": s_prog})
     k_pr = post("kinds", {"name": "pull request", "shape": "triangle", "default_state": s_rev,
                           "description": "A pull request opened from the branch."})
-    k_merge = post("kinds", {"name": "merge", "shape": "filled-arrows", "default_state": s_prog,
-                             "description": "A merge commit on the target branch: it merges a pull request."})
     k_release = post("kinds", {"name": "release", "shape": "filled-diamond", "size": 1.3, "default_state": s_prog,
                                "description": "A tagged version."})
     k_issue = post("kinds", {"name": "issue", "shape": "open-circle", "default_state": s_disc})
@@ -70,12 +74,6 @@ def build(c: TestClient) -> None:
     post("markers", {"name": "blocked", "icon": "lock"})
     mk_break = post("markers", {"name": "breaking change", "icon": "flag", "color": "#c62828",
                                 "description": "Changes the data format: read the upgrade notes."})
-    # the starter vocabulary (for papers) is not used here
-    for k in ws["kinds"]:
-        delete("kinds", k["id"])
-    for t in ("states", "reftypes"):
-        for e in ws[t]:
-            delete(t, e["id"])
 
     # ------------------------------------------------------------ repository and branch groups
     repo = post("domains", {"name": "gondoresearch/lineage", "color": "#24292f",
@@ -106,7 +104,8 @@ def build(c: TestClient) -> None:
         return pid, pr
 
     def merge(name, at, pr, sha, **kw):
-        return ms(main, f"Merge {name}", at, k_merge, merges=[pr], links=commit(sha), **kw)
+        # A merge commit is a commit; what makes it a merge is that it merges the pull request.
+        return ms(main, f"Merge {name}", at, k_commit, merges=[pr], links=commit(sha), **kw)
 
     # ------------------------------------------------------------ 2026-11-06: 0.1 and 0.1.1
     main = branch("main", g_main, {"title": "Initial version", "at": "2026-11-06T15:58", "kind": k_commit,

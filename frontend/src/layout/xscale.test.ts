@@ -104,13 +104,24 @@ describe('timeScale', () => {
   it('adds finer labels where crowded times are stretched apart', () => {
     // 20 milestones a minute apart on one afternoon, in a year-long axis: stretched far apart
     const busy = Array.from({ length: 20 }, (_, i) => ({ date: `2025-06-01T14:${String(i).padStart(2, '0')}`, rank: 0 }));
-    const t = timeScale([{ date: '2025-01-01T00:00', rank: 0 }, ...busy, { date: '2025-12-31T00:00', rank: 0 }], '2025-03-01T00:00', 1000);
+    const t = timeScale([{ date: '2025-01-01T00:00', rank: 0 }, ...busy, { date: '2025-12-31T00:00', rank: 0 }], '2025-03-01T00:00', 1000, 'hour');
     const z = { k: 40, x: -16_500 }; // that afternoon in view
     const a = t.x('2025-06-01T14:00', 0, z);
     const b = t.x('2025-06-01T14:19', 0, z);
     expect(b - a).toBeGreaterThanOrEqual(19 * 20); // stretched
     const inside = t.ticks(z, 1000).filter((k) => k.x > a && k.x < b);
     expect(inside.length).toBeGreaterThan(0); // and labelled inside
+  });
+
+  it('in days, zooming stops at about two days on screen, and labels are never times of day', () => {
+    const t = timeScale([{ date: '2025-01-01', rank: 0 }, { date: '2025-12-31', rank: 0 }], '2025-06-01', 1000, 'day');
+    const day = t.x('2025-12-31', 0, IDENTITY) - t.x('2025-01-01', 0, IDENTITY);
+    expect(t.maxZoom * (day / 364)).toBeCloseTo(500, 0); // one day = half the width at the limit
+    const z = { k: t.maxZoom, x: -t.maxZoom * 500 };
+    for (const tick of t.ticks(z, 1000)) expect(tick.label).not.toMatch(/AM|PM|:/);
+    const h = timeScale([{ date: '2025-01-01T00:00', rank: 0 }, { date: '2025-12-31T00:00', rank: 0 }], '2025-06-01T00:00', 1000, 'hour');
+    expect(h.maxZoom).toBeCloseTo(t.maxZoom * 24, 0); // hours: until one hour is half the width
+    for (const tick of h.ticks({ k: h.maxZoom, x: -h.maxZoom * 500 }, 1000)) expect(tick.label).not.toMatch(/^:\d\d$/); // no seconds
   });
 
   it('ticks follow the zoom', () => {
