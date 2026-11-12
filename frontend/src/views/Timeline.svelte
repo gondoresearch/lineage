@@ -11,6 +11,7 @@
   import { dropSlots, laneSubtree, layoutLanes, moveRequest, nearestSlot } from '../layout/lanes';
   import { projectFilter } from '../layout/filters';
   import { relatedMilestones } from '../layout/highlight';
+  import { legendMatcher, visibility } from '../layout/legend';
   import { indexWorkspace, keyAt, localNow, localToday, when } from '../layout/model';
   import { computeTimeline, ranks } from '../layout/timeline';
   import { eventScale, timeScale, type Mode } from '../layout/xscale';
@@ -36,15 +37,27 @@
   const today = $derived(app.timeline.unit === 'hour' ? localNow() : localToday());
   const idx = $derived(indexWorkspace(ws));
   const c = $derived(colors(idx));
-  const lanes = $derived(layoutLanes(idx, projectFilter(ws, app.filters)));
+  const vis = $derived(visibility(ws, app.hidden));
+  const lanes = $derived.by(() => {
+    const f = projectFilter(ws, app.filters);
+    return layoutLanes(idx, (pid) => f(pid) && vis.projectVisible(pid));
+  });
+  const lgOn = $derived(app.legendHover !== null);
   // Hover: highlight related milestones, dim everything else.
   const hl = $derived(app.hover?.type === 'milestones' ? relatedMilestones(ws, app.hover.id) : null);
-  const lit = (id: string | null) => !hl || id === null || hl.has(id);
+  const lit = (id: string | null) => (!hl || id === null || hl.has(id)) && (!lgOn || lg.milestone(id));
   /** a node is lit if any of its milestones is (a collapsed day has several) */
   const litNode = (n: { id: string; members?: string[] }) => (n.members ? n.members.some(lit) : lit(n.id));
+  /** a node is shown unless its kind (or, collapsed, every member's kind) is hidden */
+  const shownMembers = (n: { id: string; members?: string[] }) => (n.members ?? [n.id]).filter(vis.milestone);
   /** collapse same-day milestones of a project into one mark (Days only) */
   const collapse = $derived(app.timeline.collapse && app.timeline.unit === 'day');
-  const litProject = (pid: string) => !hl || (ws.derived.projects[pid]?.milestones ?? []).some((m) => hl.has(m));
+  const dimSeg = (x: { from: string; to: string | null }) => !(lit(x.from) && lit(x.to)) || (lgOn && !lg.segment(x.from, x.to));
+  const dimEdge = (e: { kind: 'fork' | 'merge' | 'reference'; id: string; from: string; to: string }) =>
+    !(hl === null || (hl.has(e.from) && hl.has(e.to))) || (lgOn && !lg.edge(e.kind, e.id, e.from, e.to));
+  const showEdge = (e: { kind: 'fork' | 'merge' | 'reference'; id: string; from: string; to: string }) =>
+    vis.edge(e.kind, e.id) && !hiddenNode.has(e.from) && !hiddenNode.has(e.to);
+  const litProject = (pid: string) => (!hl || (ws.derived.projects[pid]?.milestones ?? []).some((m) => hl.has(m))) && (!lgOn || lg.project(pid));
   const plotW = $derived(Math.max(100, width - LABEL_W));
   const plotH = $derived(lanes.height);
   const xs = $derived.by(() => {
@@ -54,6 +67,9 @@
     return app.timeline.mode === 'time' ? timeScale(slots, today, plotW, unit) : eventScale(slots, today, plotW);
   });
   const geo = $derived(computeTimeline(idx, lanes, xs, app.timeline.zoom, today, app.timeline.unit, collapse));
+  // Legend hover: dim the marks that are not of the hovered entry.
+  const lg = $derived(legendMatcher(ws, app.legendHover, new Set(geo.nodes.filter((n) => n.overdue).flatMap((n) => n.members ?? [n.id]))));
+  const hiddenNode = $derived(new Set(geo.nodes.filter((n) => shownMembers(n).length === 0).map((n) => n.id)));
   const ticks = $derived(xs.ticks(app.timeline.zoom, plotW));
   const arrowColors = $derived([...new Set(geo.edges.filter((e) => e.arrow).map((e) => e.color))]);
   const titles = $derived(new Map(ws.milestones.map((m) => [m.id, m])));
@@ -245,42 +261,44 @@
             {/if}
           {/each}
 
-          <line x1={geo.todayX} x2={geo.todayX} y1="-4" y2={plotH} stroke="var(--today)" stroke-width="1.5" />
-          <text x={geo.todayX + 4} y="-9" class="today">{app.timeline.unit === 'hour' ? 'now' : 'today'}</text>
+          {#if vis.today}
+            <line x1={geo.todayX} x2={geo.todayX} y1="-4" y2={plotH} stroke="var(--today)" stroke-width="1.5" />
+            <text x={geo.todayX + 4} y="-9" class="today">{app.timeline.unit === 'hour' ? 'now' : 'today'}</text>
+          {/if}
 
           <!-- references first, so they never cover lanes, forks, merges or symbols -->
-          {#each geo.edges.filter((e) => e.kind === 'reference') as e}
+          {#each geo.edges.filter((e) => e.kind === 'reference' && showEdge(e)) as e}
             {@const sel = isSelected('references', e.id)}
-            <path d={e.path} fill="none" stroke={e.color} stroke-width={sel ? e.width + 1.2 : e.width} class:dim={!(lit(e.from) && lit(e.to))}
+            <path d={e.path} fill="none" stroke={e.color} stroke-width={sel ? e.width + 1.2 : e.width} class:dim={dimEdge(e)}
               stroke-dasharray={DASH[e.line]} stroke-linecap={CAP[e.line]} opacity={sel ? 1 : e.opacity}
               marker-end={e.arrow ? `url(#${markerId(e.color)})` : undefined} />
           {/each}
 
-          {#each geo.segments as s}
-            <line x1={s.x1} x2={s.x2} y1={s.y} y2={s.y} stroke={s.color} stroke-width={s.width} class:dim={!(lit(s.from) && lit(s.to))}
+          {#each geo.segments.filter((x) => vis.segment(x.from, x.faded)) as s}
+            <line x1={s.x1} x2={s.x2} y1={s.y} y2={s.y} stroke={s.color} stroke-width={s.width} class:dim={dimSeg(s)}
               stroke-dasharray={DASH[s.line]} stroke-linecap={CAP[s.line]}
               opacity={s.opacity * (s.faded ? FADED_OPACITY : 1)} />
           {/each}
 
-          {#each geo.edges.filter((e) => e.kind !== 'reference') as e}
-            <path d={e.path} fill="none" stroke={e.color} stroke-width={e.width} opacity={e.opacity} class:dim={!(lit(e.from) && lit(e.to))} />
+          {#each geo.edges.filter((e) => e.kind !== 'reference' && showEdge(e)) as e}
+            <path d={e.path} fill="none" stroke={e.color} stroke-width={e.width} opacity={e.opacity} class:dim={dimEdge(e)} />
           {/each}
 
           <!-- optional line text (states and individual references), with a halo so it stays readable -->
-          {#each geo.segments.filter((x) => x.label) as s}
+          {#each geo.segments.filter((x) => x.label && vis.segment(x.from, x.faded)) as s}
             {@const t = s.label!}
             <text x={t.x} y={t.y} text-anchor={t.anchor} dominant-baseline={t.baseline} class="line-text" fill={s.color} font-size={t.size}
-              opacity={s.opacity * (s.faded ? FADED_OPACITY : 1)} class:dim={!(lit(s.from) && lit(s.to))}>{t.text}</text>
+              opacity={s.opacity * (s.faded ? FADED_OPACITY : 1)} class:dim={dimSeg(s)}>{t.text}</text>
           {/each}
-          {#each geo.edges.filter((x) => x.label) as e}
+          {#each geo.edges.filter((x) => x.label && showEdge(x)) as e}
             {@const t = e.label!}
             <text x={t.x} y={t.y} text-anchor={t.anchor} dominant-baseline={t.baseline} class="line-text" fill={e.color} font-size={t.size}
               transform={t.angle ? `rotate(${t.angle} ${t.x} ${t.y})` : undefined}
-              class:dim={!(lit(e.from) && lit(e.to))}>{t.text}</text>
+              class:dim={dimEdge(e)}>{t.text}</text>
           {/each}
 
           <!-- lane lines: click to open that line (its text, its milestone's state); the line being edited is highlighted -->
-          {#each geo.segments as s}
+          {#each geo.segments.filter((x) => vis.segment(x.from, x.faded)) as s}
             {@const st = titles.get(s.from)?.state}
             {#if st}
               {#if isSelectedLine(st, s.from)}
@@ -292,12 +310,13 @@
           {/each}
 
           <!-- wide invisible hit areas so thin reference lines can be clicked -->
-          {#each geo.edges.filter((e) => e.kind === 'reference') as e}
+          {#each geo.edges.filter((e) => e.kind === 'reference' && showEdge(e)) as e}
             <path d={e.path} fill="none" stroke="transparent" stroke-width="10" class="hit"
               {...pick(() => select('references', e.id))} aria-label="Reference" data-id={e.id}><title>{ws.reftypes.find((t) => t.id === ws.references.find((r) => r.id === e.id)?.type)?.name}</title></path>
           {/each}
 
-          {#each geo.nodes as n (n.id)}
+          {#each geo.nodes.filter((x) => !hiddenNode.has(x.id)) as n (n.id)}
+            {@const shown = shownMembers(n)}
             {#if isSelected('milestones', n.id)}
               <circle cx={n.x} cy={n.y} r={n.r + 4.5} fill="none" stroke="var(--accent)" stroke-width="2" class="ring" />
             {/if}
@@ -308,36 +327,37 @@
               }}
               onmouseleave={() => {
                 app.hover = null;
-              }} {...pick(() => (n.members ? selectDay(n.members) : select('milestones', n.id)))} onclickcapture={(e: MouseEvent) => {
+              }} {...pick(() => (n.members ? selectDay(shown) : select('milestones', n.id)))} onclickcapture={(e: MouseEvent) => {
                 if (app.picking) {
                   e.stopPropagation();
                   pickMilestone(n.id);
                 }
-              }} aria-label={n.members ? `${n.members.length} milestones` : m?.title} data-id={n.id}>
+              }} aria-label={n.members ? `${shown.length} milestones` : m?.title} data-id={n.id}>
               {#if n.members}
-                <title>{n.members.length} milestones on {m?.at.slice(0, 10)}: {n.members.map((id) => titles.get(id)?.title).join(', ')}</title>
+                <title>{shown.length} milestones on {m?.at.slice(0, 10)}: {shown.map((id) => titles.get(id)?.title).join(', ')}</title>
               {:else}
                 <title>{m?.title} · {when(m?.at)}{n.planned ? (n.overdue ? ' · planned, overdue' : ' · planned') : ''}</title>
               {/if}
               <NodeShape shape={n.shape} x={n.x} y={n.y} r={n.r} color={n.color} />
               <circle cx={n.x} cy={n.y} r={n.r + 3} fill="transparent" />
             </g>
-            {#if n.members}
-              <text x={n.x + n.r + 1} y={n.y + n.r + 8} class="count" class:dim={!litNode(n)}>×{n.members.length}</text>
+            {#if n.members && shown.length > 1}
+              <text x={n.x + n.r + 1} y={n.y + n.r + 8} class="count" class:dim={!litNode(n)}>×{shown.length}</text>
             {/if}
-            {#if n.overdue || n.markers.length}
+            {@const mks = n.markers.filter((x) => vis.marker(x.id))}
+            {#if (n.overdue && vis.overdue) || mks.length}
               <!-- badges in a row at the upper right: overdue dot, then user markers (not faded with planned nodes) -->
               {@const bx = n.x + n.r * 0.7 + 2}
               <!-- capped so badges of large symbols stay inside the lane -->
               {@const by = n.y - Math.min(n.r * 0.7 + 4, 11)}
-              <g class="badges" class:dim={!litNode(n)} {...pick(() => (n.members ? selectDay(n.members) : select('milestones', n.id)))}>
-                {#if n.overdue}
+              <g class="badges" class:dim={!litNode(n)} {...pick(() => (n.members ? selectDay(shown) : select('milestones', n.id)))}>
+                {#if n.overdue && vis.overdue}
                   <circle cx={bx + 3} cy={by} r="3" fill="var(--danger)"><title>overdue</title></circle>
                 {/if}
-                {#each n.markers as mk, i}
+                {#each mks as mk, i}
                   <g>
                     <title>{mk.name}</title>
-                    <MarkerIcon icon={mk.icon} x={bx + (n.overdue ? 8 : 0) + 5 + i * BADGE_STEP} y={by} size={BADGE} color={mk.color} />
+                    <MarkerIcon icon={mk.icon} x={bx + (n.overdue && vis.overdue ? 8 : 0) + 5 + i * BADGE_STEP} y={by} size={BADGE} color={mk.color} />
                   </g>
                 {/each}
               </g>

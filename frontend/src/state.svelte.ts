@@ -1,6 +1,7 @@
 // Shared UI state (Svelte runes). Survives view switches.
 import { api, ApiError, auth, fetchMe, fetchWorkspace, messagesOf, resetEtag, type EntityType, type Workspace } from './api/client';
 import type { Filters } from './layout/filters';
+import { noHidden, type Hidden, type LegendKey } from './layout/legend';
 import type { Unit } from './layout/model';
 import type { Mode, ZoomT } from './layout/xscale';
 import { findEntity } from './lib/entities';
@@ -53,6 +54,10 @@ export const app = $state({
   filters: { groups: [], states: [], hideInactive: false } as Filters,
   /** what the pointer is over, for hover highlighting */
   hover: null as { type: 'milestones' | 'projects'; id: string } | null,
+  /** legend entries hidden from the timeline (marks of that type) */
+  hidden: noHidden() as Hidden,
+  /** legend entry under the pointer: dims the marks of other types */
+  legendHover: null as LegendKey | null,
 });
 
 // ------------------------------------------------------------------ theme
