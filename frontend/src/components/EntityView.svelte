@@ -40,7 +40,8 @@
 {#if e}
   <div class="view">
     <p class="kicker">{TYPE_LABEL[type]}</p>
-    <h3>{entityName(ws, type, id)}</h3>
+    <!-- a milestone's project is listed below, so the heading is just its title -->
+    <h3>{type === 'milestones' ? (e as Milestone).title : entityName(ws, type, id)}</h3>
 
 
     <dl>
