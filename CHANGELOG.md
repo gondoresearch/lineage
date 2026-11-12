@@ -2,6 +2,17 @@
 
 All notable changes to lineage. Versions follow `MAJOR.MINOR.PATCH`; while lineage is below 1.0, a minor version may change the data layout (the upgrade steps are then in [Upgrading](https://gondoresearch.github.io/lineage/hosting/upgrading/)).
 
+## 0.3.3 (2026-11-12)
+
+### Added
+
+- **Hide and highlight from the legend:** click a legend entry (group, kind, state, reference type, marker, or the built-in planned / overdue / today) for a menu with **Hide/Show**, **Show only this** and **Show all**; hidden entries get a closed-eye icon. Hovering an entry dims the marks of every other type.
+- **Drag group and domain headings** to reorder them. A group can be dropped into another domain, or out of any domain; hidden groups keep their place.
+
+### Changed
+
+- The milestone panel's heading is just the milestone's title (its project is listed below).
+
 ## 0.3.2 (2026-11-09)
 
 ### Added

@@ -52,6 +52,7 @@ Work on a **scratch data folder**, never on your real `data/` folder. Most secti
 - [ ] **Reset zoom** → back to the full view.
 - [ ] Axis labels never overlap each other or the "today" label, and none are cut at the edges.
 - [ ] Long project titles end with "…" and do not spill past the label column; hovering shows the full title.
+- [ ] Click a legend entry → a menu with **Hide**, **Show only this**, **Show all**; hidden entries show a closed eye. Hiding a kind removes its milestones (and the lines to them), a state its lines, a reference type its edges, a marker its badges, a group its lanes; *planned*, *overdue* and *today* hide the faded milestones/lines, the red dot and the today line. Hovering an entry dims every mark of another type.
 - [ ] The legend lists groups, kinds (with their shapes and sizes), states (pattern, colour, opacity, thickness), references, fork/merge lines, markers, planned/overdue and today.
 - [ ] Switch to another view and back → zoom and pan are kept.
 
@@ -138,6 +139,13 @@ For each type below: create one, edit it, check the change on screen and in `wor
 - [ ] Undo after a move → back in place in one step.
 - [ ] Changing the Group field in a project's Edit form behaves the same way (the subtree moves along).
 
+### Moving groups and domains (drag headings)
+
+- [ ] Click a group heading (no drag) → selects it. Drag it up or down → a blue insertion line shows before each group and at the end of each domain; drop → the group moves; toast "Moved group …". Dropping where the order would not change does nothing.
+- [ ] Drag a group under another domain's heading → it joins that domain (toast "… into <domain>"); drop it at the very top (above all domains) → it leaves its domain. Edit form shows the new Domain.
+- [ ] Drag a domain heading above/below another → domains reorder; groups move with it. Hide a group (legend) and reorder around it → hidden groups keep their place after unhiding.
+- [ ] Undo after any of these → back in one step.
+
 ## 9. Lane lines (state lines)
 
 - [ ] Click a lane line → the **Line** panel: "After X, until Y", a preview, the line's state, "Look of this line" and "Text on this line"; only Save and Cancel (no "Edit state" or "Delete state").
@@ -197,7 +205,7 @@ For each type below: create one, edit it, check the change on screen and in `wor
 
 ## 16. Backup and restore
 
-- [ ] Toolbar shows **lineage v0.3.2** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
+- [ ] Toolbar shows **lineage v0.3.3** (the backend version) next to the logo; `curl localhost:8000/api/version` returns the same.
 - [ ] Settings → **Download a backup** → the browser downloads `lineage-backup-<version>-<date>-<time>.tar.gz`.
 - [ ] `tar -tzf <file>` → `lineage-backup.json`, `workspace.yaml`, `descriptions/…`; no `.history`.
 - [ ] `tar -xzOf <file> lineage-backup.json` → app "lineage", format 1, the version and the creation time.
@@ -273,6 +281,5 @@ Log in first and keep the cookie: `curl -c /tmp/cj -X POST localhost:8000/api/lo
 
 - [ ] Line text and marker badges can crowd each other where many lines meet.
 - [ ] Projects cannot be dragged into a group that has no projects yet (use the project's Edit form).
-- [ ] Groups cannot be dragged between domains (use the group's Edit form).
 - [ ] The first description shown (and the first visit to Dependencies) loads an extra chunk; on a slow connection the text or graph appears a moment later.
 - [ ] Restore warns on any version difference, even a patch release.

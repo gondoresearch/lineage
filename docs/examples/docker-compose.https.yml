@@ -12,7 +12,7 @@
 services:
   lineage:
     build: .
-    image: lineage:0.3.2   # one image per lineage version
+    image: lineage:0.3.3   # one image per lineage version
     user: "${LINEAGE_UID:-1000}:${LINEAGE_GID:-1000}"
     environment:
       DATA_DIR: /data

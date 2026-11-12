@@ -10,7 +10,7 @@ The timeline is the main view: one horizontal **lane** per project, grouped by g
 - **References** are thin lines between milestones of different projects, styled by their reference type; directed types have an arrow.
 - **Markers** are small badges on milestones (warning, question, chain, flag…).
 - Lines and references can carry **text**, placed above, on or below the line.
-- The **legend** lists the kinds, states and reference types in use.
+- The **legend** lists the groups, kinds, states, reference types and markers; see [Hiding and highlighting](#hiding-and-highlighting).
 
 <figure markdown="span">
   [![Groups of projects under a domain heading; symbols are milestones, lines are states, curves are forks, arrows are references; the red line is today.](../assets/screenshots/timeline.png)](../assets/screenshots/timeline.png)
@@ -64,12 +64,20 @@ The filter bar above the views selects **groups** and **states**, and can **hide
   <figcaption>The filter bar, here showing only *Graph learning*.</figcaption>
 </figure>
 
+## Hiding and highlighting
+
+Click an entry in the **legend** to open a menu: **Hide** (or **Show**), **Show only this** and **Show all**. Hidden entries get a closed-eye icon. Only the marks of that type disappear: a hidden *kind* removes its milestones, a *state* its lane lines, a *reference type* its references, a *marker* its badges, and a *group* its lanes. The built-in *planned*, *overdue* and *today* entries hide planned milestones, the overdue dot and the today line. Hiding is not remembered after a reload.
+
+**Hover** an entry to dim everything that is not of that type.
+
 ## Reordering lanes
 
 Drag a **lane label** up or down to reorder projects. Dropping it into another group moves the project there, together with its forks.
 
 !!! note
     A project cannot be dragged into a group that has no projects yet; use the project's **Edit** form to choose that group.
+
+Group and domain **headings** drag the same way. A blue line shows where the group will land; dropping it under another domain's heading moves the group into that domain, and dropping it at the very top takes it out of its domain. Dragging a domain heading reorders the domains. Groups hidden from the timeline keep their place.
 
 ## Dark mode
 
