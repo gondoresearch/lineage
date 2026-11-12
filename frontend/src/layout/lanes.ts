@@ -129,8 +129,8 @@ export function dropSlots(layout: LaneLayout): DropSlot[] {
   return out;
 }
 
-export function nearestSlot(slots: DropSlot[], y: number): DropSlot | null {
-  let best: DropSlot | null = null;
+export function nearestSlot<T extends { y: number }>(slots: T[], y: number): T | null {
+  let best: T | null = null;
   for (const s of slots) if (!best || Math.abs(s.y - y) < Math.abs(best.y - y)) best = s;
   return best;
 }
@@ -210,4 +210,96 @@ export function laneSubtree(projects: MovableProject[], pid: string): string[] {
     }
   }
   return out;
+}
+
+// ------------------------------------------------------------------ moving groups and domains
+
+/** A place a dragged group can be dropped: before a group, or at the end of a domain's groups. */
+export interface GroupSlot {
+  /** the domain the group lands in (null: no domain) */
+  domain: string | null;
+  /** group whose block the dropped one goes in front of; null = end of the domain */
+  before: string | null;
+  /** y of the insertion line (lane coordinates) */
+  y: number;
+}
+
+/** Group drop lines. Only groups with a visible lane have a place on screen. */
+export function groupSlots(layout: LaneLayout): GroupSlot[] {
+  const out: GroupSlot[] = [];
+  const domains = new Set<string | null>(layout.bands.map((b) => b.domain));
+  // an empty "no domain" block has no band: allow dropping at the very top
+  if (!domains.has(null)) out.push({ domain: null, before: null, y: 0 });
+  for (const d of domains) {
+    const bands = layout.bands.filter((b) => b.domain === d);
+    for (const b of bands) out.push({ domain: d, before: b.group, y: b.y0 });
+    out.push({ domain: d, before: null, y: bands[bands.length - 1].y1 });
+  }
+  return out;
+}
+
+export interface MovableGroup {
+  id: string;
+  domain: string | null;
+}
+
+/**
+ * The PATCH that moves group `gid` to `slot`: its domain (only if it changes) and
+ * its index in the group list (counted without the group itself), or null if
+ * nothing would change. Hidden groups keep their place: the index is computed
+ * in the full list.
+ */
+export function groupMoveRequest(
+  groups: MovableGroup[],
+  gid: string,
+  slot: GroupSlot,
+): { domain?: string | null; position: number } | null {
+  const me = groups.find((g) => g.id === gid);
+  if (!me) return null;
+  const rest = groups.filter((g) => g.id !== gid);
+  let position: number;
+  if (slot.before) {
+    position = rest.findIndex((g) => g.id === slot.before);
+    if (position < 0) return null;
+  } else {
+    position = rest.findLastIndex((g) => g.domain === slot.domain) + 1;
+    if (position === 0) position = rest.length; // the domain has no group yet
+  }
+  const order = (l: MovableGroup[], d: string | null) => l.filter((g) => g.domain === d).map((g) => g.id).join();
+  const next = [...rest.slice(0, position), { ...me, domain: slot.domain }, ...rest.slice(position)];
+  if (slot.domain === me.domain && order(next, slot.domain) === order(groups, slot.domain)) return null;
+  return slot.domain === me.domain ? { position } : { domain: slot.domain, position };
+}
+
+/** A place a dragged domain can be dropped: before a domain, or after the last one shown. */
+export interface DomainSlot {
+  /** domain the dropped one goes in front of; null = after the last shown domain */
+  before: string | null;
+  y: number;
+}
+
+export function domainSlots(layout: LaneLayout): DomainSlot[] {
+  const heads = layout.headers.filter((h) => h.kind === 'domain');
+  return [...heads.map((h) => ({ before: h.id, y: h.y - DOMAIN_HEAD_H / 2 })), { before: null, y: layout.height }];
+}
+
+/** The PATCH that moves domain `did` to `slot`, or null if the order stays. */
+export function domainMoveRequest(
+  domains: { id: string }[],
+  shown: string[],
+  did: string,
+  slot: DomainSlot,
+): { position: number } | null {
+  const rest = domains.filter((d) => d.id !== did);
+  let position: number;
+  if (slot.before) {
+    position = rest.findIndex((d) => d.id === slot.before);
+    if (position < 0) return null;
+  } else {
+    const last = rest.findLastIndex((d) => shown.includes(d.id));
+    position = last + 1;
+  }
+  const next = [...rest.slice(0, position).map((d) => d.id), did, ...rest.slice(position).map((d) => d.id)];
+  if (next.join() === domains.map((d) => d.id).join()) return null;
+  return { position };
 }

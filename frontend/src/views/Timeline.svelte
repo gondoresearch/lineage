@@ -8,7 +8,7 @@
   import MarkerIcon from '../components/MarkerIcon.svelte';
   import NodeShape from '../components/NodeShape.svelte';
   import { colors } from '../layout/colors';
-  import { dropSlots, laneSubtree, layoutLanes, moveRequest, nearestSlot } from '../layout/lanes';
+  import { domainMoveRequest, domainSlots, dropSlots, groupMoveRequest, groupSlots, laneSubtree, layoutLanes, moveRequest, nearestSlot } from '../layout/lanes';
   import { projectFilter } from '../layout/filters';
   import { relatedMilestones } from '../layout/highlight';
   import { legendMatcher, visibility } from '../layout/legend';
@@ -121,16 +121,27 @@
   // Press on a label and move more than 4px to drag; release over a slot to move
   // the project there (possibly into another group). A plain click still selects.
   const DRAG_THRESHOLD = 4;
-  let drag = $state<{ pid: string; startY: number; y: number; active: boolean } | null>(null);
+  type DragKind = 'project' | 'group' | 'domain';
+  let drag = $state<{ kind: DragKind; id: string; startY: number; y: number; active: boolean } | null>(null);
   let suppressClick = false;
-  const slots = $derived(dropSlots(lanes));
-  const dropAt = $derived(drag?.active ? nearestSlot(slots, drag.y - AXIS_H) : null);
+  const projectSlots = $derived(dropSlots(lanes));
+  const gSlots = $derived(groupSlots(lanes));
+  const dSlots = $derived(domainSlots(lanes));
+  /** the insertion line while dragging (lane coordinates) */
+  const dropY = $derived.by(() => {
+    if (!drag?.active) return null;
+    const y = drag.y - AXIS_H;
+    return (drag.kind === 'group' ? nearestSlot(gSlots, y) : drag.kind === 'domain' ? nearestSlot(dSlots, y) : nearestSlot(projectSlots, y))?.y ?? null;
+  });
+  const dragLabel = $derived(
+    !drag ? '' : drag.kind === 'project' ? (idx.projects.get(drag.id)?.title ?? '') : drag.kind === 'group' ? (idx.groups.get(drag.id)?.name ?? '') : (idx.domains.get(drag.id)?.name ?? ''),
+  );
 
   const svgY = (e: PointerEvent) => e.clientY - svgEl!.getBoundingClientRect().top;
 
-  function dragStart(e: PointerEvent, pid: string) {
+  function dragStart(e: PointerEvent, kind: DragKind, id: string) {
     if (e.button !== 0) return;
-    drag = { pid, startY: svgY(e), y: svgY(e), active: false };
+    drag = { kind, id, startY: svgY(e), y: svgY(e), active: false };
   }
 
   function dragMove(e: PointerEvent) {
@@ -151,25 +162,48 @@
     // The click that follows this pointerup must not select the project.
     suppressClick = true;
     setTimeout(() => (suppressClick = false), 0);
-    const slot = nearestSlot(slots, d.y - AXIS_H);
+    if (d.kind !== 'project') return dropHeading(d.kind, d.id, d.y - AXIS_H);
+    const slot = nearestSlot(projectSlots, d.y - AXIS_H);
     if (!slot) return;
     const projects = ws.projects.map((p) => ({
       id: p.id,
       group: p.group,
       origin: p.from ? (idx.milestones.get(p.from)?.project ?? null) : null,
     }));
-    const req = moveRequest(projects, lanes, d.pid, slot);
+    const req = moveRequest(projects, lanes, d.id, slot);
     if (!req) return;
-    const p = idx.projects.get(d.pid)!;
+    const p = idx.projects.get(d.id)!;
     let what = `“${p.title}”`;
     if (req.group !== p.group) {
       // Its forks drawn under it move along (done by the backend).
-      const n = laneSubtree(projects, d.pid).length;
+      const n = laneSubtree(projects, d.id).length;
       if (n) what += ` and ${n} fork${n > 1 ? 's' : ''}`;
       what += ` to ${idx.groups.get(req.group)?.name}`;
     }
     try {
-      await change(() => api.update('projects', d.pid, req), `Moved ${what}.`);
+      await change(() => api.update('projects', d.id, req), `Moved ${what}.`);
+    } catch (err) {
+      showToast(messagesOf(err).join(' '), false);
+    }
+  }
+
+  /** Drop a dragged group or domain heading: reorder, and (groups) maybe change domain. */
+  async function dropHeading(kind: 'group' | 'domain', id: string, y: number) {
+    try {
+      if (kind === 'group') {
+        const slot = nearestSlot(gSlots, y);
+        const groups = ws.groups.map((g) => ({ id: g.id, domain: g.domain && idx.domains.has(g.domain) ? g.domain : null }));
+        const req = slot && groupMoveRequest(groups, id, slot);
+        if (!req) return;
+        const to = req.domain === undefined ? '' : req.domain ? ` into ${idx.domains.get(req.domain)?.name}` : ' out of its domain';
+        await change(() => api.update('groups', id, req), `Moved group “${idx.groups.get(id)?.name}”${to}.`);
+      } else {
+        const slot = nearestSlot(dSlots, y);
+        const shown = lanes.headers.filter((h) => h.kind === 'domain').map((h) => h.id);
+        const req = slot && domainMoveRequest(ws.domains ?? [], shown, id, slot);
+        if (!req) return;
+        await change(() => api.update('domains', id, req), `Moved domain “${idx.domains.get(id)?.name}”.`);
+      }
     } catch (err) {
       showToast(messagesOf(err).join(' '), false);
     }
@@ -373,7 +407,9 @@
       {#each lanes.headers as h}
         {#if h.kind === 'domain'}
           {@const d = idx.domains.get(h.id)}
-          <g class="heading" {...pick(() => select('domains', h.id))} data-domain={h.id}>
+          <g class="heading" class:lifted={drag?.active && drag.kind === 'domain' && drag.id === h.id} {...pick(() => select('domains', h.id))} data-domain={h.id}
+            onpointerdown={(e) => dragStart(e, 'domain', h.id)} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={() => (drag = null)}>
+            <rect x="4" y={h.y + AXIS_H - 13} width={LABEL_W - 8} height="26" fill="transparent" />
             <!-- text in the normal text colour (readable in both themes); the domain colour marks it -->
             <rect x="12" y={h.y + AXIS_H - 5} width="4" height="12" rx="1" fill={d?.color ?? 'var(--muted)'} />
             <text x="21" y={h.y + AXIS_H + 1} dominant-baseline="central" class="domain-head"
@@ -383,7 +419,9 @@
         {:else}
           {@const g = idx.groups.get(h.id)}
           {@const dx = domainIndent(h.id)}
-          <g class="heading" {...pick(() => select('groups', h.id))} data-group={h.id}>
+          <g class="heading" class:lifted={drag?.active && drag.kind === 'group' && drag.id === h.id} {...pick(() => select('groups', h.id))} data-group={h.id}
+            onpointerdown={(e) => dragStart(e, 'group', h.id)} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={() => (drag = null)}>
+            <rect x="4" y={h.y + AXIS_H - 11} width={LABEL_W - 8} height="22" fill="transparent" />
             <rect x={12 + dx} y={h.y + AXIS_H - 4.5} width="9" height="9" rx="2" fill={g?.color} />
             <text x={26 + dx} y={h.y + AXIS_H} dominant-baseline="central" class="group-head"
               class:selected={isSelected('groups', h.id)}>{clip(g?.name ?? h.id, Math.floor((LABEL_W - 40 - dx) / 7.4))}</text>
@@ -394,8 +432,8 @@
         {@const p = idx.projects.get(l.project)}
         {@const dx = domainIndent(l.group) + 12}
         {#if p}
-          <g class="lane-label" class:lifted={drag?.active && drag.pid === p.id} class:dim={!litProject(p.id)}
-            onpointerdown={(e) => dragStart(e, p.id)} onpointermove={dragMove} onpointerup={dragEnd}
+          <g class="lane-label" class:lifted={drag?.active && drag.kind === 'project' && drag.id === p.id} class:dim={!litProject(p.id)}
+            onpointerdown={(e) => dragStart(e, 'project', p.id)} onpointermove={dragMove} onpointerup={dragEnd}
             onpointercancel={() => (drag = null)} role="presentation">
             <rect x="4" y={l.y + AXIS_H - 17} width={LABEL_W - 8} height="34" fill="transparent" />
             <rect x={10 + dx + l.depth * INDENT} y={l.y + AXIS_H - 4} width="8" height="8" rx="2" fill={c.project(p)} />
@@ -407,11 +445,10 @@
         {/if}
       {/each}
       </g>
-      {#if drag?.active && dropAt}
-        {@const p = idx.projects.get(drag.pid)}
-        <line x1="4" x2={width} y1={AXIS_H + dropAt.y} y2={AXIS_H + dropAt.y} stroke="var(--accent)" stroke-width="2" />
-        <circle cx="6" cy={AXIS_H + dropAt.y} r="3.5" fill="var(--accent)" />
-        {@const t = clip(p?.title ?? '', 30)}
+      {#if drag?.active && dropY !== null}
+        <line x1="4" x2={width} y1={AXIS_H + dropY} y2={AXIS_H + dropY} stroke="var(--accent)" stroke-width="2" />
+        <circle cx="6" cy={AXIS_H + dropY} r="3.5" fill="var(--accent)" />
+        {@const t = clip(dragLabel, 30)}
         <rect x="16" y={drag.y - 11} width={t.length * 7.4 + 14} height="22" rx="5" fill="var(--bg)" stroke="var(--accent)"
           stroke-width="1.5" class="floating" />
         <text x="23" y={drag.y} dominant-baseline="central" class="label floating">{t}</text>
@@ -533,6 +570,9 @@
   .lane-label {
     cursor: grab;
     touch-action: none;
+  }
+  .heading.lifted {
+    opacity: 0.5;
   }
   .lane-label.lifted {
     opacity: 0.35;
